@@ -1,0 +1,17 @@
+{
+  "name": "polysome",
+  "version": "0.0.0",
+  "description": "An abstract biological exploration",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Indigo Mané",
+  "license": "MIT",
+  "dependencies": {
+    "prettier": "^3.1.0"
+  }
+}
