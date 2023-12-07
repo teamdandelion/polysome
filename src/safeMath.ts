@@ -1,22 +1,34 @@
-export function pi(v) {
+// Helpful math functions, adapted from safeMath.js in qql-art/frontend
+
+export function pi(v: number): number {
   return Math.PI * v;
 }
 
-export function mod(n, m) {
+export function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
 }
 
-export function snap(value, step) {
+export function snap(value: number, step: number): number {
   return Math.round(value / step) * step;
 }
 
-export function clip(value, min = null, max = null) {
+export function clip(
+  value: number,
+  min: number | null = null,
+  max: number | null = null
+) {
   value = max !== null ? Math.min(value, max) : value;
   value = min !== null ? Math.max(value, min) : value;
   return value;
 }
 
-export function rescale(value, oldMin, oldMax, newMin, newMax) {
+export function rescale(
+  value: number,
+  oldMin: number,
+  oldMax: number,
+  newMin: number,
+  newMax: number
+) {
   const clipped = clip(value, oldMin, oldMax);
   const oldSpread = oldMax - oldMin;
   const newSpread = newMax - newMin;
@@ -24,19 +36,19 @@ export function rescale(value, oldMin, oldMax, newMin, newMax) {
 }
 
 // linear interpolation
-export function lrp(start, end, t) {
+export function lrp(start: number, end: number, t: number): number {
   return start + (end - start) * t;
 }
 
-export function average(...args) {
+export function average(...args: number[]): number {
   return args.reduce((lhs, rhs) => lhs + rhs, 0) / args.length;
 }
 
 export function sqrt(
-  value,
+  value: number,
   maxIterations = 1000,
   epsilon = 1e-14,
-  target = 1e-7,
+  target = 1e-7
 ) {
   if (value < 0) {
     throw new Error("Value must be non-negative.");
@@ -60,7 +72,7 @@ export function sqrt(
   return guess;
 }
 
-export function dist(x1, y1, x2, y2) {
+export function dist(x1: number, y1: number, x2: number, y2: number) {
   const dx = x1 - x2;
   const dy = y1 - y2;
   return sqrt(dx * dx + dy * dy);
@@ -68,7 +80,7 @@ export function dist(x1, y1, x2, y2) {
 
 // "Fast" atan2 implementation using a polynomial approximation.
 // Adapted from https://stackoverflow.com/questions/46210708.
-export function atan2(y, x) {
+export function atan2(y: number, x: number): number {
   const ax = Math.abs(x);
   const ay = Math.abs(y);
   const mx = Math.max(ay, ax);
@@ -91,8 +103,8 @@ export function atan2(y, x) {
 
 // Build an interpolation-based lookup function from a given table.
 // The function is assumed period, so given values outside the range will wrap.
-function buildInterpolator(table, min, max) {
-  return (value) => {
+function buildInterpolator(table: number[], min: number, max: number) {
+  return (value: number) => {
     // Coerce value to [min, max) assuming periodicity.
     value = mod(value - min, max - min) + min;
 
@@ -132,13 +144,13 @@ const sinTable = [
 
 export const sin = buildInterpolator(sinTable, 0, 2 * Math.PI);
 
-export function angle(x1, y1, x2, y2) {
+export function angle(x1: number, y1: number, x2: number, y2: number): number {
   const a = atan2(y2 - y1, x2 - x1);
   return mod(a, pi(2.0));
 }
 
 // Fast upper bound of `dist()` function.
-export function distUpperBound(x1, y1, x2, y2) {
+export function distUpperBound(x1: number, y1: number, x2: number, y2: number) {
   const dx = Math.abs(x1 - x2);
   const dy = Math.abs(y1 - y2);
 
@@ -152,7 +164,7 @@ export function distUpperBound(x1, y1, x2, y2) {
 }
 
 // Fast lower bound of `dist()` function.
-export function distLowerBound(x1, y1, x2, y2) {
+export function distLowerBound(x1: number, y1: number, x2: number, y2: number) {
   const dx = Math.abs(x1 - x2);
   const dy = Math.abs(y1 - y2);
 
@@ -164,6 +176,11 @@ export function distLowerBound(x1, y1, x2, y2) {
   return max + beta * min;
 }
 
-export function addPolarOffset(x, y, theta, magnitude) {
+export function addPolarOffset(
+  x: number,
+  y: number,
+  theta: number,
+  magnitude: number
+): number[] {
   return [x + magnitude * cos(theta), y + magnitude * sin(theta)];
 }
