@@ -1,5 +1,7 @@
-import randomSeed from "./random-seed.js";
-import { makeSeededRng } from "./safe-random.js";
+import p5 from "p5";
+
+import randomSeed from "./randomSeed.js";
+import { makeSeededRng } from "./safeRandom.js";
 
 import {
   pi,
@@ -12,11 +14,14 @@ import {
   distUpperBound,
   distLowerBound,
   angle,
-} from "./safe-math.js";
+} from "./safeMath";
 
-function sketch(p5) {
+function sketch(p5: p5) {
   let R /*: Rng */;
-  let c, ww, wh, wr;
+  let c;
+  let ww: number;
+  let wh: number;
+  let wr: number;
 
   const dw = 1000;
   const dh = 1000;
@@ -36,7 +41,7 @@ function sketch(p5) {
     c = p5.createCanvas(ww, wh);
 
     p5.colorMode(p5.HSB, 360, 100, 100, 100);
-    seed = randomSeed();
+    const seed = randomSeed();
     R = makeSeededRng(seed);
   };
 
@@ -49,19 +54,19 @@ function sketch(p5) {
     return dw * v;
   }
 
-  function h(v = 1.0) {
+  function h(v: number = 1.0) {
     return dh * v;
   }
 
-  function ellipse(x, y, w, h) {
+  function ellipse(x: number, y: number, w: number, h: number) {
     p5.ellipse(x * wr, y * wr, w * wr, h * wr);
   }
 
-  function vrtx(x, y) {
+  function vrtx(x: number, y: number) {
     p5.vertex(x * wr, y * wr);
   }
 
-  function sWeight(v) {
+  function sWeight(v: number) {
     p5.strokeWeight(v * wr);
   }
 
