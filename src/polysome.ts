@@ -1,7 +1,8 @@
 import p5 from "p5";
 
-import randomSeed from "./randomSeed.js";
-import { makeSeededRng } from "./safeRandom.js";
+import { World, Mote } from "./world";
+import randomSeed from "./randomSeed";
+import { makeSeededRng } from "./safeRandom";
 
 import {
   pi,
@@ -22,11 +23,16 @@ function sketch(p5: p5) {
   let ww: number;
   let wh: number;
   let wr: number;
+  let world: World;
 
   const dw = 1000;
   const dh = 1000;
 
   p5.setup = () => {
+    const seed = randomSeed();
+    const rng = makeSeededRng(seed);
+    world = new World(rng);
+
     let ww, wh;
     ww = p5.windowWidth;
     wh = p5.windowHeight;
@@ -41,9 +47,12 @@ function sketch(p5: p5) {
     c = p5.createCanvas(ww, wh);
 
     p5.colorMode(p5.HSB, 360, 100, 100, 100);
-    const seed = randomSeed();
-    R = makeSeededRng(seed);
   };
+
+  function convertCoordinate(spatial: p5.Vector): p5.Vector {
+    // Convert the vector from a simulation coordinate to a screen coordinate
+    return spatial.copy().mult(wr);
+  }
 
   p5.windowResized = () => {
     const d = Math.min(p5.windowWidth, p5.windowHeight);
@@ -70,10 +79,20 @@ function sketch(p5: p5) {
     p5.strokeWeight(v * wr);
   }
 
+  function drawNutrient(nutrient: Mote) {
+    const c = convertCoordinate(nutrient.pos);
+    p5.fill(30, 100, 100, 100);
+    p5.circle(c.x, c.y, 10);
+  }
+
   p5.draw = () => {
+    world.step();
     p5.background(240, 100, 10);
     p5.fill(30, 100, 100, 100);
-    ellipse(500, 400, 50, 50);
+    for (let i = 0; i < world.nutrients.length; i++) {
+      const nutrient = world.nutrients[i];
+      drawNutrient(nutrient);
+    }
   };
 }
 
