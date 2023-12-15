@@ -11,7 +11,7 @@ const eps = Math.pow(2, -32),
   a2 = 0x7b7e,
   a3 = 0x1405; // 1442695040888963407
 
-export function makeSeededRng(hash /*: bytes32 */) /*: Rng */ {
+export function makeSeededRng(hash: string /*: bytes32 */) /*: Rng */ {
   const rng = new Rng();
   rng.setSeed(hash);
   return rng;
@@ -22,6 +22,11 @@ export function makeUnseededRng() /*: Rng */ {
 }
 
 export class Rng {
+  _state: Uint16Array;
+  _dv: DataView;
+  _nG: number | null;
+  _hNG: boolean;
+
   constructor() {
     this._state = new Uint16Array(4);
     this._dv = new DataView(this._state.buffer);
@@ -30,11 +35,11 @@ export class Rng {
   }
 
   // sets the seed to a tokenData hash string "0x..."
-  setSeed(hash) {
+  setSeed(hash: string) {
     this._hNG = false;
     this._nG = null;
     const nBytes = ~~((hash.length - 2) / 2);
-    const bytes = [];
+    const bytes: number[] = [];
     for (let j = 0; j < nBytes; j++) {
       const e0 = 2 + 2 * j;
       bytes.push(parseInt(hash.slice(e0, e0 + 2), 16));
@@ -73,7 +78,7 @@ export class Rng {
   }
 
   // random value between min (inclusive) and max (exclusive)
-  uniform(min = 1, max = null) {
+  uniform(min = 1, max: number | null = null) {
     if (max === null) {
       [min, max] = [0, min];
     }
@@ -85,7 +90,7 @@ export class Rng {
     // https://github.com/openjdk-mirror/jdk7u-jdk/blob/f4d80957e89a19a29bb9f9807d2a28351ed7f7df/src/share/classes/java/util/Random.java#L496
     if (this._hNG) {
       this._hNG = false;
-      var result = this._nG;
+      var result = this._nG as number;
       this._nG = null;
       return mean + variance * result;
     } else {
@@ -104,15 +109,15 @@ export class Rng {
     }
   }
 
-  odds(p) {
+  odds(p: number) {
     return this.uniform() <= p;
   }
 
-  choice(items) {
+  choice<T>(items: T[]): T {
     return items[Math.floor(this.uniform(0, items.length))];
   }
 
-  weightedChoice(items) {
+  weightedChoice<T>(items: [T, number][]) {
     const sumWeight = items
       .map(([, weight]) => weight)
       .reduce((lhs, rhs) => lhs + rhs, 0);
@@ -132,13 +137,16 @@ export class Rng {
   }
 
   // alias for weightedChoice
-  wc(items) {
+  wc<T>(items: [T, number][]) {
     return this.weightedChoice(items);
   }
 
   // a version of shuffle that safely uses our PRNG
-  shuffle(items) {
-    const joined = items.map((item) => [this.uniform(0.0, 1.0), item]);
+  shuffle<T>(items: T[]): T[] {
+    const joined: [number, T][] = items.map((item) => [
+      this.uniform(0.0, 1.0),
+      item,
+    ]);
 
     joined.sort((a, b) => {
       return a[0] < b[0] ? -1 : 1;
@@ -149,7 +157,7 @@ export class Rng {
 
   // returns a copy of the array that has been "winnowed" down to contain at most `num`
   // entries, while preserving the original order
-  winnow(input, num) {
+  winnow<T>(input: T[], num: number): T[] {
     const items = input.slice();
     while (items.length > num) {
       const index = Math.floor(this.rnd() * items.length);
@@ -160,7 +168,7 @@ export class Rng {
 }
 
 // internally gets a 32-bit from tokenData hash bytes
-function hash32(bytes, seed = 0) {
+function hash32(bytes: number[], seed = 0) {
   // murmur2 32bit
   // https://github.com/garycourt/murmurhash-js/blob/master/murmurhash2_gc.js
   const K = 16;
