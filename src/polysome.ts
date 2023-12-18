@@ -1,6 +1,7 @@
 import p5 from "p5";
 
 import { World, Mote } from "./world";
+import { FlowField, randomFlowSpec } from "./flowField";
 import randomSeed from "./randomSeed";
 import { makeSeededRng } from "./safeRandom";
 
@@ -31,7 +32,8 @@ function sketch(p5: p5) {
   p5.setup = () => {
     const seed = randomSeed();
     const rng = makeSeededRng(seed);
-    world = new World(rng);
+    const ff = new FlowField(randomFlowSpec(rng));
+    world = new World(rng, ff);
 
     let ww, wh;
     ww = p5.windowWidth;
@@ -79,9 +81,10 @@ function sketch(p5: p5) {
     p5.strokeWeight(v * wr);
   }
 
-  function drawNutrient(nutrient: Mote) {
-    const c = convertCoordinate(nutrient.pos);
-    p5.fill(30, 100, 100, 100);
+  function drawMote(mote: Mote) {
+    const c = convertCoordinate(mote.pos);
+    p5.stroke(30, 100, 100, 100);
+    p5.noFill();
     p5.circle(c.x, c.y, 10);
   }
 
@@ -89,9 +92,9 @@ function sketch(p5: p5) {
     world.step();
     p5.background(240, 100, 10);
     p5.fill(30, 100, 100, 100);
-    for (let i = 0; i < world.nutrients.length; i++) {
-      const nutrient = world.nutrients[i];
-      drawNutrient(nutrient);
+    for (let i = 0; i < world.motes.length; i++) {
+      const mote = world.motes[i];
+      drawMote(mote);
     }
   };
 }

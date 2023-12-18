@@ -14,8 +14,8 @@ type FlowSpec = {
 };
 
 export function randomFlowSpec(r: Rng): FlowSpec {
-  const numDisturbances = r.choice([5, 10, 15, 20, 30]);
-  const thetaVariance = r.choice([0.01, 0.05, 0.1, 0.15].map(pi));
+  const numDisturbances = r.choice([20, 30, 50]);
+  const thetaVariance = r.choice([0.1, 0.5, 1].map(pi));
   const disturbances: DisturbanceSpec[] = [];
   const defaultTheta = r.uniform(0, pi(2));
   for (let i = 0; i < numDisturbances; i++) {
@@ -58,9 +58,9 @@ export class FlowField {
       const minJ = Math.max(0, Math.floor(minY / this.spacing));
       const maxJ = Math.min(jMax, Math.ceil(maxY / this.spacing));
 
-      for (let i = minI; i <= maxI; i++) {
+      for (let i = minI; i < maxI; i++) {
         const x = this.spacing * i;
-        for (let j = minJ; j <= maxJ; j++) {
+        for (let j = minJ; j < maxJ; j++) {
           const y = this.spacing * j;
           const d = dist(pos.x, pos.y, x, y);
           const thetaAdjust = rescale(d, 0, radius, theta, 0);
