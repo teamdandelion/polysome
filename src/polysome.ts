@@ -1,6 +1,7 @@
 import p5 from "p5";
 
-import { World, Mote } from "./world";
+import { World } from "./world";
+import { Mote } from "./mote";
 import { FlowField, randomFlowSpec } from "./flowField";
 import randomSeed from "./randomSeed";
 import { makeSeededRng } from "./safeRandom";

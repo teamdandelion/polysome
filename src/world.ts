@@ -2,10 +2,12 @@ import p5 from "p5";
 
 import { Rng } from "./safeRandom";
 import { FlowField } from "./flowField";
+import { Mote } from "./mote";
+import { collisions } from "./collisionDetector";
 
 export class World {
   motes: Mote[];
-  numMotes = 5000;
+  numMotes = 2000;
   xMin = 0;
   xMax = 1000;
   yMin = 0;
@@ -52,22 +54,21 @@ export class World {
       this.addMote(true);
     }
     const ff = this.flowField;
+    this.motes.forEach((mote) => mote.resetCollisions());
+    collisions(this.motes);
+
     this.motes.forEach((mote) => {
       const vel = ff.flow(mote.pos);
       mote.pos.add(vel);
+      mote.pos.add(mote.vCollide);
     });
-    this.motes = this.motes.filter((mote) => this.inBounds(mote.pos));
+
+    this.motes = this.motes.filter(
+      (mote) => this.inBounds(mote.pos) && mote.alive
+    );
   }
 
   render() {
     this.motes.forEach((mote) => {});
-  }
-}
-
-export class Mote {
-  pos: p5.Vector;
-
-  constructor(pos: p5.Vector) {
-    this.pos = pos;
   }
 }
