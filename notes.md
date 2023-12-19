@@ -1,5 +1,13 @@
 # Notes
 
+## 12.19.23
+
+Some TODOs:
+
+- [ ] Refactor a RenderContext class with p5 and coordinate conversions
+- [ ] Figure out collision forces, and how to propagate them across simulation steps
+- [ ] Flow field rendering visualizations
+
 ## 12.15.23
 
 - Idea: focus on the nutrients first.

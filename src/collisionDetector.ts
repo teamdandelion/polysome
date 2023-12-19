@@ -34,7 +34,7 @@ export function collisions(motes: Mote[]) {
       // Check for collisions within the current sector
       for (let j = i + 1; j < sector.length; j++) {
         const mote2 = sector[j];
-        if (mote1.pos.dist(mote2.pos) < 10) {
+        if (mote1.pos.dist(mote2.pos) < mote1.radius + mote2.radius) {
           mote1.collide(mote2);
           mote2.collide(mote1);
         }
@@ -46,7 +46,7 @@ export function collisions(motes: Mote[]) {
           const adjacentSector = sectors[adjacentIndex];
           for (let j = 0; j < adjacentSector.length; j++) {
             const mote2 = adjacentSector[j];
-            if (mote1.pos.dist(mote2.pos) < 10) {
+            if (mote1.pos.dist(mote2.pos) < mote1.radius + mote2.radius) {
               mote1.collide(mote2);
               mote2.collide(mote1);
             }

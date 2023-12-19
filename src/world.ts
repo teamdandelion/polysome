@@ -68,7 +68,9 @@ export class World {
     );
   }
 
-  render() {
-    this.motes.forEach((mote) => {});
+  render(p5: p5, convertCoordinate: (v: p5.Vector) => p5.Vector) {
+    p5.background(240, 100, 10);
+    p5.fill(30, 100, 100, 100);
+    this.motes.forEach((mote) => mote.render(p5, convertCoordinate));
   }
 }

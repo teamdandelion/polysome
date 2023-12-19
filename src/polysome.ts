@@ -91,12 +91,7 @@ function sketch(p5: p5) {
 
   p5.draw = () => {
     world.step();
-    p5.background(240, 100, 10);
-    p5.fill(30, 100, 100, 100);
-    for (let i = 0; i < world.motes.length; i++) {
-      const mote = world.motes[i];
-      drawMote(mote);
-    }
+    world.render(p5, convertCoordinate);
   };
 }
 
