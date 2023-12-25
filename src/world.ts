@@ -3,7 +3,7 @@ import p5 from "p5";
 import { Rng } from "./safeRandom";
 import { FlowField } from "./flowField";
 import { Mote } from "./mote";
-import { collisions } from "./collisionDetector";
+import { detectCollisions } from "./collisions";
 
 export class World {
   motes: Mote[];
@@ -55,7 +55,11 @@ export class World {
     }
     const ff = this.flowField;
     this.motes.forEach((mote) => mote.resetCollisions());
-    collisions(this.motes);
+    const collidingMotes = detectCollisions(this.motes);
+    for (const [mote1, mote2] of collidingMotes) {
+      mote1.collide(mote2);
+      mote2.collide(mote1);
+    }
 
     this.motes.forEach((mote) => {
       const vel = ff.flow(mote.pos);
