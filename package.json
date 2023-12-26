@@ -2,7 +2,6 @@
   "name": "polysome",
   "version": "0.0.0",
   "description": "An abstract biological exploration",
-  "main": "index.js",
   "directories": {
     "lib": "lib"
   },
@@ -17,6 +16,11 @@
     "p5": "^1.9.0",
     "parcel": "^2.10.3",
     "prettier": "^3.1.0"
+  },
+  "alias": {
+    "p5": {
+      "global": "p5"
+    }
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
