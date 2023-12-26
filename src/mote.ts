@@ -28,9 +28,10 @@ export class Mote {
     const boundaryDistance = d - this.radius - other.radius;
     let forceFactor;
     if (boundaryDistance < 0) {
-      forceFactor = 2;
+      forceFactor = 0.2;
     } else {
-      forceFactor = (influenceRadius - boundaryDistance) / influenceRadius;
+      forceFactor =
+        (0.2 * (influenceRadius - boundaryDistance)) / influenceRadius;
     }
     this.vCollide.add(v.copy().setMag(forceFactor));
     this.closestBoundary = Math.min(this.closestBoundary, boundaryDistance);
@@ -38,7 +39,7 @@ export class Mote {
   }
 
   render(rc: RenderContext) {
-    let hue = 30 + this.nCollisions * 6;
+    let hue = 30 + this.nCollisions * 4;
     rc.strokeWeight(2);
     rc.stroke(hue, 100, 40 + this.nCollisions, 80);
     rc.noFill();

@@ -8,14 +8,14 @@ import { detectCollisions } from "./collisions";
 
 export class World {
   motes: Mote[];
-  numMotes = 4000;
+  numMotes = 3000;
   xMin = 0;
   xMax = 1000;
   yMin = 0;
   yMax = 1000;
-  moteRadius = 5;
+  moteRadius = 10;
   moteInfluenceRadius = 20;
-  sectorSize = 50;
+  sectorSize = 100;
   rng: Rng;
   flowField: FlowField;
 
@@ -55,8 +55,9 @@ export class World {
   // Steps through one time unit in the simulation
   step() {
     while (this.motes.length < this.numMotes) {
-      this.addMote(true);
+      this.addMote(false);
     }
+
     const ff = this.flowField;
     this.motes.forEach((mote) => mote.resetCollisions());
     const collidingMotes = detectCollisions(

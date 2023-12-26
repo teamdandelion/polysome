@@ -42,9 +42,16 @@ function sketch(p5: p5) {
     p5.resizeCanvas(d, d);
   };
 
+  p5.mouseClicked = () => {
+    const seed = randomSeed();
+    const rng = makeSeededRng(seed);
+    const ff = new FlowField(randomFlowSpec(rng));
+    world = new World(rng, ff);
+  };
+
   p5.draw = () => {
-    world.step();
     world.render(rc);
+    world.step();
   };
 }
 
