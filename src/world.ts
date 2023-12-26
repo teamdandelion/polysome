@@ -1,5 +1,6 @@
 import p5 from "p5";
 
+import { RenderContext } from "./renderContext";
 import { Rng } from "./safeRandom";
 import { FlowField } from "./flowField";
 import { Mote } from "./mote";
@@ -12,6 +13,9 @@ export class World {
   xMax = 1000;
   yMin = 0;
   yMax = 1000;
+  moteRadius = 5;
+  moteInfluenceRadius = 10;
+  sectorSize = 50;
   rng: Rng;
   flowField: FlowField;
 
@@ -29,7 +33,7 @@ export class World {
     // circle of radius 500, centered on 500, 500
     const theta = this.rng.rnd() * 2 * Math.PI;
     const c = onCircumference ? 1 : this.rng.rnd();
-    const p = p5.Vector.fromAngle(theta, c * 500);
+    const p = p5.Vector.fromAngle(theta, Math.sqrt(c) * 500);
     return p.add(500, 500);
   }
 
@@ -44,7 +48,7 @@ export class World {
 
   // Adds a mote to the world
   addMote(onCircumference: boolean) {
-    const mote = new Mote(this.randomPos(onCircumference));
+    const mote = new Mote(this.randomPos(onCircumference), this.moteRadius);
     this.motes.push(mote);
   }
 
@@ -55,10 +59,14 @@ export class World {
     }
     const ff = this.flowField;
     this.motes.forEach((mote) => mote.resetCollisions());
-    const collidingMotes = detectCollisions(this.motes);
+    const collidingMotes = detectCollisions(
+      this.motes,
+      this.moteInfluenceRadius,
+      this.sectorSize
+    );
     for (const [mote1, mote2] of collidingMotes) {
-      mote1.collide(mote2);
-      mote2.collide(mote1);
+      mote1.collide(mote2, this.moteInfluenceRadius);
+      mote2.collide(mote1, this.moteInfluenceRadius);
     }
 
     this.motes.forEach((mote) => {
@@ -72,9 +80,8 @@ export class World {
     );
   }
 
-  render(p5: p5, convertCoordinate: (v: p5.Vector) => p5.Vector) {
-    p5.background(240, 100, 10);
-    p5.fill(30, 100, 100, 100);
-    this.motes.forEach((mote) => mote.render(p5, convertCoordinate));
+  render(rc: RenderContext) {
+    rc.background(240, 100, 10);
+    this.motes.forEach((mote) => mote.render(rc));
   }
 }
