@@ -10,10 +10,16 @@ const WORLD_DIM = 1000;
 
 export function detectCollisions<T extends Collidable>(
   motes: T[],
+  extraRadius: number,
   sectorSize = SECTOR_SIZE,
   worldDim = WORLD_DIM
 ): T[][] {
-  if (sectorSize <= 0 || worldDim <= 0 || sectorSize > worldDim) {
+  if (
+    sectorSize <= 0 ||
+    worldDim <= 0 ||
+    sectorSize > worldDim ||
+    worldDim % sectorSize !== 0
+  ) {
     throw new Error("invalid sector configuration");
   }
   const results: T[][] = [];
@@ -34,23 +40,25 @@ export function detectCollisions<T extends Collidable>(
     const j = Math.floor(mote.pos.y / sectorSize);
 
     sectors[j * gridDimension + i].push(mote);
-    console.log(
-      `mote ${mote.pos.x}, ${mote.pos.y} in sector ${j * gridDimension + i}`
-    );
   });
   sectors.forEach((sector, index) => {
-    const adjacentIndices = [
-      index - gridDimension - 1, // top left
-      index - gridDimension, // top
-      index - gridDimension + 1, // top right
-      index - 1, // left
-      /*
-      index + 1, // right
-      index + gridDimension - 1, // bottom left
-      index + gridDimension, // bottom
-      index + gridDimension + 1, // bottom right
-      */
-    ];
+    let adjacentIndices: number[] = [];
+    if (gridDimension === 1) {
+      adjacentIndices = [];
+    } else if (gridDimension === 2) {
+      adjacentIndices = [
+        index - gridDimension - 1, // top left
+        index - gridDimension, // top
+        index - 1, // left
+      ];
+    } else {
+      adjacentIndices = [
+        index - gridDimension - 1, // top left
+        index - gridDimension, // top
+        index - gridDimension + 1, // top right
+        index - 1, // left
+      ];
+    }
 
     for (let i = 0; i < sector.length; i++) {
       const mote1 = sector[i];
@@ -58,7 +66,10 @@ export function detectCollisions<T extends Collidable>(
       // Check for collisions within the current sector
       for (let j = i + 1; j < sector.length; j++) {
         const mote2 = sector[j];
-        if (mote1.pos.dist(mote2.pos) < mote1.radius + mote2.radius) {
+        if (
+          mote1.pos.dist(mote2.pos) <
+          mote1.radius + mote2.radius + extraRadius
+        ) {
           results.push([mote1, mote2]);
         }
       }
