@@ -80,7 +80,10 @@ export function detectCollisions<T extends Collidable>(
           const adjacentSector = sectors[adjacentIndex];
           for (let j = 0; j < adjacentSector.length; j++) {
             const mote2 = adjacentSector[j];
-            if (mote1.pos.dist(mote2.pos) < mote1.radius + mote2.radius) {
+            if (
+              mote1.pos.dist(mote2.pos) <
+              mote1.radius + mote2.radius + extraRadius
+            ) {
               results.push([mote1, mote2]);
             }
           }

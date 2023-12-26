@@ -75,6 +75,13 @@ describe("detectCollisions", () => {
     expect(dc([m1, m2], 3)).toEqual([[m1, m2]]);
   });
 
+  it("handles a case where motes don't overlap, but do due to extraRadius, across sector boundaries", () => {
+    const m1 = m(0, 45, 3);
+    const m2 = m(0, 55, 3);
+    expect(dc([m1, m2], 10)).toEqual([[m2, m1]]);
+    expect(dc([m2, m1], 10)).toEqual([[m2, m1]]);
+  });
+
   it("handles a case of two non-overlapping motes", () => {
     const m1 = m(0, 0, 1);
     const m2 = m(2, 0, 1);
