@@ -8,13 +8,13 @@ import { detectCollisions } from "./collisions";
 
 export class World {
   motes: Mote[];
-  numMotes = 2000;
+  numMotes = 4000;
   xMin = 0;
   xMax = 1000;
   yMin = 0;
   yMax = 1000;
   moteRadius = 5;
-  moteInfluenceRadius = 10;
+  moteInfluenceRadius = 20;
   sectorSize = 50;
   rng: Rng;
   flowField: FlowField;
@@ -33,7 +33,7 @@ export class World {
     // circle of radius 500, centered on 500, 500
     const theta = this.rng.rnd() * 2 * Math.PI;
     const c = onCircumference ? 1 : this.rng.rnd();
-    const p = p5.Vector.fromAngle(theta, Math.sqrt(c) * 500);
+    const p = p5.Vector.fromAngle(theta, Math.sqrt(c) * 300);
     return p.add(500, 500);
   }
 

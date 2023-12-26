@@ -47,4 +47,8 @@ export class RenderContext {
   noFill() {
     this.p5.noFill();
   }
+
+  strokeWeight(w: number) {
+    this.p5.strokeWeight(w);
+  }
 }

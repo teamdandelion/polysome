@@ -7,18 +7,19 @@ export class Mote {
   vCollide: p5.Vector;
   alive = true;
   radius: number;
-  closestBoundary: number;
+  closestBoundary = Infinity;
+  nCollisions = 0;
 
   constructor(pos: p5.Vector, radius: number) {
     this.pos = pos;
     this.vCollide = new p5.Vector(0, 0);
-    this.closestBoundary = Infinity;
     this.radius = radius;
   }
 
   resetCollisions() {
     this.vCollide = new p5.Vector(0, 0);
     this.closestBoundary = Infinity;
+    this.nCollisions = 0;
   }
 
   collide(other: Mote, influenceRadius: number) {
@@ -33,19 +34,13 @@ export class Mote {
     }
     this.vCollide.add(v.copy().setMag(forceFactor));
     this.closestBoundary = Math.min(this.closestBoundary, boundaryDistance);
+    this.nCollisions++;
   }
 
   render(rc: RenderContext) {
-    let hue = 30;
-    if (this.closestBoundary != Infinity) {
-      const cDist = this.closestBoundary - this.radius;
-      if (cDist < 0) {
-        hue = 80 + cDist * -1;
-      } else {
-        hue = 30 + 50 * (1 - cDist / 10);
-      }
-    }
-    rc.stroke(hue, 100, 100, 100);
+    let hue = 30 + this.nCollisions * 6;
+    rc.strokeWeight(2);
+    rc.stroke(hue, 100, 40 + this.nCollisions, 80);
     rc.noFill();
     rc.circle(this.pos.x, this.pos.y, this.radius);
   }
