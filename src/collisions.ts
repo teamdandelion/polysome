@@ -8,6 +8,12 @@ export interface Collidable {
 const SECTOR_SIZE = 50;
 const WORLD_DIM = 1000;
 
+function checkCollide(p1: p5.Vector, p2: p5.Vector, r: number) {
+  const dx = p1.x - p2.x;
+  const dy = p1.y - p2.y;
+  return dx * dx + dy * dy < r * r;
+}
+
 export function detectCollisions<T extends Collidable>(
   motes: T[],
   extraRadius: number,
@@ -67,8 +73,11 @@ export function detectCollisions<T extends Collidable>(
       for (let j = i + 1; j < sector.length; j++) {
         const mote2 = sector[j];
         if (
-          mote1.pos.dist(mote2.pos) <
-          mote1.radius + mote2.radius + extraRadius
+          checkCollide(
+            mote1.pos,
+            mote2.pos,
+            mote1.radius + mote2.radius + extraRadius
+          )
         ) {
           results.push([mote1, mote2]);
         }
@@ -81,8 +90,11 @@ export function detectCollisions<T extends Collidable>(
           for (let j = 0; j < adjacentSector.length; j++) {
             const mote2 = adjacentSector[j];
             if (
-              mote1.pos.dist(mote2.pos) <
-              mote1.radius + mote2.radius + extraRadius
+              checkCollide(
+                mote1.pos,
+                mote2.pos,
+                mote1.radius + mote2.radius + extraRadius
+              )
             ) {
               results.push([mote1, mote2]);
             }
