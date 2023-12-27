@@ -1,6 +1,7 @@
 import p5 from "p5";
 import { dist, rescale, pi } from "./safeMath";
 import { Rng } from "./safeRandom";
+import { Spec } from "./spec";
 
 type DisturbanceSpec = {
   pos: p5.Vector;
@@ -13,16 +14,16 @@ type FlowSpec = {
   disturbances: DisturbanceSpec[];
 };
 
-export function randomFlowSpec(r: Rng): FlowSpec {
-  const numDisturbances = r.choice([20, 30, 50]);
-  const thetaVariance = r.choice([0.5, 1].map(pi));
+export function flowSpec(r: Rng, spec: Spec): FlowSpec {
+  const { numDisturbances, thetaVariance, defaultTheta } = spec;
   const disturbances: DisturbanceSpec[] = [];
-  const defaultTheta = r.uniform(0, pi(2));
   for (let i = 0; i < numDisturbances; i++) {
-    const disturbanceX = r.uniform(0, 1000);
-    const disturbanceY = r.uniform(0, 1000);
+    const disturbanceX = r.uniform(spec.xMin, spec.xMax);
+    const disturbanceY = r.uniform(spec.yMin, spec.yMax);
     const disturbanceTheta = r.gauss(0, thetaVariance);
-    const disturbanceRadius = Math.abs(r.gauss(100, 200));
+    const disturbanceRadius = Math.abs(
+      r.gauss(spec.disturbanceRadiusMean, spec.disturbanceRadiusVariance)
+    );
     disturbances.push({
       pos: new p5.Vector(disturbanceX, disturbanceY),
       theta: disturbanceTheta,

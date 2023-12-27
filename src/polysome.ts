@@ -2,7 +2,8 @@ import p5 from "p5";
 
 import { World } from "./world";
 import { Mote } from "./mote";
-import { FlowField, randomFlowSpec } from "./flowField";
+import { FlowField, flowSpec } from "./flowField";
+import { Spec } from "./spec";
 import randomSeed from "./randomSeed";
 import { makeSeededRng } from "./safeRandom";
 import { RenderContext } from "./renderContext";
@@ -23,6 +24,7 @@ import {
 function sketch(p5: p5) {
   let R /*: Rng */;
   let rc: RenderContext;
+  let spec: Spec;
   let world: World;
 
   const worldDim = 1000;
@@ -30,9 +32,10 @@ function sketch(p5: p5) {
   p5.setup = () => {
     const seed = randomSeed();
     const rng = makeSeededRng(seed);
-    const ff = new FlowField(randomFlowSpec(rng));
+    const spec = new Spec();
+    const ff = new FlowField(flowSpec(rng, spec));
     rc = new RenderContext(p5, worldDim);
-    world = new World(rng, ff);
+    world = new World(spec, rng, ff);
 
     p5.colorMode(p5.HSB, 360, 100, 100, 100);
   };
@@ -45,8 +48,8 @@ function sketch(p5: p5) {
   p5.mouseClicked = () => {
     const seed = randomSeed();
     const rng = makeSeededRng(seed);
-    const ff = new FlowField(randomFlowSpec(rng));
-    world = new World(rng, ff);
+    const ff = new FlowField(flowSpec(rng, spec));
+    world = new World(spec, rng, ff);
   };
 
   p5.draw = () => {
