@@ -30,7 +30,8 @@ function sketch(p5: p5) {
   const worldDim = 1000;
 
   p5.setup = () => {
-    const seed = randomSeed();
+    let seed = randomSeed();
+    console.log(`seed: ${seed}`);
     const rng = makeSeededRng(seed);
     const spec = new Spec();
     const wh = p5.windowHeight;
@@ -41,7 +42,8 @@ function sketch(p5: p5) {
       spec.xDim = spec.yDim * (ww / wh);
     }
     const ff = new FlowField(flowSpec(rng, spec));
-    rc = new RenderContext(p5, spec);
+    const zoomLevel = 1.1;
+    rc = new RenderContext(p5, spec, zoomLevel);
     world = new World(spec, rng, ff);
   };
 
