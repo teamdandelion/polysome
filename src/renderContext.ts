@@ -3,7 +3,8 @@ import { Spec } from "./spec";
 
 export class RenderContext {
   p5: p5;
-  // data dimension of the square
+
+  spec: Spec;
 
   r: number;
   c: p5.Renderer;
@@ -19,6 +20,7 @@ export class RenderContext {
 
   constructor(p5: p5, spec: Spec, zoom: number) {
     this.p5 = p5;
+    this.spec = spec;
     this.r = p5.windowWidth / spec.xDim;
     this.zoom = zoom;
     this.zoomX = spec.xDim / 2;
@@ -45,7 +47,11 @@ export class RenderContext {
     const px = (x - this.zoomX) * this.zoom * this.r + this.p5.windowWidth / 2;
     const py = (y - this.zoomY) * this.zoom * this.r + this.p5.windowHeight / 2;
     // underlying api uses diameter not radius, converted here.
-    this.p5.circle(px, py, 2 * r * this.r * this.zoom);
+    this.p5.circle(
+      px,
+      py,
+      2 * r * this.r * this.zoom * this.spec.moteRenderScaling
+    );
   }
 
   noFill() {
