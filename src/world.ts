@@ -19,17 +19,16 @@ export class World {
     this.rng = rng;
     this.flowField = flowField;
     while (this.motes.length < this.spec.numMotes) {
-      this.addMote(false);
+      this.addMote();
     }
   }
 
-  randomPos(onCircumference: boolean): p5.Vector {
-    // Compute a random point either on or in
-    // circle of radius 500, centered on 500, 500
-    const theta = this.rng.rnd() * 2 * Math.PI;
-    const c = onCircumference ? 1 : this.rng.rnd();
-    const p = p5.Vector.fromAngle(theta, Math.sqrt(c) * 300);
-    return p.add(500, 500);
+  randomPos(): p5.Vector {
+    const spec = this.spec;
+    return new p5.Vector(
+      this.rng.uniform(spec.xMin, spec.xMax),
+      this.rng.uniform(spec.yMin, spec.yMax)
+    );
   }
 
   inBounds(pos: p5.Vector) {
@@ -42,18 +41,15 @@ export class World {
   }
 
   // Adds a mote to the world
-  addMote(onCircumference: boolean) {
-    const mote = new Mote(
-      this.randomPos(onCircumference),
-      this.spec.moteRadius
-    );
+  addMote() {
+    const mote = new Mote(this.randomPos(), this.spec.moteRadius);
     this.motes.push(mote);
   }
 
   // Steps through one time unit in the simulation
   step() {
     while (this.motes.length < this.spec.numMotes) {
-      this.addMote(false);
+      this.addMote();
     }
 
     const ff = this.flowField;
