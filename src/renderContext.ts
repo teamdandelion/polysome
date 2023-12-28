@@ -1,30 +1,21 @@
 import p5 from "p5";
+import { Spec } from "./spec";
 
 export class RenderContext {
   p5: p5;
   // data dimension of the square
-  dd: number;
-  // pixel dimension of the square
-  pd: number;
-  // ratio of pixel dimension to data dimension
+
   r: number;
   c: p5.Renderer;
 
-  constructor(p5: p5, dd: number) {
+  constructor(p5: p5, spec: Spec) {
     this.p5 = p5;
-    this.dd = dd;
-    this.pd = Math.min(p5.windowWidth, p5.windowHeight);
-    this.r = this.pd / this.dd; // ratio to window
+
+    this.r = p5.windowWidth / spec.xDim;
     p5.pixelDensity(1);
     p5.colorMode(p5.HSB, 360, 100, 100, 100);
 
-    this.c = p5.createCanvas(this.pd, this.pd);
-  }
-
-  resize() {
-    this.pd = Math.min(this.p5.windowWidth, this.p5.windowHeight);
-    this.p5.resizeCanvas(this.pd, this.pd);
-    this.r = this.pd / this.dd; // ratio to window
+    this.c = p5.createCanvas(spec.xDim * this.r, spec.yDim * this.r);
   }
 
   background(h: number, s: number, b: number) {

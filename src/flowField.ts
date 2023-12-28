@@ -18,8 +18,8 @@ export function flowSpec(r: Rng, spec: Spec): FlowSpec {
   const { numDisturbances, thetaVariance, defaultTheta } = spec;
   const disturbances: DisturbanceSpec[] = [];
   for (let i = 0; i < numDisturbances; i++) {
-    const disturbanceX = r.uniform(spec.xMin, spec.xMax);
-    const disturbanceY = r.uniform(spec.yMin, spec.yMax);
+    const disturbanceX = r.uniform(0, spec.xDim);
+    const disturbanceY = r.uniform(0, spec.yDim);
     const disturbanceTheta = r.gauss(0, thetaVariance);
     const disturbanceRadius = Math.abs(
       r.gauss(spec.disturbanceRadiusMean, spec.disturbanceRadiusVariance)
@@ -34,6 +34,7 @@ export function flowSpec(r: Rng, spec: Spec): FlowSpec {
 }
 
 export class FlowField {
+  // Hack - Flow field still thinks its a 1000x1000 grid
   xMin = 0;
   xMax = 1000;
   yMin = 0;

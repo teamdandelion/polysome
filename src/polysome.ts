@@ -33,16 +33,16 @@ function sketch(p5: p5) {
     const seed = randomSeed();
     const rng = makeSeededRng(seed);
     const spec = new Spec();
+    const wh = p5.windowHeight;
+    const ww = p5.windowWidth;
+    if (ww > wh) {
+      spec.yDim = spec.xDim * (wh / ww);
+    } else {
+      spec.xDim = spec.yDim * (ww / wh);
+    }
     const ff = new FlowField(flowSpec(rng, spec));
-    rc = new RenderContext(p5, worldDim);
+    rc = new RenderContext(p5, spec);
     world = new World(spec, rng, ff);
-
-    p5.colorMode(p5.HSB, 360, 100, 100, 100);
-  };
-
-  p5.windowResized = () => {
-    const d = Math.min(p5.windowWidth, p5.windowHeight);
-    p5.resizeCanvas(d, d);
   };
 
   p5.mouseClicked = () => {

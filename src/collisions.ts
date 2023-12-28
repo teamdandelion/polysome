@@ -5,9 +5,6 @@ export interface Collidable {
   radius: number;
 }
 
-const SECTOR_SIZE = 50;
-const WORLD_DIM = 1000;
-
 function checkCollide(p1: p5.Vector, p2: p5.Vector, r: number) {
   const dx = p1.x - p2.x;
   const dy = p1.y - p2.y;
@@ -17,8 +14,8 @@ function checkCollide(p1: p5.Vector, p2: p5.Vector, r: number) {
 export function detectCollisions<T extends Collidable>(
   motes: T[],
   extraRadius: number,
-  sectorSize = SECTOR_SIZE,
-  worldDim = WORLD_DIM
+  sectorSize: number,
+  worldDim: number
 ): T[][] {
   if (
     sectorSize <= 0 ||

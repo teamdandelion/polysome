@@ -26,17 +26,17 @@ export class World {
   randomPos(): p5.Vector {
     const spec = this.spec;
     return new p5.Vector(
-      this.rng.uniform(spec.xMin, spec.xMax),
-      this.rng.uniform(spec.yMin, spec.yMax)
+      this.rng.uniform(0, spec.xDim),
+      this.rng.uniform(0, spec.yDim)
     );
   }
 
   inBounds(pos: p5.Vector) {
     return (
-      pos.x >= this.spec.xMin &&
-      pos.x <= this.spec.xMax &&
-      pos.y >= this.spec.yMin &&
-      pos.y <= this.spec.yMax
+      pos.x >= 0 &&
+      pos.x <= this.spec.xDim &&
+      pos.y >= 0 &&
+      pos.y <= this.spec.yDim
     );
   }
 
@@ -57,7 +57,8 @@ export class World {
     const collidingMotes = detectCollisions(
       this.motes,
       this.spec.moteInfluenceRadius,
-      this.spec.sectorSize
+      this.spec.sectorSize,
+      Math.max(this.spec.xDim, this.spec.yDim)
     );
     for (const [mote1, mote2] of collidingMotes) {
       mote1.collide(mote2, this.spec.moteInfluenceRadius);
