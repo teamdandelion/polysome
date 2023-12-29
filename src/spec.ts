@@ -1,5 +1,5 @@
 export class Spec {
-  numMotes = 5000;
+  numMotes = 6000;
   // Dimensions overwritten at p5 setup time,
   // one will get reduced to match window ratio
   xDim = 1000;
@@ -7,7 +7,7 @@ export class Spec {
   moteRadius = 8;
   moteInfluenceRadius = 8;
   moteRenderScaling = 0.3;
-  sectorSize = 100;
+  sectorSize = 40;
 
   // Flow field settings
   numDisturbances = 30;
