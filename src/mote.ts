@@ -18,12 +18,4 @@ export class Mote {
     this.vCollide = new p5.Vector(0, 0);
     this.nCollisions = 0;
   }
-
-  render(rc: RenderContext) {
-    let hue = 30 + this.nCollisions * 4;
-    rc.strokeWeight(2);
-    rc.stroke(hue, 100, 40 + this.nCollisions, 80);
-    rc.noFill();
-    rc.circle(this.pos.x, this.pos.y, this.radius);
-  }
 }

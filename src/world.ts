@@ -90,6 +90,13 @@ export class World {
 
   render(rc: RenderContext) {
     rc.background(240, 100, 10);
-    this.motes.forEach((mote) => mote.render(rc));
+    rc.strokeWeight(2);
+    rc.noFill();
+
+    this.motes.forEach((mote) => {
+      let hue = 30 + mote.nCollisions * 4;
+      rc.stroke(hue, 100, 40 + mote.nCollisions, 80);
+      rc.circle(mote.pos.x, mote.pos.y, mote.radius);
+    });
   }
 }
