@@ -1,4 +1,4 @@
-import randomSeed from "./randomSeed.js";
+import randomSeed from "./randomSeed";
 
 // Note that the index order [0, 1, 2, 3] is little-endian
 const eps = Math.pow(2, -32),

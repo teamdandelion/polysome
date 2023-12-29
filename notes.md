@@ -1,5 +1,11 @@
 # Notes
 
+## 12.29.23
+
+- Initial perf instrumentation is working!
+  - About 150-155ms per step, with 10k motes
+  - I'd like to get 10k motes down to like, 20ms per step
+
 ## 12.28.23
 
 - I got a "polysome v1" working, which Alchi suggested calling "currents".
