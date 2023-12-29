@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import p5 from "p5";
 import { detectCollisions, Collidable } from "./collisions";
 
