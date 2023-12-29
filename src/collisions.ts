@@ -36,7 +36,6 @@ export function detectCollisions<T extends Collidable>(
     }
     const { pos, radius } = mote;
     if (pos.x >= worldDim || pos.x < 0 || pos.y >= worldDim || pos.y < 0) {
-      debugger;
       throw new Error("Mote out of bounds");
     }
     const i = Math.floor(mote.pos.x / sectorSize);
