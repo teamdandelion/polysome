@@ -1,6 +1,8 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  preset: "ts-jest",
   testEnvironment: "node",
-  testMatch: ["**/*.test.ts"],
+  projects: [
+    { preset: "ts-jest", displayName: "test", testMatch: ["**/*.test.ts"] },
+    { preset: "ts-jest", displayName: "perf", testMatch: ["**/*.perf.ts"] },
+  ],
 };
