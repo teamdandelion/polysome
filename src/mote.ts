@@ -5,9 +5,7 @@ export class Mote {
   pos: p5.Vector;
   // aggregate collision force vector
   vCollide: p5.Vector;
-  alive = true;
   radius: number;
-  closestBoundary = Infinity;
   nCollisions = 0;
 
   constructor(pos: p5.Vector, radius: number) {
@@ -18,7 +16,6 @@ export class Mote {
 
   resetCollisions() {
     this.vCollide = new p5.Vector(0, 0);
-    this.closestBoundary = Infinity;
     this.nCollisions = 0;
   }
 
@@ -34,7 +31,6 @@ export class Mote {
         (0.2 * (influenceRadius - boundaryDistance)) / influenceRadius;
     }
     this.vCollide.add(v.copy().setMag(forceFactor));
-    this.closestBoundary = Math.min(this.closestBoundary, boundaryDistance);
     this.nCollisions++;
   }
 

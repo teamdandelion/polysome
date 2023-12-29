@@ -71,9 +71,7 @@ export class World {
       mote.pos.add(mote.vCollide);
     });
 
-    this.motes = this.motes.filter(
-      (mote) => this.inBounds(mote.pos) && mote.alive
-    );
+    this.motes = this.motes.filter((mote) => this.inBounds(mote.pos));
   }
 
   render(rc: RenderContext) {
