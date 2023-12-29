@@ -19,21 +19,6 @@ export class Mote {
     this.nCollisions = 0;
   }
 
-  collide(other: Mote, influenceRadius: number) {
-    const v = p5.Vector.sub(this.pos, other.pos);
-    const d = v.mag();
-    const boundaryDistance = d - this.radius - other.radius;
-    let forceFactor;
-    if (boundaryDistance < 0) {
-      forceFactor = 0.2;
-    } else {
-      forceFactor =
-        (0.2 * (influenceRadius - boundaryDistance)) / influenceRadius;
-    }
-    this.vCollide.add(v.copy().setMag(forceFactor));
-    this.nCollisions++;
-  }
-
   render(rc: RenderContext) {
     let hue = 30 + this.nCollisions * 4;
     rc.strokeWeight(2);

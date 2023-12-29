@@ -61,8 +61,22 @@ export class World {
       Math.max(this.spec.xDim, this.spec.yDim)
     );
     for (const [mote1, mote2] of collidingMotes) {
-      mote1.collide(mote2, this.spec.moteInfluenceRadius);
-      mote2.collide(mote1, this.spec.moteInfluenceRadius);
+      const v = p5.Vector.sub(mote1.pos, mote2.pos);
+      const d = v.mag();
+      const boundaryDistance = d - mote1.radius - mote2.radius;
+      let forceFactor;
+      if (boundaryDistance < 0) {
+        forceFactor = 0.2;
+      } else {
+        forceFactor =
+          (0.2 * (this.spec.moteInfluenceRadius - boundaryDistance)) /
+          this.spec.moteInfluenceRadius;
+      }
+      v.setMag(forceFactor);
+      mote1.vCollide.add(v);
+      mote2.vCollide.sub(v);
+      mote1.nCollisions++;
+      mote2.nCollisions++;
     }
 
     this.motes.forEach((mote) => {
