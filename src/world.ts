@@ -80,8 +80,10 @@ export class World {
     }
 
     this.motes.forEach((mote) => {
-      const vel = ff.flow(mote.pos);
-      mote.pos.add(vel);
+      const vel = ff.flow(mote.pos).mult(this.spec.flowCoefficient);
+      mote.pos.add(
+        vel.mult(Math.pow(this.spec.cxFlowCoefficient, mote.nCollisions))
+      );
       mote.pos.add(mote.vCollide);
     });
 

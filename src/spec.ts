@@ -15,4 +15,6 @@ export class Spec {
   defaultTheta = 0;
   disturbanceRadiusMean = 100;
   disturbanceRadiusVariance = 200;
+  flowCoefficient = 1;
+  cxFlowCoefficient = 1;
 }
