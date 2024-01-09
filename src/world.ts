@@ -18,9 +18,6 @@ export class World {
     this.motes = [];
     this.rng = rng;
     this.flowField = flowField;
-    while (this.motes.length < this.spec.numMotes) {
-      this.addMote();
-    }
   }
 
   randomPos(): p5.Vector {
@@ -48,8 +45,13 @@ export class World {
 
   // Steps through one time unit in the simulation
   step() {
-    while (this.motes.length < this.spec.numMotes) {
+    let added = 0;
+    while (
+      this.motes.length < this.spec.numMotes &&
+      added < this.spec.motesPerStep
+    ) {
       this.addMote();
+      added++;
     }
 
     const ff = this.flowField;
