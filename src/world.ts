@@ -2,7 +2,7 @@ import p5 from "p5";
 
 import { RenderContext } from "./renderContext";
 import { Rng } from "./safeRandom";
-import { FlowField } from "./flowField";
+import { FlowField, IFlowField } from "./flowField";
 import { Mote } from "./mote";
 import { Spec } from "./spec";
 import { detectCollisions } from "./collisions";
@@ -11,9 +11,9 @@ export class World {
   motes: Mote[];
   spec: Spec;
   rng: Rng;
-  flowField: FlowField;
+  flowField: IFlowField;
 
-  constructor(spec: Spec, rng: Rng, flowField: FlowField) {
+  constructor(spec: Spec, rng: Rng, flowField: IFlowField) {
     this.spec = spec;
     this.motes = [];
     this.rng = rng;

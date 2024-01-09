@@ -14,6 +14,10 @@ type FlowSpec = {
   disturbances: DisturbanceSpec[];
 };
 
+export interface IFlowField {
+  flow(pos: p5.Vector): p5.Vector;
+}
+
 export function flowSpec(r: Rng, spec: Spec): FlowSpec {
   const { numDisturbances, thetaVariance, defaultTheta } = spec;
   const disturbances: DisturbanceSpec[] = [];
@@ -77,5 +81,16 @@ export class FlowField {
     const j = Math.floor(pos.y / this.spacing);
     const theta = this.fieldPoints[i][j];
     return p5.Vector.fromAngle(theta);
+  }
+}
+
+export class TestFlowField {
+  center: p5.Vector;
+  constructor(cx: number, cy: number) {
+    this.center = new p5.Vector(cx, cy);
+  }
+
+  flow(pos: p5.Vector): p5.Vector {
+    return p5.Vector.sub(this.center, pos).normalize();
   }
 }

@@ -6,7 +6,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "parcel src/index.html",
+    "start": "parcel src/index.html src/testbed.html",
     "test": "jest --selectProjects=test",
     "perf": "jest --selectProjects=perf"
   },
