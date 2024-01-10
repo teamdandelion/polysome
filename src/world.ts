@@ -39,7 +39,7 @@ export class World {
 
   // Adds a mote to the world
   addMote() {
-    const mote = new Mote(this.randomPos(), this.spec.moteRadius);
+    const mote = new Mote(this.randomPos());
     this.motes.push(mote);
   }
 
@@ -58,14 +58,14 @@ export class World {
     this.motes.forEach((mote) => mote.resetCollisions());
     const collidingMotes = detectCollisions(
       this.motes,
-      this.spec.moteInfluenceRadius,
+      this.spec.moteRadius * 2 + this.spec.moteInfluenceRadius,
       this.spec.sectorSize,
       Math.max(this.spec.xDim, this.spec.yDim)
     );
     for (const [mote1, mote2] of collidingMotes) {
       const v = p5.Vector.sub(mote1.pos, mote2.pos);
       const d = v.mag();
-      const boundaryDistance = d - mote1.radius - mote2.radius;
+      const boundaryDistance = d - 2 * this.spec.moteRadius;
       let forceFactor;
       if (boundaryDistance < 0) {
         forceFactor = 0.2;
@@ -100,7 +100,7 @@ export class World {
     this.motes.forEach((mote) => {
       let hue = 30 + mote.nCollisions * 4;
       rc.stroke(hue, 100, 40 + mote.nCollisions, 80);
-      rc.circle(mote.pos.x, mote.pos.y, mote.radius);
+      rc.circle(mote.pos.x, mote.pos.y, this.spec.moteRadius);
     });
   }
 }

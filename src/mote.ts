@@ -5,13 +5,11 @@ export class Mote {
   pos: p5.Vector;
   // aggregate collision force vector
   vCollide: p5.Vector;
-  radius: number;
   nCollisions = 0;
 
-  constructor(pos: p5.Vector, radius: number) {
+  constructor(pos: p5.Vector) {
     this.pos = pos;
     this.vCollide = new p5.Vector(0, 0);
-    this.radius = radius;
   }
 
   resetCollisions() {

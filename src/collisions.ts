@@ -2,7 +2,6 @@ import p5 from "p5";
 
 export interface Collidable {
   pos: p5.Vector;
-  radius: number;
 }
 
 function checkCollide(p1: p5.Vector, p2: p5.Vector, r: number) {
@@ -13,7 +12,7 @@ function checkCollide(p1: p5.Vector, p2: p5.Vector, r: number) {
 
 export function detectCollisions<T extends Collidable>(
   motes: T[],
-  extraRadius: number,
+  collisionRadius: number,
   sectorSize: number,
   worldDim: number
 ): T[][] {
@@ -31,10 +30,7 @@ export function detectCollisions<T extends Collidable>(
     .fill(null)
     .map(() => []);
   motes.forEach((mote) => {
-    if (mote.radius < 0 || !Number.isFinite(mote.radius)) {
-      throw new Error("Mote has invalid radius");
-    }
-    const { pos, radius } = mote;
+    const { pos } = mote;
     if (pos.x >= worldDim || pos.x < 0 || pos.y >= worldDim || pos.y < 0) {
       throw new Error("Mote out of bounds");
     }
@@ -68,13 +64,7 @@ export function detectCollisions<T extends Collidable>(
       // Check for collisions within the current sector
       for (let j = i + 1; j < sector.length; j++) {
         const mote2 = sector[j];
-        if (
-          checkCollide(
-            mote1.pos,
-            mote2.pos,
-            mote1.radius + mote2.radius + extraRadius
-          )
-        ) {
+        if (checkCollide(mote1.pos, mote2.pos, collisionRadius)) {
           results.push([mote1, mote2]);
         }
       }
@@ -85,13 +75,7 @@ export function detectCollisions<T extends Collidable>(
           const adjacentSector = sectors[adjacentIndex];
           for (let j = 0; j < adjacentSector.length; j++) {
             const mote2 = adjacentSector[j];
-            if (
-              checkCollide(
-                mote1.pos,
-                mote2.pos,
-                mote1.radius + mote2.radius + extraRadius
-              )
-            ) {
+            if (checkCollide(mote1.pos, mote2.pos, collisionRadius)) {
               results.push([mote1, mote2]);
             }
           }
