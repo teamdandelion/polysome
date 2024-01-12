@@ -98,7 +98,7 @@ export class World {
     rc.noFill();
 
     this.motes.forEach((mote) => {
-      let hue = 30 + mote.nCollisions * 4;
+      let hue = 30 + mote.nCollisions * 3;
       rc.stroke(hue, 100, 40 + mote.nCollisions, 80);
       rc.circle(mote.pos.x, mote.pos.y, this.spec.moteRadius);
     });
