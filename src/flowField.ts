@@ -91,6 +91,13 @@ export class TestFlowField {
   }
 
   flow(pos: p5.Vector): p5.Vector {
-    return p5.Vector.sub(this.center, pos).normalize();
+    const toCenter = p5.Vector.sub(this.center, pos).normalize();
+    const rotator = new p5.Vector(-toCenter.y, toCenter.x).div(2);
+    const combined = toCenter.add(rotator);
+    const dist = p5.Vector.dist(pos, this.center);
+    if (dist < 1) {
+      return combined.mult(dist);
+    }
+    return combined;
   }
 }

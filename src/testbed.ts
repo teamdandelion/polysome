@@ -35,6 +35,10 @@ function sketch(p5: p5) {
     console.log(`seed: ${seed}`);
     const rng = makeSeededRng(seed);
     const spec = new Spec();
+    spec.numMotes = 3000;
+    spec.motesPerStep = 20;
+    const zoomLevel = 2;
+
     const wh = p5.windowHeight;
     const ww = p5.windowWidth;
     if (ww > wh) {
@@ -43,7 +47,6 @@ function sketch(p5: p5) {
       spec.xDim = spec.yDim * (ww / wh);
     }
     const ff = new TestFlowField(spec.xDim / 2, spec.yDim / 2);
-    const zoomLevel = 1.1;
     rc = new RenderContext(p5, spec, zoomLevel);
     world = new World(spec, rng, ff);
   };
