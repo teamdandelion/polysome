@@ -1,0 +1,11 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+body {
+  background-color: hsl(240, 100%, 5%);
+  font-family: "Roboto", "sans-serif";
+  color: hsl(261, 53%, 36%);
+}

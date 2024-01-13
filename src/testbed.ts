@@ -21,7 +21,7 @@ import {
   angle,
 } from "./safeMath";
 
-function sketch(p5: p5) {
+export function sketch(p5: p5) {
   let R /*: Rng */;
   let rc: RenderContext;
   let spec: Spec;
@@ -56,5 +56,3 @@ function sketch(p5: p5) {
     world.step();
   };
 }
-
-new p5(sketch);

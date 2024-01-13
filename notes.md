@@ -1,5 +1,12 @@
 # Notes
 
+## 1.12.24
+
+- I want to make a simple landing page for Polysome
+- Index: Display "Polysome.art" in title, "by Indigo Mané" in smaller text
+- Small pre-configured / pre-seeded Polysome animation in the background
+- Link to Currents (/currents) -- the current build of "Currents"
+
 ## 12.29.23
 
 - Initial perf instrumentation is working!
