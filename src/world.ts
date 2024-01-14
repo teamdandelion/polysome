@@ -6,6 +6,7 @@ import { FlowField, IFlowField } from "./flowField";
 import { Mote } from "./mote";
 import { Spec } from "./spec";
 import { detectCollisions } from "./collisions";
+import { SectorTracker } from "./sectors";
 
 export class World {
   motes: Mote[];
@@ -13,6 +14,7 @@ export class World {
   rng: Rng;
   flowField: IFlowField;
   bounds: p5.Vector;
+  sectorTracker: SectorTracker;
 
   constructor(spec: Spec, rng: Rng, flowField: IFlowField, bounds: p5.Vector) {
     this.spec = spec;
@@ -20,6 +22,7 @@ export class World {
     this.rng = rng;
     this.flowField = flowField;
     this.bounds = bounds;
+    this.sectorTracker = new SectorTracker(spec.sectorSize, bounds);
   }
 
   randomPos(): p5.Vector {
@@ -58,15 +61,11 @@ export class World {
 
     const ff = this.flowField;
     this.motes.forEach((mote) => mote.resetCollisions());
-    const collidingMotes = detectCollisions(
-      this.motes,
-      this.spec.moteRadius * 2 + this.spec.moteInfluenceRadius,
-      this.spec.sectorSize,
-      Math.max(this.bounds.x, this.bounds.y)
-    );
-    for (const [mote1, mote2] of collidingMotes) {
-      const v = p5.Vector.sub(mote1.pos, mote2.pos);
-      const d = v.mag();
+    this.sectorTracker.updatePositions(this.motes);
+    const collisionRadius =
+      this.spec.moteRadius * 2 + this.spec.moteInfluenceRadius;
+    const collisions = this.sectorTracker.collisions(collisionRadius);
+    for (const { a, b, d, v } of collisions) {
       const boundaryDistance = d - 2 * this.spec.moteRadius;
       let forceFactor;
       if (boundaryDistance < 0) {
@@ -77,10 +76,10 @@ export class World {
           this.spec.moteInfluenceRadius;
       }
       v.setMag(forceFactor);
-      mote1.vCollide.add(v);
-      mote2.vCollide.sub(v);
-      mote1.nCollisions++;
-      mote2.nCollisions++;
+      a.vCollide.sub(v);
+      b.vCollide.add(v);
+      a.nCollisions++;
+      b.nCollisions++;
     }
 
     this.motes.forEach((mote) => {

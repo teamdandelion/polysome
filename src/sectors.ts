@@ -10,6 +10,13 @@ export type Sector = {
   max: p5.Vector;
 };
 
+export type Collision = {
+  a: Mote;
+  b: Mote;
+  d: number;
+  v: p5.Vector; // vector from a to b
+};
+
 export class SectorTracker {
   sectorSize: number;
   bounds: p5.Vector;
@@ -51,6 +58,13 @@ export class SectorTracker {
     return this.sectors[j * this.iMax + i];
   }
 
+  sectorForIndex(i: number, j: number): Sector {
+    if (i >= this.iMax || j >= this.jMax || i < 0 || j < 0) {
+      throw new Error("Index out of bounds");
+    }
+    return this.sectors[j * this.iMax + i];
+  }
+
   updatePositions(motes: Mote[]) {
     this.sectors.forEach((sector) => {
       sector.motes.length = 0;
@@ -68,5 +82,62 @@ export class SectorTracker {
       const j = Math.floor(mote.pos.y / this.sectorSize);
       this.sectors[j * this.iMax + i].motes.push(mote);
     });
+  }
+
+  collisions(radius: number): Collision[] {
+    if (radius > this.sectorSize) {
+      throw new Error("radius must be less than sector size");
+    }
+    const collisions: Collision[] = [];
+    for (const sector of this.sectors) {
+      // compute collisions within this sector
+      for (let i = 0; i < sector.motes.length; i++) {
+        const mote1 = sector.motes[i];
+        for (let j = i + 1; j < sector.motes.length; j++) {
+          const mote2 = sector.motes[j];
+          const dx = mote2.pos.x - mote1.pos.x;
+          const dy = mote2.pos.y - mote1.pos.y;
+          if (dx * dx + dy * dy < radius * radius) {
+            const v = p5.Vector.sub(mote2.pos, mote1.pos);
+            collisions.push({
+              a: mote1,
+              b: mote2,
+              d: v.mag(),
+              v,
+            });
+          }
+        }
+      }
+      // compute collsisions with adjacent sectors
+      const offsets = [
+        { i: -1, j: -1 }, // Top left corner
+        { i: 0, j: -1 }, // Top
+        { i: 1, j: -1 }, // Top right corner
+        { i: -1, j: 0 }, // Left
+      ];
+      for (const offset of offsets) {
+        const i = sector.i + offset.i;
+        const j = sector.j + offset.j;
+        if (i >= 0 && i < this.iMax && j >= 0 && j < this.jMax) {
+          const adjacentSector = this.sectorForIndex(i, j);
+          for (const mote1 of sector.motes) {
+            for (const mote2 of adjacentSector.motes) {
+              const dx = mote2.pos.x - mote1.pos.x;
+              const dy = mote2.pos.y - mote1.pos.y;
+              if (dx * dx + dy * dy < radius * radius) {
+                const v = p5.Vector.sub(mote2.pos, mote1.pos);
+                collisions.push({
+                  a: mote1,
+                  b: mote2,
+                  d: v.mag(),
+                  v,
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+    return collisions;
   }
 }

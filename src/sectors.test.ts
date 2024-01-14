@@ -124,4 +124,66 @@ describe("SectorTracker", () => {
     s0 = st.sectorFor(0, 0);
     expect(s0.motes).toEqual([m1, m2, m6]);
   });
+
+  describe("collisions", () => {
+    function c(a: Mote, b: Mote) {
+      const v = p5.Vector.sub(b.pos, a.pos);
+      return {
+        a,
+        b,
+        d: v.mag(),
+        v,
+      };
+    }
+    it("handles a simple case of non-colliding modes", () => {
+      const m1 = m(0, 0);
+      const m2 = m(9, 9);
+      const st = new SectorTracker(10, new p5.Vector(100, 100));
+      st.updatePositions([m1, m2]);
+      expect(st.collisions(5)).toEqual([]);
+    });
+    it("handles a simple case of colliding modes", () => {
+      const m1 = m(0, 0);
+      const m2 = m(3, 3);
+      const st = new SectorTracker(10, new p5.Vector(100, 100));
+      st.updatePositions([m1, m2]);
+      expect(st.collisions(10)).toEqual([c(m1, m2)]);
+    });
+    it("handles the top-left (or bottom right) corner", () => {
+      const a = m(9, 9);
+      const b = m(11, 11);
+      const st = new SectorTracker(10, new p5.Vector(100, 100));
+      st.updatePositions([a, b]);
+      expect(st.collisions(10)).toEqual([c(b, a)]);
+      st.updatePositions([b, a]);
+      expect(st.collisions(10)).toEqual([c(b, a)]);
+    });
+    it("handles the top (or bottom) edge", () => {
+      const a = m(9, 9);
+      const b = m(9, 11);
+      const st = new SectorTracker(10, new p5.Vector(100, 100));
+      st.updatePositions([a, b]);
+      expect(st.collisions(10)).toEqual([c(b, a)]);
+      st.updatePositions([b, a]);
+      expect(st.collisions(10)).toEqual([c(b, a)]);
+    });
+    it("handles the top-right (or bottom left) corner", () => {
+      const a = m(11, 9);
+      const b = m(9, 11);
+      const st = new SectorTracker(10, new p5.Vector(100, 100));
+      st.updatePositions([a, b]);
+      expect(st.collisions(10)).toEqual([c(b, a)]);
+      st.updatePositions([b, a]);
+      expect(st.collisions(10)).toEqual([c(b, a)]);
+    });
+    it("handles the left (or right) edge", () => {
+      const a = m(9, 9);
+      const b = m(11, 9);
+      const st = new SectorTracker(10, new p5.Vector(100, 100));
+      st.updatePositions([a, b]);
+      expect(st.collisions(10)).toEqual([c(b, a)]);
+      st.updatePositions([b, a]);
+      expect(st.collisions(10)).toEqual([c(b, a)]);
+    });
+  });
 });
