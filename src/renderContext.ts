@@ -43,15 +43,30 @@ export class RenderContext {
     this.p5.noStroke();
   }
 
-  circle(x: number, y: number, r: number) {
+  convert(x: number, y: number) {
     const px = (x - this.zoomX) * this.zoom * this.r + this.p5.windowWidth / 2;
     const py = (y - this.zoomY) * this.zoom * this.r + this.p5.windowHeight / 2;
+    return [px, py];
+  }
+
+  circle(x: number, y: number, r: number) {
+    const [px, py] = this.convert(x, y);
     // underlying api uses diameter not radius, converted here.
     this.p5.circle(
       px,
       py,
       2 * r * this.r * this.zoom * this.spec.moteRenderScaling
     );
+  }
+
+  rect(x1: number, y1: number, w: number, h: number) {
+    const [px1, py1] = this.convert(x1, y1);
+    this.p5.rect(px1, py1, w * this.r * this.zoom, h * this.r * this.zoom);
+  }
+
+  text(text: string, x: number, y: number) {
+    const [px, py] = this.convert(x, y);
+    this.p5.text(text, px, py);
   }
 
   noFill() {

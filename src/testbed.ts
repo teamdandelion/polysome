@@ -2,57 +2,49 @@ import p5 from "p5";
 
 import { World } from "./world";
 import { Mote } from "./mote";
-import { TestFlowField } from "./flowField";
+import {
+  FlowField,
+  DynamicFlowField,
+  flowSpec,
+  TestFlowField,
+} from "./flowField";
 import { Spec } from "./spec";
 import randomSeed from "./randomSeed";
-import { makeSeededRng } from "./safeRandom";
+import { makeSeededRng, Rng } from "./safeRandom";
 import { RenderContext } from "./renderContext";
+import { PolysomeInstance } from "./instance";
 
-import {
-  pi,
-  mod,
-  rescale,
-  clip,
-  sin,
-  cos,
-  dist,
-  distUpperBound,
-  distLowerBound,
-  angle,
-} from "./safeMath";
+export class Testbed implements PolysomeInstance {
+  rng: Rng;
+  spec: Spec;
+  world: World;
+  ff: TestFlowField;
+  rc: RenderContext | null;
+  bounds: p5.Vector;
 
-export function sketch(p5: p5) {
-  let R /*: Rng */;
-  let rc: RenderContext;
-  let spec: Spec;
-  let world: World;
+  constructor(seed: string, xDim: number, yDim: number) {
+    this.rc = null;
+    this.rng = makeSeededRng(seed);
+    this.spec = new Spec();
+    this.bounds = new p5.Vector(xDim, yDim);
 
-  const worldDim = 1000;
+    this.ff = new TestFlowField(this.bounds.x / 2, this.bounds.y / 2);
+    this.world = new World(this.spec, this.rng, this.ff, this.bounds);
+  }
 
-  p5.setup = () => {
-    console.log("test");
-    let seed = randomSeed();
-    console.log(`seed: ${seed}`);
-    const rng = makeSeededRng(seed);
-    const spec = new Spec();
-    spec.numMotes = 3000;
-    spec.motesPerStep = 20;
-    const zoomLevel = 2;
+  setup(p5: p5) {
+    const zoomLevel = 1;
+    this.rc = new RenderContext(p5, this.spec, this.bounds, zoomLevel);
+  }
 
-    const wh = p5.windowHeight;
-    const ww = p5.windowWidth;
-    if (ww > wh) {
-      spec.yDim = spec.xDim * (wh / ww);
-    } else {
-      spec.xDim = spec.yDim * (ww / wh);
+  step() {
+    this.world.step();
+  }
+
+  draw() {
+    if (!this.rc) {
+      throw new Error("Instance not setup");
     }
-    const ff = new TestFlowField(spec.xDim / 2, spec.yDim / 2);
-    rc = new RenderContext(p5, spec, zoomLevel);
-    world = new World(spec, rng, ff);
-  };
-
-  p5.draw = () => {
-    world.render(rc);
-    world.step();
-  };
+    this.world.render(this.rc);
+  }
 }

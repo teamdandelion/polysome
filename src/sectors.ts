@@ -1,6 +1,7 @@
 import p5 from "p5";
 
 import { Mote } from "./mote";
+import { RenderContext } from "./renderContext";
 
 export type Sector = {
   motes: Mote[];
@@ -139,5 +140,18 @@ export class SectorTracker {
       }
     }
     return collisions;
+  }
+
+  render(rc: RenderContext, showMoteCount: boolean) {
+    rc.p5.stroke(30);
+    rc.p5.strokeWeight(1);
+    for (const sector of this.sectors) {
+      rc.noFill();
+      rc.rect(sector.min.x, sector.min.y, this.sectorSize, this.sectorSize);
+      if (showMoteCount) {
+        rc.p5.fill(60, 20, 100);
+        rc.text(`${sector.motes.length}`, sector.min.x + 2, sector.max.y - 4);
+      }
+    }
   }
 }

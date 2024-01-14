@@ -5,7 +5,6 @@ import { Rng } from "./safeRandom";
 import { FlowField, IFlowField } from "./flowField";
 import { Mote } from "./mote";
 import { Spec } from "./spec";
-import { detectCollisions } from "./collisions";
 import { SectorTracker } from "./sectors";
 
 export class World {
@@ -95,6 +94,7 @@ export class World {
 
   render(rc: RenderContext) {
     rc.background(240, 100, 10);
+
     rc.strokeWeight(2);
     rc.noFill();
 
@@ -103,5 +103,6 @@ export class World {
       rc.stroke(hue, 100, 40 + mote.nCollisions, 80);
       rc.circle(mote.pos.x, mote.pos.y, this.spec.moteRadius);
     });
+    this.sectorTracker.render(rc, true);
   }
 }
