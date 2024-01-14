@@ -43,8 +43,8 @@ export class FlowField {
   fieldPoints: number[][]; // Angle (theta) in a grid on the field
 
   constructor(spec: FlowSpec) {
-    const iMax = spec.bounds.x / this.spacing;
-    const jMax = spec.bounds.y / this.spacing;
+    const iMax = Math.ceil(spec.bounds.x / this.spacing);
+    const jMax = Math.ceil(spec.bounds.y / this.spacing);
     this.fieldPoints = Array.from({ length: iMax }, () =>
       Array(jMax).fill(spec.defaultTheta)
     );

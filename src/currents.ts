@@ -14,20 +14,21 @@ export class Currents implements PolysomeInstance {
   spec: Spec;
   world: World;
   rc: RenderContext | null;
+  bounds: p5.Vector;
 
   constructor(seed: string, xDim: number, yDim: number) {
     this.rc = null;
     this.rng = makeSeededRng(seed);
     this.spec = new Spec();
-    const bounds = new p5.Vector(xDim, yDim);
+    this.bounds = new p5.Vector(xDim, yDim);
 
-    const ff = new FlowField(flowSpec(this.rng, this.spec, bounds));
-    this.world = new World(this.spec, this.rng, ff, bounds);
+    const ff = new FlowField(flowSpec(this.rng, this.spec, this.bounds));
+    this.world = new World(this.spec, this.rng, ff, this.bounds);
   }
 
   setup(p5: p5) {
     const zoomLevel = 1.1;
-    this.rc = new RenderContext(p5, this.spec, zoomLevel);
+    this.rc = new RenderContext(p5, this.spec, this.bounds, zoomLevel);
   }
 
   step() {
