@@ -2,7 +2,7 @@ import p5 from "p5";
 
 import { RenderContext } from "./renderContext";
 import { Rng } from "./safeRandom";
-import { FlowField, IFlowField } from "./flowField";
+import { FlowField, IFlowField, renderFF } from "./flowField";
 import { Mote } from "./mote";
 import { Spec } from "./spec";
 import { SectorTracker } from "./sectors";
@@ -95,6 +95,7 @@ export class World {
   render(rc: RenderContext) {
     rc.background(240, 100, 10);
 
+    renderFF(this.flowField, this.bounds, rc);
     rc.strokeWeight(2);
     rc.noFill();
 

@@ -2,6 +2,7 @@ import p5 from "p5";
 import { dist, rescale, pi } from "./safeMath";
 import { Rng } from "./safeRandom";
 import { Spec } from "./spec";
+import { RenderContext } from "./renderContext";
 
 type DisturbanceSpec = {
   pos: p5.Vector;
@@ -205,5 +206,18 @@ export class DynamicFlowField {
     const j = Math.floor(pos.y / this.spacing);
     const theta = this.fieldPoints[i][j];
     return p5.Vector.fromAngle(theta);
+  }
+}
+
+export function renderFF(ff: IFlowField, bounds: p5.Vector, rc: RenderContext) {
+  const spacing = 6;
+  rc.p5.stroke(200, 100, 40);
+  rc.strokeWeight(1);
+  for (let x = 0; x < bounds.x; x += spacing) {
+    for (let y = 0; y < bounds.y; y += spacing) {
+      const pos = new p5.Vector(x, y);
+      const flow = ff.flow(pos);
+      rc.line(x, y, x + flow.x * spacing, y + flow.y * spacing);
+    }
   }
 }

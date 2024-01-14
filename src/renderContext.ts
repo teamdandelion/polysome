@@ -59,6 +59,12 @@ export class RenderContext {
     );
   }
 
+  line(x1: number, y1: number, x2: number, y2: number) {
+    const [px1, py1] = this.convert(x1, y1);
+    const [px2, py2] = this.convert(x2, y2);
+    this.p5.line(px1, py1, px2, py2);
+  }
+
   rect(x1: number, y1: number, w: number, h: number) {
     const [px1, py1] = this.convert(x1, y1);
     this.p5.rect(px1, py1, w * this.r * this.zoom, h * this.r * this.zoom);
