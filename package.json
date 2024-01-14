@@ -6,8 +6,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "parcel src/index.html",
-    "build": "parcel build src/index.html",
+    "start": "parcel src/pages/index.html",
+    "build": "parcel build src/pages/index.html",
     "test": "jest --selectProjects=test",
     "perf": "jest --selectProjects=perf"
   },

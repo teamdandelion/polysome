@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import LandingPage from "./pages/LandingPage";
-import Currents from "./pages/Currents";
-import Testbed from "./pages/Testbed";
+import LandingPage from "./LandingPage";
+import Currents from "./Currents";
+import Testbed from "./Testbed";
 
-import "./pages/global.css";
+import "./global.css";
 
 function App() {
   return (
