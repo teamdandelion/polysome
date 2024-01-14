@@ -14,6 +14,7 @@ const CurrentsPage = () => {
       return;
     }
     const seed = randomSeed();
+    console.log("Currents v2");
     console.log(seed);
     const ww = window.innerWidth;
     const wh = window.innerHeight;

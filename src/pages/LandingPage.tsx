@@ -2,6 +2,7 @@ import React from "react";
 import "./LandingPage.css";
 
 const LandingPage = () => {
+  console.log("Landing v2");
   return (
     <div className="landing">
       <h1 className="title">Polysome</h1>
