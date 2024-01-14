@@ -2,7 +2,7 @@ import p5 from "p5";
 
 import { World } from "./world";
 import { Mote } from "./mote";
-import { FlowField, flowSpec } from "./flowField";
+import { FlowField, DynamicFlowField, flowSpec } from "./flowField";
 import { Spec } from "./spec";
 import randomSeed from "./randomSeed";
 import { makeSeededRng, Rng } from "./safeRandom";
@@ -13,6 +13,7 @@ export class Currents implements PolysomeInstance {
   rng: Rng;
   spec: Spec;
   world: World;
+  ff: DynamicFlowField;
   rc: RenderContext | null;
   bounds: p5.Vector;
 
@@ -22,8 +23,8 @@ export class Currents implements PolysomeInstance {
     this.spec = new Spec();
     this.bounds = new p5.Vector(xDim, yDim);
 
-    const ff = new FlowField(flowSpec(this.rng, this.spec, this.bounds));
-    this.world = new World(this.spec, this.rng, ff, this.bounds);
+    this.ff = new DynamicFlowField(this.rng, this.bounds);
+    this.world = new World(this.spec, this.rng, this.ff, this.bounds);
   }
 
   setup(p5: p5) {
@@ -33,6 +34,7 @@ export class Currents implements PolysomeInstance {
 
   step() {
     this.world.step();
+    this.ff.step();
   }
 
   draw() {
