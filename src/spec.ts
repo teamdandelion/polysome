@@ -2,10 +2,6 @@ export class Spec {
   numMotes = 6000;
   motesPerStep = 40;
 
-  // Dimensions overwritten at p5 setup time,
-  // one will get reduced to match window ratio
-  xDim = 1000;
-  yDim = 1000;
   moteRadius = 8;
   moteInfluenceRadius = 8;
   moteRenderScaling = 0.3;

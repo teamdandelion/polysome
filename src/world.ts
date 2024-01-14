@@ -12,28 +12,30 @@ export class World {
   spec: Spec;
   rng: Rng;
   flowField: IFlowField;
+  bounds: p5.Vector;
 
-  constructor(spec: Spec, rng: Rng, flowField: IFlowField) {
+  constructor(spec: Spec, rng: Rng, flowField: IFlowField, bounds: p5.Vector) {
     this.spec = spec;
     this.motes = [];
     this.rng = rng;
     this.flowField = flowField;
+    this.bounds = bounds;
   }
 
   randomPos(): p5.Vector {
     const spec = this.spec;
     return new p5.Vector(
-      this.rng.uniform(0, spec.xDim),
-      this.rng.uniform(0, spec.yDim)
+      this.rng.uniform(0, this.bounds.x),
+      this.rng.uniform(0, this.bounds.y)
     );
   }
 
   inBounds(pos: p5.Vector) {
     return (
       pos.x >= 0 &&
-      pos.x <= this.spec.xDim &&
+      pos.x <= this.bounds.x &&
       pos.y >= 0 &&
-      pos.y <= this.spec.yDim
+      pos.y <= this.bounds.y
     );
   }
 
@@ -60,7 +62,7 @@ export class World {
       this.motes,
       this.spec.moteRadius * 2 + this.spec.moteInfluenceRadius,
       this.spec.sectorSize,
-      Math.max(this.spec.xDim, this.spec.yDim)
+      Math.max(this.bounds.x, this.bounds.y)
     );
     for (const [mote1, mote2] of collidingMotes) {
       const v = p5.Vector.sub(mote1.pos, mote2.pos);

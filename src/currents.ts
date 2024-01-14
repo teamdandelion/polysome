@@ -19,10 +19,10 @@ export class Currents implements PolysomeInstance {
     this.rc = null;
     this.rng = makeSeededRng(seed);
     this.spec = new Spec();
-    this.spec.xDim = xDim;
-    this.spec.yDim = yDim;
-    const ff = new FlowField(flowSpec(this.rng, this.spec));
-    this.world = new World(this.spec, this.rng, ff);
+    const bounds = new p5.Vector(xDim, yDim);
+
+    const ff = new FlowField(flowSpec(this.rng, this.spec, bounds));
+    this.world = new World(this.spec, this.rng, ff, bounds);
   }
 
   setup(p5: p5) {

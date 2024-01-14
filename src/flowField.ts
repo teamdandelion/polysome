@@ -12,18 +12,19 @@ type DisturbanceSpec = {
 type FlowSpec = {
   defaultTheta: number;
   disturbances: DisturbanceSpec[];
+  bounds: p5.Vector;
 };
 
 export interface IFlowField {
   flow(pos: p5.Vector): p5.Vector;
 }
 
-export function flowSpec(r: Rng, spec: Spec): FlowSpec {
+export function flowSpec(r: Rng, spec: Spec, bounds: p5.Vector): FlowSpec {
   const { numDisturbances, thetaVariance, defaultTheta } = spec;
   const disturbances: DisturbanceSpec[] = [];
   for (let i = 0; i < numDisturbances; i++) {
-    const disturbanceX = r.uniform(0, spec.xDim);
-    const disturbanceY = r.uniform(0, spec.yDim);
+    const disturbanceX = r.uniform(0, bounds.x);
+    const disturbanceY = r.uniform(0, bounds.y);
     const disturbanceTheta = r.gauss(0, thetaVariance);
     const disturbanceRadius = Math.abs(
       r.gauss(spec.disturbanceRadiusMean, spec.disturbanceRadiusVariance)
@@ -34,21 +35,16 @@ export function flowSpec(r: Rng, spec: Spec): FlowSpec {
       radius: disturbanceRadius,
     });
   }
-  return { defaultTheta, disturbances };
+  return { defaultTheta, disturbances, bounds };
 }
 
 export class FlowField {
-  // Hack - Flow field still thinks its a 1000x1000 grid
-  xMin = 0;
-  xMax = 1000;
-  yMin = 0;
-  yMax = 1000;
   spacing = 10;
   fieldPoints: number[][]; // Angle (theta) in a grid on the field
 
   constructor(spec: FlowSpec) {
-    const iMax = (this.xMax - this.xMin) / this.spacing;
-    const jMax = (this.yMax - this.yMin) / this.spacing;
+    const iMax = spec.bounds.x / this.spacing;
+    const jMax = spec.bounds.y / this.spacing;
     this.fieldPoints = Array.from({ length: iMax }, () =>
       Array(jMax).fill(spec.defaultTheta)
     );
