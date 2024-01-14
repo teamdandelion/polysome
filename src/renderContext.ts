@@ -18,13 +18,13 @@ export class RenderContext {
   // Y-center of the zoomed viewport
   zoomY: number;
 
-  constructor(p5: p5, spec: Spec, zoom: number) {
+  constructor(p5: p5, spec: Spec, bounds: p5.Vector, zoom: number) {
     this.p5 = p5;
     this.spec = spec;
-    this.r = p5.windowWidth / spec.xDim;
+    this.r = p5.windowWidth / bounds.x;
     this.zoom = zoom;
-    this.zoomX = spec.xDim / 2;
-    this.zoomY = spec.yDim / 2;
+    this.zoomX = bounds.x / 2;
+    this.zoomY = bounds.y / 2;
     p5.pixelDensity(1);
     p5.colorMode(p5.HSB, 360, 100, 100, 100);
 
