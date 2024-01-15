@@ -14,6 +14,9 @@ export class World {
   flowField: IFlowField;
   bounds: p5.Vector;
   sectorTracker: SectorTracker;
+  lastNumCollisions = 0;
+  stepCounter = 0;
+  numAdded = 0;
 
   constructor(spec: Spec, rng: Rng, flowField: IFlowField, bounds: p5.Vector) {
     this.spec = spec;
@@ -49,13 +52,14 @@ export class World {
 
   // Steps through one time unit in the simulation
   step() {
-    let added = 0;
+    this.stepCounter++;
+    this.numAdded = 0;
     while (
       this.motes.length < this.spec.numMotes &&
-      added < this.spec.motesPerStep
+      this.numAdded < this.spec.motesPerStep
     ) {
       this.addMote();
-      added++;
+      this.numAdded++;
     }
 
     const ff = this.flowField;
@@ -64,6 +68,7 @@ export class World {
     const collisionRadius =
       this.spec.moteRadius * 2 + this.spec.moteInfluenceRadius;
     const collisions = this.sectorTracker.collisions(collisionRadius);
+    this.lastNumCollisions = collisions.length;
     for (const { a, b, d, v } of collisions) {
       const boundaryDistance = d - 2 * this.spec.moteRadius;
       let forceFactor;
@@ -99,11 +104,37 @@ export class World {
     rc.noFill();
 
     this.motes.forEach((mote) => mote.render(rc, this.spec.moteRadius));
-    if (this.spec.renderSectorGrid) {
-      this.sectorTracker.render(rc, this.spec.renderSectorCounts);
-    }
-    if (this.spec.renderFlowField) {
-      renderFF(this.flowField, this.bounds, rc);
+
+    if (this.spec.debugMode) {
+      if (this.spec.debugSectorGrid) {
+        this.sectorTracker.render(rc, this.spec.debugSectorCounts);
+      }
+      if (this.spec.debugRenderFlowfield) {
+        renderFF(this.flowField, this.bounds, rc);
+      }
+
+      if (this.spec.debugPane) {
+        const p5 = rc.p5;
+        p5.fill(240, 100, 10, 60);
+        let x = p5.windowWidth - 220;
+        let y = p5.windowHeight - 120;
+        p5.rect(x, y, 180, 110);
+        p5.fill(60, 20, 100);
+        p5.textSize(14);
+        function textLine(line: string) {
+          p5.text(line, x + 10, y + 20);
+          y += 20;
+        }
+        textLine(`Polysome             ${p5.frameRate().toFixed(0)} fps`);
+        textLine(`step: ${this.stepCounter.toLocaleString()}`);
+        textLine(`nMotes: ${this.motes.length.toLocaleString()}`);
+        textLine(`nCollisions: ${this.lastNumCollisions.toLocaleString()}`);
+        textLine(
+          `collisions/mote: ${(
+            this.lastNumCollisions / this.motes.length
+          ).toFixed(2)}`
+        );
+      }
     }
   }
 }

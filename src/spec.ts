@@ -1,5 +1,5 @@
 export class Spec {
-  numMotes = 4000;
+  numMotes = 6000;
   motesPerStep = 40;
 
   moteRadius = 8;
@@ -16,8 +16,12 @@ export class Spec {
   flowCoefficient = 1;
   cxFlowCoefficient = 1;
 
-  // Rendering settings
-  renderFlowField = true;
-  renderSectorGrid = false;
-  renderSectorCounts = true;
+  // Debug rendering settings
+  // Global toggle for debug info
+  debugMode = false;
+  // Tuning which debug info is present
+  debugRenderFlowfield = true;
+  debugSectorGrid = false;
+  debugSectorCounts = true;
+  debugPane = true;
 }
