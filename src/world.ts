@@ -4,6 +4,7 @@ import { RenderContext } from "./renderContext";
 import { Rng } from "./safeRandom";
 import { FlowField, IFlowField, renderFF } from "./flowField";
 import { Mote } from "./mote";
+import { IEmitter, PositionalEmitter, RandomEmitter } from "./emitter";
 import { Spec } from "./spec";
 import { SectorTracker } from "./sectors";
 
@@ -14,17 +15,20 @@ export class World {
   flowField: IFlowField;
   bounds: p5.Vector;
   sectorTracker: SectorTracker;
+  emitters: IEmitter[];
   lastNumCollisions = 0;
   stepCounter = 0;
   numAdded = 0;
 
   constructor(spec: Spec, rng: Rng, flowField: IFlowField, bounds: p5.Vector) {
     this.spec = spec;
-    this.motes = [];
+    this.bounds = bounds;
     this.rng = rng;
     this.flowField = flowField;
-    this.bounds = bounds;
     this.sectorTracker = new SectorTracker(spec.sectorSize, bounds);
+
+    this.motes = [];
+    this.emitters = [new RandomEmitter(bounds, rng, spec)];
   }
 
   randomPos(): p5.Vector {
@@ -46,7 +50,9 @@ export class World {
 
   // Adds a mote to the world
   addMote() {
-    const mote = new Mote(this.randomPos());
+    const emitter = this.rng.choice(this.emitters);
+    const pos = emitter.emit();
+    const mote = new Mote(pos);
     this.motes.push(mote);
   }
 
