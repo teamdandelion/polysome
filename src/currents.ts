@@ -17,10 +17,11 @@ export class Currents implements PolysomeInstance {
   rc: RenderContext | null;
   bounds: p5.Vector;
 
-  constructor(seed: string, xDim: number, yDim: number) {
+  constructor(seed: string, xDim: number, yDim: number, debug: boolean) {
     this.rc = null;
     this.rng = makeSeededRng(seed);
     this.spec = new Spec();
+    this.spec.debugMode = debug;
     this.bounds = new p5.Vector(xDim, yDim);
 
     this.ff = new DynamicFlowField(this.rng, this.bounds);

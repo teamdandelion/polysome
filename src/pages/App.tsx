@@ -11,9 +11,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Currents />} />
+        <Route path="/" element={<Currents debug={false} />} />
+        <Route path="/debug" element={<Currents debug={true} />} />
+
         <Route path="/landing" element={<LandingPage />} />
-        <Route path="/currents" element={<Currents />} />
+        <Route path="/currents" element={<Currents debug={false} />} />
         <Route path="/testbed" element={<Testbed />} />
       </Routes>
     </Router>

@@ -27,6 +27,7 @@ export class Testbed implements PolysomeInstance {
     this.rng = makeSeededRng(seed);
     this.spec = new Spec();
     this.spec.numMotes = 1000;
+    this.spec.debugMode = true;
     this.bounds = new p5.Vector(xDim, yDim);
 
     this.ff = new TestFlowField(this.bounds.x / 2, this.bounds.y / 2);

@@ -14,7 +14,7 @@ describe("Currents performance", () => {
     // Arbitrary seed for reproducibility
     let seed =
       "0xf3ec9859e53910c4ae52378ee2c7f26fdb498e495f31b91baaae542d08a5cd00";
-    const currents = new Currents(seed, 1000, 1000);
+    const currents = new Currents(seed, 1000, 1000, false);
 
     const afterSetup = performance.now();
     const setupTime = afterSetup - start;

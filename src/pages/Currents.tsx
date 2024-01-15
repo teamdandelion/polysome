@@ -5,7 +5,11 @@ import randomSeed from "../randomSeed";
 import { sketchify } from "../instance";
 import { Currents } from "../currents";
 
-const CurrentsPage = () => {
+type CurrentsPageProps = {
+  debug: boolean;
+};
+
+const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug }) => {
   const sketchRef = useRef<HTMLDivElement | null>(null);
   let sketchInstance: p5 | null = null;
 
@@ -25,7 +29,7 @@ const CurrentsPage = () => {
     } else {
       xDim = (ww / wh) * yDim;
     }
-    const currentsInstance = new Currents(seed, xDim, yDim);
+    const currentsInstance = new Currents(seed, xDim, yDim, debug);
     const sketch = sketchify(currentsInstance);
     new p5(sketch, sketchRef.current);
 
