@@ -68,12 +68,20 @@ export class World {
       this.numAdded++;
     }
 
-    const ff = this.flowField;
     this.motes.forEach((mote) => mote.resetCollisions());
     this.sectorTracker.updatePositions(this.motes);
+
+    this.processCollisions();
+    this.moveMotes();
+
+    this.motes = this.motes.filter((mote) => this.inBounds(mote.pos));
+  }
+
+  processCollisions() {
     const collisionRadius =
       this.spec.moteRadius * 2 + this.spec.moteInfluenceRadius;
     const collisions = this.sectorTracker.collisions(collisionRadius);
+
     this.lastNumCollisions = collisions.length;
     for (const { a, b, d, v } of collisions) {
       const boundaryDistance = d - 2 * this.spec.moteRadius;
@@ -91,16 +99,16 @@ export class World {
       a.nCollisions++;
       b.nCollisions++;
     }
+  }
 
+  moveMotes() {
     this.motes.forEach((mote) => {
-      const vel = ff.flow(mote.pos).mult(this.spec.flowCoefficient);
+      const vel = this.flowField.flow(mote.pos).mult(this.spec.flowCoefficient);
       mote.pos.add(
         vel.mult(Math.pow(this.spec.cxFlowCoefficient, mote.nCollisions))
       );
       mote.pos.add(mote.vCollide);
     });
-
-    this.motes = this.motes.filter((mote) => this.inBounds(mote.pos));
   }
 
   render(rc: RenderContext) {

@@ -21,7 +21,7 @@ export class Spec {
   debugMode = false;
   // Tuning which debug info is present
   debugRenderFlowfield = true;
-  debugSectorGrid = false;
+  debugSectorGrid = true;
   debugSectorCounts = true;
   debugPane = true;
 }
