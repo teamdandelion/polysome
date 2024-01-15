@@ -95,15 +95,15 @@ export class World {
   render(rc: RenderContext) {
     rc.background(240, 100, 10);
 
-    renderFF(this.flowField, this.bounds, rc);
     rc.strokeWeight(2);
     rc.noFill();
 
-    this.motes.forEach((mote) => {
-      let hue = 30 + mote.nCollisions * 3;
-      rc.stroke(hue, 100, 40 + mote.nCollisions, 80);
-      rc.circle(mote.pos.x, mote.pos.y, this.spec.moteRadius);
-    });
-    this.sectorTracker.render(rc, true);
+    this.motes.forEach((mote) => mote.render(rc, this.spec.moteRadius));
+    if (this.spec.renderSectorGrid) {
+      this.sectorTracker.render(rc, this.spec.renderSectorCounts);
+    }
+    if (this.spec.renderFlowField) {
+      renderFF(this.flowField, this.bounds, rc);
+    }
   }
 }

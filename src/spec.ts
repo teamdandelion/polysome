@@ -15,4 +15,9 @@ export class Spec {
   disturbanceRadiusVariance = 200;
   flowCoefficient = 1;
   cxFlowCoefficient = 1;
+
+  // Rendering settings
+  renderFlowField = true;
+  renderSectorGrid = false;
+  renderSectorCounts = true;
 }
