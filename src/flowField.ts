@@ -210,9 +210,9 @@ export class DynamicFlowField {
 }
 
 export function renderFF(ff: IFlowField, bounds: p5.Vector, rc: RenderContext) {
-  const spacing = 6;
-  rc.p5.stroke(200, 100, 40);
-  rc.strokeWeight(1);
+  const spacing = 10;
+  rc.p5.stroke(200, 20, 80, 20);
+  rc.strokeWeight(2);
   for (let x = 0; x < bounds.x; x += spacing) {
     for (let y = 0; y < bounds.y; y += spacing) {
       const pos = new p5.Vector(x, y);
