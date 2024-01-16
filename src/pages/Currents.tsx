@@ -7,9 +7,10 @@ import { Currents } from "../currents";
 
 type CurrentsPageProps = {
   debug: boolean;
+  seed?: string;
 };
 
-const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug }) => {
+const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
   const sketchRef = useRef<HTMLDivElement | null>(null);
   let sketchInstance: p5 | null = null;
 
@@ -17,7 +18,7 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug }) => {
     if (!sketchRef.current) {
       return;
     }
-    const seed = randomSeed();
+    seed = seed ?? randomSeed();
     console.log("Currents v2");
     console.log(seed);
     const ww = window.innerWidth;
