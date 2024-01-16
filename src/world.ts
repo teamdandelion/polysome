@@ -78,12 +78,10 @@ export class World {
   }
 
   processCollision({ a, b, d, v }: Collision) {
-    let forceFactor;
-    if (d < this.spec.moteCollisionRadius - this.spec.moteInfluenceRadius) {
-      forceFactor = 0.2;
-    } else {
+    let forceFactor = this.spec.moteForceFactor;
+    if (d >= this.spec.moteCollisionRadius - this.spec.moteInfluenceRadius) {
       forceFactor =
-        (0.2 * (this.spec.moteCollisionRadius - d)) /
+        (this.spec.moteForceFactor * (this.spec.moteCollisionRadius - d)) /
         this.spec.moteInfluenceRadius;
     }
     v.setMag(forceFactor);
