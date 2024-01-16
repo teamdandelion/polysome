@@ -1,5 +1,6 @@
 import p5 from "p5";
 import { RenderContext } from "./renderContext";
+import { Spec } from "./spec";
 
 export class Mote {
   pos: p5.Vector;
@@ -19,10 +20,10 @@ export class Mote {
     this.age++;
   }
 
-  render(rc: RenderContext, radius: number) {
-    let hue = 30 + this.nCollisions * 3;
+  render(rc: RenderContext, spec: Spec) {
+    let hue = 30 + this.nCollisions * spec.moteHueFactor;
     let b = Math.min(1, this.age / 20);
-    rc.stroke(hue, 100, 40 + this.nCollisions, b * 80);
-    rc.circle(this.pos.x, this.pos.y, radius);
+    rc.stroke(hue, 100, 40 + this.nCollisions * spec.moteBrightFactor, b * 80);
+    rc.circle(this.pos.x, this.pos.y, spec.moteRadius * spec.moteRenderScale);
   }
 }

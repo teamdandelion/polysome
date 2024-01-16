@@ -119,9 +119,7 @@ export class World {
     rc.strokeWeight(2);
     rc.noFill();
 
-    this.motes.forEach((mote) =>
-      mote.render(rc, this.spec.moteRadius * this.spec.moteRenderScale)
-    );
+    this.motes.forEach((mote) => mote.render(rc, this.spec));
 
     if (this.spec.debugMode) {
       if (this.spec.debugSectorGrid) {

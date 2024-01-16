@@ -5,8 +5,11 @@ export class Spec {
   moteRadius = 30;
   // Range over which mote influence decays
   moteCollisionDecay = 7;
-  moteRenderScale = 0.13;
+  moteRenderScale = 0.12;
   moteForce = 0.2;
+
+  moteHueFactor = 3;
+  moteBrightFactor = 1;
 
   forceFieldResolution = 24;
 
