@@ -52,11 +52,7 @@ export class RenderContext {
   circle(x: number, y: number, r: number) {
     const [px, py] = this.convert(x, y);
     // underlying api uses diameter not radius, converted here.
-    this.p5.circle(
-      px,
-      py,
-      2 * r * this.r * this.zoom * this.spec.moteRenderScaling
-    );
+    this.p5.circle(px, py, 2 * r * this.r * this.zoom);
   }
 
   line(x1: number, y1: number, x2: number, y2: number) {

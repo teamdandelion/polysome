@@ -2,9 +2,9 @@ export class Spec {
   numMotes = 6000;
   motesPerStep = 40;
 
+  moteRenderRadius = 2.4;
   moteRadius = 8;
   moteInfluenceRadius = 8;
-  moteRenderScaling = 0.3;
   sectorSize = 40;
 
   // Flow field settings
