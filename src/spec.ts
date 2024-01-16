@@ -3,8 +3,10 @@ export class Spec {
   motesPerStep = 40;
 
   moteRenderRadius = 2.4;
-  moteRadius = 8;
+  // Radius at which motes influence each other
+  moteCollisionRadius = 24;
   moteInfluenceRadius = 8;
+  moteForceFactor = 0.2;
   sectorSize = 40;
 
   // Flow field settings
@@ -21,7 +23,7 @@ export class Spec {
   debugMode = false;
   // Tuning which debug info is present
   debugRenderFlowfield = true;
-  debugSectorGrid = true;
+  debugSectorGrid = false;
   debugSectorCounts = true;
   debugPane = true;
 }
