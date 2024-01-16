@@ -6,7 +6,7 @@ import { FlowField, IFlowField, renderFF } from "./flowField";
 import { Mote } from "./mote";
 import { IEmitter, PositionalEmitter, RandomEmitter } from "./emitter";
 import { Spec } from "./spec";
-import { SectorTracker } from "./sectors";
+import { SectorTracker, type Collision } from "./sectors";
 
 export class World {
   motes: Mote[];
@@ -77,27 +77,31 @@ export class World {
     this.motes = this.motes.filter((mote) => this.inBounds(mote.pos));
   }
 
+  processCollision({ a, b, d, v }: Collision) {
+    const boundaryDistance = d - 2 * this.spec.moteRadius;
+    let forceFactor;
+    if (boundaryDistance < 0) {
+      forceFactor = 0.2;
+    } else {
+      forceFactor =
+        (0.2 * (this.spec.moteInfluenceRadius - boundaryDistance)) /
+        this.spec.moteInfluenceRadius;
+    }
+    v.setMag(forceFactor);
+    a.vCollide.sub(v);
+    b.vCollide.add(v);
+    a.nCollisions++;
+    b.nCollisions++;
+  }
+
   processCollisions() {
     const collisionRadius =
       this.spec.moteRadius * 2 + this.spec.moteInfluenceRadius;
     const collisions = this.sectorTracker.collisions(collisionRadius);
 
     this.lastNumCollisions = collisions.length;
-    for (const { a, b, d, v } of collisions) {
-      const boundaryDistance = d - 2 * this.spec.moteRadius;
-      let forceFactor;
-      if (boundaryDistance < 0) {
-        forceFactor = 0.2;
-      } else {
-        forceFactor =
-          (0.2 * (this.spec.moteInfluenceRadius - boundaryDistance)) /
-          this.spec.moteInfluenceRadius;
-      }
-      v.setMag(forceFactor);
-      a.vCollide.sub(v);
-      b.vCollide.add(v);
-      a.nCollisions++;
-      b.nCollisions++;
+    for (const c of collisions) {
+      this.processCollision(c);
     }
   }
 
