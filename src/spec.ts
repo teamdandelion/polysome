@@ -4,8 +4,8 @@ export class Spec {
 
   moteSize = 2.4;
   // Radius at which motes influence each other
-  moteCollision = 10;
-  moteInfluence = 8 / 2.4;
+  moteCollision = 12;
+  moteInfluence = 3;
   moteForce = 0.2;
 
   // Flow field settings
