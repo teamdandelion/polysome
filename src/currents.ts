@@ -22,6 +22,10 @@ export class Currents implements PolysomeInstance {
     this.rng = makeSeededRng(seed);
     this.spec = new Spec();
     this.spec.debugMode = debug;
+    if (debug) {
+      this.spec.numMotes = 1600;
+      this.spec.moteSize = 7;
+    }
     this.bounds = new p5.Vector(xDim, yDim);
 
     this.ff = new DynamicFlowField(this.rng, this.bounds);
