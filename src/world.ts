@@ -25,7 +25,10 @@ export class World {
     this.bounds = bounds;
     this.rng = rng;
     this.flowField = flowField;
-    this.sectorTracker = new SectorTracker(spec.sectorSize, bounds);
+    this.sectorTracker = new SectorTracker(
+      spec.moteSize * spec.moteCollision,
+      bounds
+    );
 
     this.motes = [];
     this.emitters = [new RandomEmitter(bounds, rng, spec)];
@@ -78,11 +81,12 @@ export class World {
   }
 
   processCollision({ a, b, d, v }: Collision) {
-    let forceFactor = this.spec.moteForceFactor;
-    if (d >= this.spec.moteCollisionRadius - this.spec.moteInfluenceRadius) {
+    let forceFactor = this.spec.moteForce;
+    const ds = d / this.spec.moteSize;
+    if (ds >= this.spec.moteCollision - this.spec.moteInfluence) {
       forceFactor =
-        (this.spec.moteForceFactor * (this.spec.moteCollisionRadius - d)) /
-        this.spec.moteInfluenceRadius;
+        (this.spec.moteForce * (this.spec.moteCollision - ds)) /
+        this.spec.moteInfluence;
     }
     v.setMag(forceFactor);
     a.vCollide.sub(v);
@@ -93,7 +97,7 @@ export class World {
 
   processCollisions() {
     const collisions = this.sectorTracker.collisions(
-      this.spec.moteCollisionRadius
+      this.spec.moteCollision * this.spec.moteSize
     );
 
     this.lastNumCollisions = collisions.length;
@@ -118,7 +122,7 @@ export class World {
     rc.strokeWeight(2);
     rc.noFill();
 
-    this.motes.forEach((mote) => mote.render(rc, this.spec.moteRenderRadius));
+    this.motes.forEach((mote) => mote.render(rc, this.spec.moteSize));
 
     if (this.spec.debugMode) {
       if (this.spec.debugSectorGrid) {

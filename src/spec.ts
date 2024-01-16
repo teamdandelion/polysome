@@ -2,12 +2,11 @@ export class Spec {
   numMotes = 6000;
   motesPerStep = 40;
 
-  moteRenderRadius = 2.4;
+  moteSize = 2.4;
   // Radius at which motes influence each other
-  moteCollisionRadius = 24;
-  moteInfluenceRadius = 8;
-  moteForceFactor = 0.2;
-  sectorSize = 40;
+  moteCollision = 10;
+  moteInfluence = 8 / 2.4;
+  moteForce = 0.2;
 
   // Flow field settings
   numDisturbances = 30;
