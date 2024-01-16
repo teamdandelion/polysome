@@ -21,6 +21,7 @@ export class World {
   lastNumCollisions = 0;
   stepCounter = 0;
   numAdded = 0;
+  start: number;
 
   constructor(spec: Spec, rng: Rng, flowField: IFlowField, bounds: p5.Vector) {
     this.spec = spec;
@@ -32,6 +33,7 @@ export class World {
 
     this.motes = [];
     this.emitters = [new RandomEmitter(bounds, rng, spec)];
+    this.start = Date.now();
   }
 
   randomPos(): p5.Vector {
@@ -71,16 +73,17 @@ export class World {
       this.numAdded++;
     }
 
-    this.motes.forEach((mote) => mote.resetCollisions());
-    this.sectorTracker.updatePositions(this.motes);
-
-    this.processCollisions();
+    if (this.spec.useForceField) {
+      this.processCollisionsForceField();
+    } else {
+      this.processCollisions();
+    }
     this.moveMotes();
 
     this.motes = this.motes.filter((mote) => this.inBounds(mote.pos));
   }
 
-  processCollision({ a, b, d, v }: Collision) {
+  collide({ a, b, d, v }: Collision) {
     let forceFactor = this.spec.moteForce;
     if (d >= this.spec.moteRadius - this.spec.moteCollisionDecay) {
       forceFactor =
@@ -95,12 +98,26 @@ export class World {
   }
 
   processCollisions() {
+    this.motes.forEach((mote) => mote.resetCollisions());
+    this.sectorTracker.updatePositions(this.motes);
+
     const collisions = this.sectorTracker.collisions(this.spec.moteRadius);
 
     this.lastNumCollisions = collisions.length;
     for (const c of collisions) {
-      this.processCollision(c);
+      this.collide(c);
     }
+  }
+
+  processCollisionsForceField() {
+    this.forceField.setMotes(this.motes);
+
+    this.motes.forEach((mote) => {
+      const { f, nCollisions } = this.forceField.approximateForceAt(mote.pos);
+      mote.vCollide = f;
+      mote.nCollisions = nCollisions;
+      mote.age++;
+    });
   }
 
   moveMotes() {
@@ -144,8 +161,13 @@ export class World {
           p5.text(line, x + 10, y + 20);
           y += 20;
         }
+        const elapsed = (Date.now() - this.start) / 1000;
         textLine(`Polysome             ${p5.frameRate().toFixed(0)} fps`);
-        textLine(`step: ${this.stepCounter.toLocaleString()}`);
+        textLine(
+          `step: ${this.stepCounter.toLocaleString()}               ${elapsed.toFixed(
+            0
+          )}s`
+        );
         textLine(`nMotes: ${this.motes.length.toLocaleString()}`);
         textLine(`nCollisions: ${this.lastNumCollisions.toLocaleString()}`);
         textLine(

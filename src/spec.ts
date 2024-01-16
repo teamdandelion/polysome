@@ -11,7 +11,8 @@ export class Spec {
   moteHueFactor = 3;
   moteBrightFactor = 1;
 
-  forceFieldResolution = 24;
+  useForceField = false;
+  forceFieldResolution = 4;
 
   // Flow field settings
   numDisturbances = 30;
@@ -26,7 +27,7 @@ export class Spec {
   // Global toggle for debug info
   debugMode = false;
   // Tuning which debug info is present
-  debugForceField = true;
+  debugForceField = false;
   debugRenderFlowfield = false;
   debugSectorGrid = false;
   debugSectorCounts = true;

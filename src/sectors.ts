@@ -63,7 +63,12 @@ export class SectorTracker {
     if (i >= this.iMax || j >= this.jMax || i < 0 || j < 0) {
       throw new Error("Index out of bounds");
     }
-    return this.sectors[j * this.iMax + i];
+    const sector = this.sectors[j * this.iMax + i];
+    if (sector.i !== i || sector.j !== j) {
+      throw new Error("Sector index mismatch");
+    }
+
+    return sector;
   }
 
   updatePositions(motes: Mote[]) {
