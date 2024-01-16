@@ -7,6 +7,7 @@ import { Mote } from "./mote";
 import { IEmitter, PositionalEmitter, RandomEmitter } from "./emitter";
 import { Spec } from "./spec";
 import { SectorTracker, type Collision } from "./sectors";
+import { ForceField } from "./forceField";
 
 export class World {
   motes: Mote[];
@@ -16,6 +17,7 @@ export class World {
   bounds: p5.Vector;
   sectorTracker: SectorTracker;
   emitters: IEmitter[];
+  forceField: ForceField;
   lastNumCollisions = 0;
   stepCounter = 0;
   numAdded = 0;
@@ -25,6 +27,7 @@ export class World {
     this.bounds = bounds;
     this.rng = rng;
     this.flowField = flowField;
+    this.forceField = new ForceField(spec, bounds);
     this.sectorTracker = new SectorTracker(
       spec.moteSize * spec.moteCollision,
       bounds
@@ -130,6 +133,9 @@ export class World {
       }
       if (this.spec.debugRenderFlowfield) {
         renderFF(this.flowField, this.bounds, rc);
+      }
+      if (this.spec.debugForceField) {
+        this.forceField.render(rc);
       }
 
       if (this.spec.debugPane) {

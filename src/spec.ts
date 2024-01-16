@@ -8,6 +8,8 @@ export class Spec {
   moteInfluence = 3;
   moteForce = 0.2;
 
+  forceFieldResolution = 24;
+
   // Flow field settings
   numDisturbances = 30;
   thetaVariance = 3.14;
@@ -21,7 +23,8 @@ export class Spec {
   // Global toggle for debug info
   debugMode = false;
   // Tuning which debug info is present
-  debugRenderFlowfield = true;
+  debugForceField = true;
+  debugRenderFlowfield = false;
   debugSectorGrid = false;
   debugSectorCounts = true;
   debugPane = true;
