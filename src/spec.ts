@@ -1,6 +1,6 @@
 export class Spec {
-  numMotes = 4200;
-  motesPerStep = 40;
+  numMotes = 3600;
+  motesPerStep = 300;
 
   moteRadius = 33;
   // Range over which mote influence decays
@@ -9,7 +9,7 @@ export class Spec {
   moteForce = 0.2;
 
   moteHueBaseline = 20;
-  moteHueFactor = 3;
+  moteHueFactor = 4;
   moteBrightFactor = 1;
   moteMaxHue = 320;
 
