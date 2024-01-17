@@ -37,6 +37,69 @@
   }
 }
 
+.relative-div {
+  position: "relative";
+}
+
+.placard {
+  color: #2f00ff;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  background-color: #0033;
+  border-radius: 8px;
+  margin: 0;
+  padding: 6px 8px;
+  font-size: 1.1em;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.placard-title {
+  color: #ae00ff;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  background-color: #0033;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-right: 0;
+  padding: 2px 6px;
+  font-weight: bold;
+}
+
+.placard-bottom {
+  color: #5005ff;
+  text-align: right;
+  margin-top: .25em;
+  margin-bottom: 0;
+  margin-right: 3px;
+  font-size: .9em;
+}
+
+.author-name {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  background-color: #0000334d;
+  padding: 1px 4px;
+}
+
+@media (width <= 768px) {
+  .placard {
+    padding: .8em .5em;
+  }
+
+  .placard-title {
+    padding: .2em .5em;
+    font-size: 1em;
+  }
+
+  .author-name {
+    margin-right: 10px;
+    padding: .2em .5em;
+    font-size: 1em;
+  }
+}
+
 html, body {
   height: 100%;
   margin: 0;
