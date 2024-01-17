@@ -22,6 +22,7 @@ export class Mote {
 
   render(rc: RenderContext, spec: Spec) {
     let hue = spec.moteHueBaseline + this.nCollisions * spec.moteHueFactor;
+    hue = Math.min(hue, spec.moteMaxHue);
     let b = Math.min(1, this.age / 20);
     rc.stroke(hue, 100, 40 + this.nCollisions * spec.moteBrightFactor, b * 80);
     rc.circle(this.pos.x, this.pos.y, spec.moteRadius * spec.moteRenderScale);

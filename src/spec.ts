@@ -11,6 +11,7 @@ export class Spec {
   moteHueBaseline = 20;
   moteHueFactor = 3;
   moteBrightFactor = 1;
+  moteMaxHue = 320;
 
   moteEdgeDeflectionDistance = 0;
   moteEdgeDeflectionForce = 0.8;
