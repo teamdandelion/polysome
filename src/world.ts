@@ -169,8 +169,8 @@ export class World {
       if (this.spec.debugPane) {
         const p5 = rc.p5;
         p5.fill(240, 100, 10, 60);
-        let x = p5.windowWidth - 220;
-        let y = p5.windowHeight - 120;
+        let x = p5.windowWidth - 180;
+        let y = 10;
         p5.rect(x, y, 180, 110);
         p5.fill(60, 20, 100);
         p5.textSize(14);
