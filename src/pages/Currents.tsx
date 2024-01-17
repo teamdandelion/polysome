@@ -4,6 +4,7 @@ import p5 from "p5";
 import randomSeed from "../randomSeed";
 import { sketchify } from "../instance";
 import { Currents } from "../currents";
+import "./Currents.css";
 
 type CurrentsPageProps = {
   debug: boolean;
@@ -41,7 +42,21 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
     };
   }, []); // Empty dependency array means this effect runs once on mount and clean up on unmount
 
-  return <div ref={sketchRef} />;
+  return (
+    <div>
+      <div className="relative-div">
+        <div className="placard">
+          <p className="placard-title">
+            Polysome: <i> Currents </i>
+          </p>
+          <p className="placard-bottom">
+            <i className="author-name">by Indigo Mané</i>
+          </p>
+        </div>
+        <div ref={sketchRef} />
+      </div>
+    </div>
+  );
 };
 
 export default CurrentsPage;
