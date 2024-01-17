@@ -2,12 +2,13 @@ export class Spec {
   numMotes = 4200;
   motesPerStep = 40;
 
-  moteRadius = 30;
+  moteRadius = 33;
   // Range over which mote influence decays
-  moteCollisionDecay = 7;
+  moteCollisionDecay = 9;
   moteRenderScale = 0.12;
   moteForce = 0.2;
 
+  moteHueBaseline = 20;
   moteHueFactor = 3;
   moteBrightFactor = 1;
 
@@ -24,7 +25,7 @@ export class Spec {
   disturbanceRadiusMean = 100;
   disturbanceRadiusVariance = 200;
   flowCoefficient = 1;
-  cxFlowCoefficient = 1;
+  cxFlowCoefficient = 1.001;
 
   // Debug rendering settings
   // Global toggle for debug info
