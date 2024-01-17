@@ -40,7 +40,7 @@ export function flowSpec(r: Rng, spec: Spec, bounds: p5.Vector): FlowSpec {
 }
 
 export class FlowField {
-  spacing = 10;
+  spacing = 4;
   fieldPoints: number[][]; // Angle (theta) in a grid on the field
 
   constructor(spec: FlowSpec) {
@@ -107,7 +107,7 @@ type DynamicDisturbance = {
 };
 
 export class DynamicFlowField {
-  spacing = 10;
+  spacing = 4;
   numDisturbances = 30;
   thetaVariance = 3.14;
   disturbanceRadiusMean = 100;

@@ -1,5 +1,5 @@
 export class Spec {
-  numMotes = 6000;
+  numMotes = 4200;
   motesPerStep = 40;
 
   moteRadius = 30;
