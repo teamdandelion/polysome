@@ -1,15 +1,15 @@
 export class Spec {
-  numMotes = 3600;
+  numMotes = 3200;
   motesPerStep = 300;
 
   moteRadius = 33;
   // Range over which mote influence decays
   moteCollisionDecay = 9;
   moteRenderScale = 0.12;
-  moteForce = 0.2;
+  moteForce = 0.1;
 
   moteHueBaseline = 20;
-  moteHueFactor = 4;
+  moteHueFactor = 4.5;
   moteBrightFactor = 1;
   moteMaxHue = 320;
 
@@ -25,7 +25,7 @@ export class Spec {
   defaultTheta = 0;
   disturbanceRadiusMean = 100;
   disturbanceRadiusVariance = 200;
-  flowCoefficient = 1;
+  flowCoefficient = 0.5;
   cxFlowCoefficient = 1.001;
 
   // Debug rendering settings

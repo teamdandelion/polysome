@@ -150,7 +150,7 @@ export class World {
   render(rc: RenderContext) {
     rc.background(240, 100, 10);
 
-    rc.strokeWeight(2);
+    rc.strokeWeight(1.5);
     rc.noFill();
 
     this.motes.forEach((mote) => mote.render(rc, this.spec));
