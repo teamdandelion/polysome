@@ -26,8 +26,8 @@ export class Testbed implements PolysomeInstance {
     this.rc = null;
     this.rng = makeSeededRng(seed);
     this.spec = new Spec();
-    this.spec.moteRadius = 70;
-    this.spec.numMotes = 200;
+    this.spec.moteRadius = 40;
+    this.spec.numMotes = 100;
     this.spec.motesPerStep = 1;
     this.spec.moteRenderScale = 1;
     this.spec.moteHueFactor = 4;

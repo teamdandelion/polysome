@@ -1,6 +1,7 @@
 import p5 from "p5";
 import { RenderContext } from "./renderContext";
 import { Spec } from "./spec";
+import { rescale } from "./safeMath";
 
 export class Mote {
   pos: p5.Vector;
@@ -24,7 +25,14 @@ export class Mote {
     let hue = spec.moteHueBaseline + this.nCollisions * spec.moteHueFactor;
     hue = Math.min(hue, spec.moteMaxHue);
     let b = Math.min(1, this.age / 20);
-    rc.stroke(hue, 100, 40 + this.nCollisions * spec.moteBrightFactor, b * 100);
-    rc.circle(this.pos.x, this.pos.y, spec.moteRadius * spec.moteRenderScale);
+    let size = spec.moteRadius * spec.moteRenderScale;
+    let rotation = (this.age / 8) % (2 * Math.PI);
+    let hsb = {
+      hue: hue,
+      sat: 100,
+      bright: 80 + this.nCollisions * spec.moteBrightFactor,
+    };
+    rc.stroke(hsb.hue, hsb.sat, hsb.bright, b * 100);
+    rc.spiralMote(this.pos.x, this.pos.y, size, rotation);
   }
 }
