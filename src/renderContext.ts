@@ -134,6 +134,30 @@ export class RenderContext {
     this.p5.endShape();
   }
 
+  fibonacciMote(x: number, y: number, r: number, t: number) {
+    const [startX, startY] = this.convert(x, y);
+    this.p5.push();
+    const xCenterOffset = r * 1.15;
+    const yCenterOffset = r * 0.72;
+    this.p5.translate(startX + xCenterOffset, startY + yCenterOffset);
+    this.p5.rotate(t);
+    this.p5.translate(-xCenterOffset, -yCenterOffset);
+
+    var strokeW = 1;
+
+    for (var i = 0; i < 4; i++) {
+      this.p5.strokeWeight(strokeW);
+      strokeW += 0.5;
+
+      this.p5.arc(r, r, 2 * r, 2 * r, this.p5.PI, this.p5.PI + this.p5.HALF_PI);
+
+      this.p5.rotate(this.p5.HALF_PI);
+      this.p5.scale(0.618);
+      this.p5.translate(0, -2.618 * r);
+    }
+    this.p5.pop();
+  }
+
   atomMote(x: number, y: number, r: number, t: number, hsb: HSB) {
     const [px, py] = this.convert(x, y);
     const radius = r * this.r * this.zoom;
