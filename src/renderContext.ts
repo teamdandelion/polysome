@@ -49,7 +49,7 @@ export class RenderContext {
     return [px, py];
   }
 
-  circle(x: number, y: number, r: number) {
+  circle(x: number, y: number, r: number, _unused_rotation: number) {
     const [px, py] = this.convert(x, y);
     // underlying api uses diameter not radius, converted here.
     this.p5.circle(px, py, 2 * r * this.r * this.zoom);

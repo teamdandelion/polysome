@@ -25,7 +25,7 @@ export class Mote {
     let hue = spec.moteHueBaseline + this.nCollisions * spec.moteHueFactor;
     hue = Math.min(hue, spec.moteMaxHue);
     let b = Math.min(1, this.age / 20);
-    let size = spec.moteRadius * spec.moteRenderScale + this.nCollisions / 6;
+    let size = spec.moteRadius * spec.moteRenderScale; // + this.nCollisions / 6;
     let rotation = (this.age / 10) % (2 * Math.PI);
     let hsb = {
       hue: hue,
@@ -33,6 +33,6 @@ export class Mote {
       bright: 80 + this.nCollisions * spec.moteBrightFactor,
     };
     rc.stroke(hsb.hue, hsb.sat, hsb.bright, b * 100);
-    rc.fibonacciMote(this.pos.x, this.pos.y, size, rotation);
+    rc.circle(this.pos.x, this.pos.y, size, rotation);
   }
 }
