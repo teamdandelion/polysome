@@ -2,9 +2,13 @@ import p5 from "p5";
 
 import { Mote } from "./mote";
 import { SectorTracker } from "./sectors";
+import { Spec } from "./spec";
+import { makeSeededRng } from "./safeRandom";
 
 function m(x: number, y: number): Mote {
-  return new Mote(new p5.Vector(x, y));
+  const rng = makeSeededRng("0x00");
+  const spec = new Spec();
+  return new Mote(new p5.Vector(x, y), rng, spec);
 }
 
 describe("SectorTracker", () => {

@@ -57,7 +57,7 @@ export class World {
   addMote() {
     const emitter = this.rng.choice(this.emitters);
     const pos = emitter.emit();
-    const mote = new Mote(pos);
+    const mote = new Mote(pos, this.rng, this.spec);
     this.motes.push(mote);
   }
 
@@ -153,7 +153,7 @@ export class World {
     rc.strokeWeight(1.5);
     rc.noFill();
 
-    this.motes.forEach((mote) => mote.render(rc, this.spec));
+    this.motes.forEach((mote) => mote.render(rc));
 
     if (this.spec.debugMode) {
       if (this.spec.debugSectorGrid) {

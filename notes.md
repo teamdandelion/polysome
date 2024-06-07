@@ -1,5 +1,16 @@
 # Notes
 
+## 6.7.24
+
+- Feeling a little stymied around whether I want to add a new class of entity (e.g. "grains" or "specks"). Specks would be confusing due to the collision with Spec lol.
+- Decided to dial in on rendering for existing concept, before adding more complexity
+  - Decided to drop the fibonacci mote concept, I think it's a little noisy/ugly
+  - However the circle render is too clean / perfect / generic
+  - Decided to try adopting the "messy circle" from QQL
+  - Messy circle tends to draw a churn of many overlapping circles that are constantly slightly shifting, it was a bit ugly
+  - Decided I want to try having each mote correspond to a smaller (3-7?) set of circles / ellipses that are slowly shifting and rotating, maybe with the radius variance of the ellipses collapsing as the nCollisions pushes up (like they are getting "compressed")
+  - Left in the messy circle code for reference, however I will need to add more properties to the Mote class so they can have a bit of random render state that shifts over time but isn't regenerated from scratch each render.
+
 ## 1.12.24
 
 - I want to make a simple landing page for Polysome

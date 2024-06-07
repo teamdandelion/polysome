@@ -30,7 +30,13 @@ export class Currents implements PolysomeInstance {
 
   setup(p5: p5) {
     const zoomLevel = 1;
-    this.rc = new RenderContext(p5, this.spec, this.bounds, zoomLevel);
+    this.rc = new RenderContext(
+      p5,
+      this.spec,
+      this.bounds,
+      zoomLevel,
+      this.rng
+    );
   }
 
   step() {

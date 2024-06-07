@@ -1,11 +1,14 @@
 import p5 from "p5";
 import { Spec } from "./spec";
+import { pi, rescale } from "./safeMath";
+import { Rng } from "./safeRandom";
 
 export class RenderContext {
   p5: p5;
 
   spec: Spec;
 
+  bounds: p5.Vector;
   r: number;
   c: p5.Renderer;
 
@@ -18,9 +21,12 @@ export class RenderContext {
   // Y-center of the zoomed viewport
   zoomY: number;
 
-  constructor(p5: p5, spec: Spec, bounds: p5.Vector, zoom: number) {
+  R: Rng;
+
+  constructor(p5: p5, spec: Spec, bounds: p5.Vector, zoom: number, R: Rng) {
     this.p5 = p5;
     this.spec = spec;
+    this.bounds = bounds;
     this.r = p5.windowWidth / bounds.x;
     this.zoom = zoom;
     this.zoomX = bounds.x / 2;
@@ -29,6 +35,7 @@ export class RenderContext {
     p5.colorMode(p5.HSB, 360, 100, 100, 100);
 
     this.c = p5.createCanvas(p5.windowWidth, p5.windowHeight);
+    this.R = R;
   }
 
   background(h: number, s: number, b: number) {
@@ -37,6 +44,19 @@ export class RenderContext {
 
   stroke(h: number, s: number, b: number, a: number) {
     this.p5.stroke(h, s, b, a);
+  }
+
+  vrtx(x: number, y: number) {
+    const [px, py] = this.convert(x, y);
+    this.p5.vertex(px, py);
+  }
+
+  w(p: number) {
+    return p * this.bounds.x;
+  }
+
+  sWeight(v: number) {
+    this.p5.strokeWeight(v * this.zoom * this.r);
   }
 
   noStroke() {
@@ -49,10 +69,105 @@ export class RenderContext {
     return [px, py];
   }
 
-  circle(x: number, y: number, r: number, _unused_rotation: number) {
+  circle(x: number, y: number, r: number) {
     const [px, py] = this.convert(x, y);
     // underlying api uses diameter not radius, converted here.
     this.p5.circle(px, py, 2 * r * this.r * this.zoom);
+  }
+
+  drawCleanCircle(
+    x: number,
+    y: number,
+    radius: number,
+    thickness: number,
+    ellipticalVariation: number
+  ) {
+    const drawRadius = Math.max(this.w(0.0002), radius - thickness * 0.5);
+    this.sWeight(thickness * 0.95);
+
+    const variance = Math.min(this.w(0.0015), drawRadius * ellipticalVariation);
+    const horizontalRadius = this.R.gauss(drawRadius, variance);
+    const verticalRadius = this.R.gauss(drawRadius, variance);
+
+    const startingTheta = this.R.uniform(0.0, pi(2.0));
+    const numSteps = 32;
+    const step = pi(2.0) / numSteps;
+
+    this.p5.beginShape();
+    for (let theta = 0; theta < pi(2.0); theta += step) {
+      const finalX = x + horizontalRadius * Math.cos(theta);
+      const finalY = y + verticalRadius * Math.sin(theta);
+      this.vrtx(finalX, finalY);
+    }
+    this.p5.endShape(this.p5.CLOSE);
+  }
+
+  drawMessyCircle(
+    x: number,
+    y: number,
+    radius: number,
+    thickness: number,
+    varianceAdjust: number
+  ) {
+    let numRounds = 1;
+
+    for (let i = 0; i < numRounds; i++) {
+      const r = rescale(i, 0, numRounds, radius, radius - thickness);
+      const varianceRatio =
+        varianceAdjust *
+        rescale(thickness, this.w(0.001), this.w(0.04), 0.08, 0.03);
+
+      let positionVariance =
+        varianceAdjust * Math.min(this.w(0.0015), thickness * varianceRatio);
+      let thicknessVarianceMultiplier = 1.0;
+      if (i < 5) {
+        positionVariance *= 1.5;
+        thicknessVarianceMultiplier = 2.0;
+      }
+      const finalX = this.R.gauss(x, positionVariance);
+      const finalY = this.R.gauss(y, positionVariance);
+
+      let meanSingleLineThickness;
+      if (thickness > this.w(0.02)) {
+        meanSingleLineThickness = rescale(
+          thickness,
+          this.w(0.02),
+          this.w(0.04),
+          this.w(0.0007),
+          this.w(0.00073)
+        );
+      } else if (thickness > this.w(0.006)) {
+        meanSingleLineThickness = rescale(
+          thickness,
+          this.w(0.006),
+          this.w(0.02),
+          this.w(0.0005),
+          this.w(0.0007)
+        );
+      } else {
+        meanSingleLineThickness = rescale(
+          thickness,
+          this.w(0.001),
+          this.w(0.006),
+          this.w(0.0001),
+          this.w(0.0005)
+        );
+      }
+
+      let thicknessVarianceFactor =
+        thicknessVarianceMultiplier *
+        rescale(thickness, this.w(0.001), this.w(0.04), 0.25, 1.1);
+      let singleLineVariance =
+        meanSingleLineThickness * thicknessVarianceFactor;
+      if (r < this.w(0.002)) {
+        singleLineVariance = meanSingleLineThickness * 0.1;
+      }
+      const thick = Math.max(
+        this.w(0.0002),
+        this.R.gauss(meanSingleLineThickness, singleLineVariance)
+      );
+      this.drawCleanCircle(finalX, finalY, r, thick, 0.007);
+    }
   }
 
   hex(x: number, y: number, r: number, rotation: number = 0) {
