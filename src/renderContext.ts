@@ -75,6 +75,17 @@ export class RenderContext {
     this.p5.circle(px, py, 2 * r * this.r * this.zoom);
   }
 
+  ellipse(x: number, y: number, w: number, h: number) {
+    const [px, py] = this.convert(x, y);
+    // underlying api uses diameter not radius, converted here.
+    this.p5.ellipse(
+      px,
+      py,
+      2 * w * this.r * this.zoom,
+      2 * h * this.r * this.zoom
+    );
+  }
+
   drawCleanCircle(
     x: number,
     y: number,
@@ -109,7 +120,7 @@ export class RenderContext {
     thickness: number,
     varianceAdjust: number
   ) {
-    let numRounds = 1;
+    let numRounds = 3;
 
     for (let i = 0; i < numRounds; i++) {
       const r = rescale(i, 0, numRounds, radius, radius - thickness);
