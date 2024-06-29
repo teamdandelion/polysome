@@ -22,6 +22,7 @@ export class Mote {
   vCollide: p5.Vector;
   nCollisions = 0;
   age = 0;
+  isDebugMote = false;
 
   ringRenderSpecs: RingRenderSpec[];
 
@@ -79,6 +80,12 @@ export class Mote {
       let h = size * sizeFactor * hFactor;
 
       rc.ellipse(this.pos.x + xOffset, this.pos.y + yOffset, w, h);
+    }
+
+    if (this.isDebugMote) {
+      rc.stroke(0, 0, 100, 100);
+      rc.sWeight(1);
+      rc.ellipse(this.pos.x, this.pos.y, 10, 10);
     }
   }
 }

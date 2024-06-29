@@ -22,6 +22,7 @@ export class World {
   stepCounter = 0;
   numAdded = 0;
   start: number;
+  debugMote: Mote | null;
 
   constructor(spec: Spec, rng: Rng, flowField: IFlowField, bounds: p5.Vector) {
     this.spec = spec;
@@ -32,6 +33,7 @@ export class World {
     this.sectorTracker = new SectorTracker(spec.moteRadius, bounds);
 
     this.motes = [];
+    this.debugMote = null;
     this.emitters = [new RandomEmitter(bounds, rng, spec)];
     this.start = Date.now();
   }
@@ -59,6 +61,14 @@ export class World {
     const pos = emitter.emit();
     const mote = new Mote(pos, this.rng, this.spec);
     this.motes.push(mote);
+    if (
+      this.spec.debugMode &&
+      this.spec.useDebugMote &&
+      this.debugMote == null
+    ) {
+      this.debugMote = mote;
+      mote.isDebugMote = true;
+    }
   }
 
   // Steps through one time unit in the simulation
@@ -80,6 +90,12 @@ export class World {
     }
     this.moveMotes();
 
+    if (this.debugMote != null) {
+      if (!this.inBounds(this.debugMote.pos)) {
+        // Stop tracking this debug mote, it's about to be filtered out
+        this.debugMote = null;
+      }
+    }
     this.motes = this.motes.filter((mote) => this.inBounds(mote.pos));
   }
 

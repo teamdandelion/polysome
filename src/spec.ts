@@ -37,4 +37,5 @@ export class Spec {
   debugSectorGrid = false;
   debugSectorCounts = true;
   debugPane = true;
+  useDebugMote = true;
 }
