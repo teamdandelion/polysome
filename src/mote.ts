@@ -36,12 +36,12 @@ export class Mote {
     for (let i = 0; i < numRings; i++) {
       this.ringRenderSpecs.push({
         sizeFactor: this.R.gauss(1, 0.4),
-        thickness: this.R.gauss(0.7, 0.3),
+        thickness: this.R.gauss(0.5, 0.12),
         opacity: Math.min(this.R.gauss(0.9, 0.2), 1),
-        xOffset: this.R.gauss(0, 0.2),
-        yOffset: this.R.gauss(0, 0.2),
-        wFactor: this.R.gauss(1, 0.08),
-        hFactor: this.R.gauss(1, 0.08),
+        xOffset: this.R.gauss(0, 0.3),
+        yOffset: this.R.gauss(0, 0.3),
+        wFactor: this.R.gauss(1, 0.042),
+        hFactor: this.R.gauss(1, 0.042),
       });
     }
   }
