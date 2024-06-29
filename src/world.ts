@@ -210,5 +210,26 @@ export class World {
         );
       }
     }
+
+    if (this.debugMote != null) {
+      const p5 = rc.p5;
+      p5.fill(240, 100, 10, 60);
+      let x = p5.windowWidth - 180;
+      let y = p5.windowHeight - 200;
+      p5.rect(x, y, 180, 110);
+      p5.fill(60, 20, 100);
+      p5.textSize(14);
+      function textLine(line: string) {
+        p5.text(line, x + 10, y + 20);
+        y += 20;
+      }
+      textLine(
+        `pos: ${this.debugMote.pos.x.toFixed(0)}, ${this.debugMote.pos.y.toFixed(0)}`
+      );
+      textLine(
+        `vCollide: ${this.debugMote.vCollide.x.toFixed(2)}, ${this.debugMote.vCollide.y.toFixed(2)}`
+      );
+      textLine(`nCollisions: ${this.debugMote.nCollisions}`);
+    }
   }
 }
