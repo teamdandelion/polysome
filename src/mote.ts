@@ -57,7 +57,7 @@ export class Mote {
       this.spec.moteHueBaseline + this.nCollisions * this.spec.moteHueFactor;
     hue = Math.min(hue, this.spec.moteMaxHue);
     let b = Math.min(1, this.age / 20);
-    let size = this.spec.moteRadius * this.spec.moteRenderScale; // + this.nCollisions / 6;
+    let size = this.spec.moteRenderRadius;
     let rotation = (this.age / 10) % (2 * Math.PI);
     let hsb = {
       hue: hue,
@@ -85,7 +85,12 @@ export class Mote {
     if (this.isDebugMote) {
       rc.stroke(0, 0, 100, 100);
       rc.sWeight(1);
-      rc.ellipse(this.pos.x, this.pos.y, 10, 10);
+      rc.ellipse(
+        this.pos.x,
+        this.pos.y,
+        this.spec.moteRadius,
+        this.spec.moteRadius
+      );
     }
   }
 }

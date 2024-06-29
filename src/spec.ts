@@ -3,9 +3,9 @@ export class Spec {
   motesPerStep = 30;
 
   moteRadius = 42;
+  moteRenderRadius = 42 * 0.07;
   // Range over which mote influence decays
   moteCollisionDecay = 9;
-  moteRenderScale = 0.07;
   moteForce = 0.1;
 
   moteHueBaseline = 10;
