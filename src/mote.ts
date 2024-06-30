@@ -1,7 +1,6 @@
 import p5 from "p5";
 import { RenderContext } from "./renderContext";
 import { Spec } from "./spec";
-import { rescale } from "./safeMath";
 import { Rng } from "./safeRandom";
 
 interface RingRenderSpec {
