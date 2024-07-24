@@ -45,6 +45,10 @@ export class Mote {
     }
   }
 
+  move(velocity: p5.Vector) {
+    this.pos.add(velocity);
+  }
+
   resetCollisions() {
     this.vCollide = new p5.Vector(0, 0);
     this.nCollisions = 0;

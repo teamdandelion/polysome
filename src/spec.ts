@@ -13,9 +13,6 @@ export class Spec {
   moteBrightFactor = 1;
   moteMaxHue = 320;
 
-  moteEdgeDeflectionDistance = 0;
-  moteEdgeDeflectionForce = 0.8;
-
   useForceField = false;
   forceFieldResolution = 4;
 

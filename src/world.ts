@@ -138,28 +138,16 @@ export class World {
 
   moveMotes() {
     this.motes.forEach((mote) => {
-      const vel = this.flowField.flow(mote.pos).mult(this.spec.flowCoefficient);
-      const bf = this.spec.moteEdgeDeflectionForce;
-      const br = this.spec.moteEdgeDeflectionDistance;
-      if (br > 0) {
-        if (mote.pos.x < br) {
-          vel.x += (bf * (br - mote.pos.x)) / br;
-        }
-        if (mote.pos.x > this.bounds.x - br) {
-          vel.x -= (bf * (br - this.bounds.x + mote.pos.x)) / br;
-        }
-        if (mote.pos.y < br) {
-          vel.y += (bf * (br - mote.pos.y)) / br;
-        }
-        if (mote.pos.y > this.bounds.y - br) {
-          vel.y -= (bf * (br - this.bounds.y + mote.pos.y)) / br;
-        }
-      }
-
-      mote.pos.add(
-        vel.mult(Math.pow(this.spec.cxFlowCoefficient, mote.nCollisions))
+      const flowCoefficient = Math.pow(
+        this.spec.cxFlowCoefficient,
+        mote.nCollisions
       );
-      mote.pos.add(mote.vCollide);
+      const vel = this.flowField
+        .flow(mote.pos)
+        .mult(this.spec.flowCoefficient * flowCoefficient)
+        .add(mote.vCollide);
+
+      mote.move(vel);
     });
   }
 
