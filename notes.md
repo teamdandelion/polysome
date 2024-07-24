@@ -1,5 +1,10 @@
 # Notes
 
+## 7.24.24
+
+- I tried adding "Grain" with my last commit (now on grain-experiment branch), however I don't think it was that fruitful.
+- Inspired by Pulse (https://credits.meowwolf.com/omega-mart/factory/pulse/) at Meow Wolf, I want to try adding "depth" by tracking positions for each Mote across frames, so we can render "trails" behind the motes or such.
+
 ## 6.7.24
 
 - Feeling a little stymied around whether I want to add a new class of entity (e.g. "grains" or "specks"). Specks would be confusing due to the collision with Spec lol.
