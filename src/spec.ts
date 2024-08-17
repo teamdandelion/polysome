@@ -13,6 +13,9 @@ export class Spec {
   moteBrightFactor = 1;
   moteMaxHue = 320;
 
+  stepsPerFrame = 10;
+  nFrames = 5;
+
   useForceField = false;
   forceFieldResolution = 4;
 
