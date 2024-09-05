@@ -1,5 +1,4 @@
 import p5 from "p5";
-import { FrameTracker } from "./frameTracker";
 import { RenderContext } from "./renderContext";
 import { Spec } from "./spec";
 import { Rng } from "./safeRandom";
@@ -23,7 +22,6 @@ export class Mote {
   nCollisions = 0;
   age = 0;
   isDebugMote = false;
-  frameTracker: FrameTracker;
 
   ringRenderSpecs: RingRenderSpec[];
 
@@ -45,13 +43,10 @@ export class Mote {
         hFactor: this.R.gauss(1, 0.042),
       });
     }
-
-    this.frameTracker = new FrameTracker(pos, spec.nFrames, spec.stepsPerFrame);
   }
 
   move(velocity: p5.Vector) {
     this.pos.add(velocity);
-    this.frameTracker.store(this.pos);
   }
 
   resetCollisions() {
@@ -67,31 +62,27 @@ export class Mote {
     let b = Math.min(1, this.age / 20);
     let size = this.spec.moteRenderRadius;
     let rotation = (this.age / 10) % (2 * Math.PI);
-    const frames = this.frameTracker.get();
-    for (let i = 0; i < frames.length; i++) {
-      const frame = frames[i];
-      let hsb = {
-        hue: hue,
-        sat: 100,
-        bright: 80 + this.nCollisions * this.spec.moteBrightFactor,
-      };
-      for (let i = 0; i < this.ringRenderSpecs.length; i++) {
-        let {
-          opacity,
-          thickness,
-          xOffset,
-          yOffset,
-          sizeFactor,
-          wFactor,
-          hFactor,
-        } = this.ringRenderSpecs[i];
-        rc.stroke(hsb.hue, hsb.sat, hsb.bright, b * 100 * opacity);
-        rc.sWeight(thickness);
-        let w = size * sizeFactor * wFactor;
-        let h = size * sizeFactor * hFactor;
+    let hsb = {
+      hue: hue,
+      sat: 100,
+      bright: 80 + this.nCollisions * this.spec.moteBrightFactor,
+    };
+    for (let i = 0; i < this.ringRenderSpecs.length; i++) {
+      let {
+        opacity,
+        thickness,
+        xOffset,
+        yOffset,
+        sizeFactor,
+        wFactor,
+        hFactor,
+      } = this.ringRenderSpecs[i];
+      rc.stroke(hsb.hue, hsb.sat, hsb.bright, b * 100 * opacity);
+      rc.sWeight(thickness);
+      let w = size * sizeFactor * wFactor;
+      let h = size * sizeFactor * hFactor;
 
-        rc.ellipse(frame.x + xOffset, frame.y + yOffset, w, h);
-      }
+      rc.ellipse(this.pos.x + xOffset, this.pos.y + yOffset, w, h);
     }
 
     if (this.isDebugMote) {
