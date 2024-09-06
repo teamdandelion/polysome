@@ -132,6 +132,7 @@ class MoteSimulator {
         `${x - 1},${y + 1}`,
       ];
 
+      const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
       for (let neighborKey of neighbors) {
         if (grid.has(neighborKey)) {
           const neighborMotes = grid.get(neighborKey)!;
@@ -140,9 +141,10 @@ class MoteSimulator {
               if (i < j) {
                 const dx = this.motes[j * 4] - this.motes[i * 4];
                 const dy = this.motes[j * 4 + 1] - this.motes[i * 4 + 1];
-                const d = Math.sqrt(dx * dx + dy * dy);
-                if (d < this.spec.moteRadius) {
+                const dsq = dx * dx + dy * dy;
+                if (dsq < radiusSq) {
                   const v = new p5.Vector(dx, dy);
+                  const d = Math.sqrt(dsq);
                   this.collide(i, j, d, v);
                 }
               }
