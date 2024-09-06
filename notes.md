@@ -2,6 +2,12 @@
 
 ## 9.5.24
 
+## Post Notes
+
+- I migrated the default codepath to MoteSimulator. It's around 30% faster just by itself, but it also opens up space to prioritize other performance optimizations (notably both flow field class and the rendering logic). It is much more self contained with fewer dependencies. Also, a single Float32 array stores all the render-necessary data (position, nCollisions, createdAtStep) and so with multiple copies of that array, we can implement temporal tracking.
+
+## Pre Notes
+
 - Taking stock of where things are at - I like the motion blur effect as a direction to go in, however I want to make it a little more "dynamic" with respect to properties of the mote itself. I am imagining something like having a longer motion blur for "cooler" motes (the red ones out on the edges) and having less motion blur (maybe just one frame) for "hotter" motes in the center.
   - Also I think it would be cool if there is sort of "time-centric shading" where the mote in the middle of the blur (the "present") is most saturated, and the future and past motes are kind of shadowy, but symmetrical in future & past (i.e. there is a "future-image" as well as an "after-image"). Kind of atium-style from Mistborn. I just find this more interesting
 - This is also an interesting implementation challenge. Especially since I want the projection to be "denser" near the "present", which implies more high-resolution timing data, however I also want to be efficient in terms of memory usage...
