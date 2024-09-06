@@ -32,7 +32,7 @@ export class Spec {
   debugForceField = false;
   debugRenderFlowfield = false;
   debugSectorGrid = false;
-  debugSectorCounts = true;
+  debugSectorCounts = false;
   debugPane = true;
-  useDebugMote = true;
+  useDebugMote = false;
 }

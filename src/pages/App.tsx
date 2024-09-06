@@ -28,7 +28,7 @@ function App() {
 
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/currents" element={<Currents debug={false} />} />
-        <Route path="/currents2" element={<Currents2 debug={false} />} />
+        <Route path="/currents2" element={<Currents2 debug={true} />} />
         <Route path="/testbed" element={<Testbed />} />
       </Routes>
     </Router>

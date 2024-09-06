@@ -48,6 +48,8 @@ class MoteSimulator {
   private flowField: IFlowField;
   private spec: Spec;
   private moteSpecs: MoteRenderSpec[];
+  private start: number;
+  private stepCounter = 0;
 
   constructor(spec: Spec, rng: Rng, flowField: IFlowField, bounds: p5.Vector) {
     this.spec = spec;
@@ -69,12 +71,14 @@ class MoteSimulator {
       this.motes[i * 3 + 1] = this.rng.uniform(0, this.yMax);
       this.motes[i * 3 + 2] = 0; // Initialize collision count to 0
     }
+    this.start = Date.now();
   }
 
   step(): void {
     this.reset(); // Reset mote colllision velocities and collision counts
     this.processCollisions(); // Compute collision velocity and count for each mote
     this.moveMotes(); // Move motes based on collision velocities and flow field
+    this.stepCounter++;
   }
 
   reset(): void {
@@ -196,6 +200,28 @@ class MoteSimulator {
 
     for (let i = 0; i < this.nMotes; i++) {
       this.renderMote(i, rc);
+    }
+
+    if (this.spec.debugPane) {
+      const p5 = rc.p5;
+      p5.fill(240, 100, 10, 60);
+      let x = p5.windowWidth - 180;
+      let y = 10;
+      p5.rect(x, y, 180, 110);
+      p5.fill(60, 20, 100);
+      p5.textSize(14);
+      function textLine(line: string) {
+        p5.text(line, x + 10, y + 20);
+        y += 20;
+      }
+      const elapsed = (Date.now() - this.start) / 1000;
+      textLine(`Polysome             ${p5.frameRate().toFixed(0)} fps`);
+      textLine(
+        `step: ${this.stepCounter.toLocaleString()}               ${elapsed.toFixed(
+          0
+        )}s`
+      );
+      textLine(`nMotes: ${this.nMotes.toLocaleString()}`);
     }
   }
 
