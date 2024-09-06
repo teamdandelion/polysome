@@ -1,5 +1,28 @@
 # Notes
 
+## 9.5.24
+
+- Taking stock of where things are at - I like the motion blur effect as a direction to go in, however I want to make it a little more "dynamic" with respect to properties of the mote itself. I am imagining something like having a longer motion blur for "cooler" motes (the red ones out on the edges) and having less motion blur (maybe just one frame) for "hotter" motes in the center.
+  - Also I think it would be cool if there is sort of "time-centric shading" where the mote in the middle of the blur (the "present") is most saturated, and the future and past motes are kind of shadowy, but symmetrical in future & past (i.e. there is a "future-image" as well as an "after-image"). Kind of atium-style from Mistborn. I just find this more interesting
+- This is also an interesting implementation challenge. Especially since I want the projection to be "denser" near the "present", which implies more high-resolution timing data, however I also want to be efficient in terms of memory usage...
+- I think the motion / time blur effect can add in that fine grained detail that makes the piece really visually rich rather than a bit sparse, if I can do it in a really crisp performant way.
+  - So, my inclination right now is to pivot towards having a performant and hardened implementation of the polysome movement vibe.
+  - I.e. I let go of the idea of "Alpha" dynamic like I was talking about last December, where there is some sort of "transformation threshold" where a new dynamic or entity is present (the "fission" to balance out "fusion"), but instead just dial in on the current mechanics
+  - But: re-implement in a principled way where it is storing the data longitudinally in time. So rather than having Mote X Locations, it is Mote X Location X Timestamp
+  - (Rather than having a "frame tracker" for each mote, have a single "World Tracker" that has multiple snapshots, each with the full mote positioning data, basically)
+  - Then the "World Tracker" decides how to render the simulation state as it evolves?
+- Key question: Can I re-implement the mote colllision and movement logic, in a way that is at least 2-3x more performant?
+  - Lion: I have a feeling that if this were re-written from start with the clear goal of modeling _this_ specific system, we could get it in a state where it's a lot easier to model it and be intentional about performance. Right now it's a sort of "general purpose life-y dynamic-y simulator" but we could dial it in very specifically for this particular computation. And optimize it Factorio-style :)
+  - Lion: And I would be willing to help you out with this ;)
+  - Indie: Working on this together sounds fun ^^
+  - i: I'm thinking maybe we revert the frame-tracker bit, so we have a simpler baseline to re-implement, and we re-implement with an eye towards tracking the cross-temporal model.
+  - l: sg, let's do it.
+
+## 8.17.24
+
+- I added "afterimage effects" (sort of a motion blur) via a "frame tracker" class which tracks where each mote was at multiple points in time-space and renders them all. cf commit 4e2a8924c3518ba94ee49ba7a9d770875108726e
+- It's not very performant however it is a nice visual effect
+
 ## 7.24.24
 
 - I tried adding "Grain" with my last commit (now on grain-experiment branch), however I don't think it was that fruitful.
@@ -31,7 +54,7 @@
 
 ## 12.28.23
 
-- I got a "polysome v1" working, which Alchi suggested calling "currents".
+- I got a "polysome v1" working, which Alchemi suggested calling "currents".
   - There are just motes, spawning and collecting and streaming together
   - Added some QOL features like zooming in a little, and always using the full window for rendering
   - It feels pretty perf bound atm

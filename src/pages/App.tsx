@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import LandingPage from "./LandingPage";
 import Currents from "./Currents";
+import Currents2 from "./Currents2";
+
 import Testbed from "./Testbed";
 
 import "./global.css";
@@ -26,6 +28,7 @@ function App() {
 
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/currents" element={<Currents debug={false} />} />
+        <Route path="/currents2" element={<Currents2 debug={false} />} />
         <Route path="/testbed" element={<Testbed />} />
       </Routes>
     </Router>
