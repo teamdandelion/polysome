@@ -89,7 +89,7 @@ class MoteSimulator {
         this.motes[i * 4] < 0 ||
         this.motes[i * 4] > this.xMax ||
         this.motes[i * 4 + 1] < 0 ||
-        this.motes[i * 4 + 1] > this.yMax
+        this.motes[i * 4 + 1] >= this.yMax
       ) {
         // Assign a random position in-bounds
         this.motes[i * 4] = this.rng.uniform(0, this.xMax);
