@@ -62,14 +62,15 @@ class MoteSimulator {
     this.moteSpecs = Array.from({ length: this.nMotes }, () =>
       randomMoteSpec(rng)
     );
-    this.motes = new Float32Array(this.nMotes * 3); // x, y, nCollisions
+    this.motes = new Float32Array(this.nMotes * 4); // x, y, nCollisions, stepAdded
     this.velocities = new Float32Array(this.nMotes * 2); // vx, vy
 
     // Initialize mote positions randomly
     for (let i = 0; i < this.nMotes; i++) {
-      this.motes[i * 3] = this.rng.uniform(0, this.xMax);
-      this.motes[i * 3 + 1] = this.rng.uniform(0, this.yMax);
-      this.motes[i * 3 + 2] = 0; // Initialize collision count to 0
+      this.motes[i * 4] = this.rng.uniform(0, this.xMax);
+      this.motes[i * 4 + 1] = this.rng.uniform(0, this.yMax);
+      this.motes[i * 4 + 2] = 0; // Initialize collision count to 0
+      this.motes[i * 4 + 3] = 0; // Initialize step-added-on to 0
     }
     this.start = Date.now();
   }
@@ -85,16 +86,17 @@ class MoteSimulator {
     for (let i = 0; i < this.nMotes; i++) {
       // Check if the mote is out of bounds
       if (
-        this.motes[i * 3] < 0 ||
-        this.motes[i * 3] > this.xMax ||
-        this.motes[i * 3 + 1] < 0 ||
-        this.motes[i * 3 + 1] > this.yMax
+        this.motes[i * 4] < 0 ||
+        this.motes[i * 4] > this.xMax ||
+        this.motes[i * 4 + 1] < 0 ||
+        this.motes[i * 4 + 1] > this.yMax
       ) {
         // Assign a random position in-bounds
-        this.motes[i * 3] = this.rng.uniform(0, this.xMax);
-        this.motes[i * 3 + 1] = this.rng.uniform(0, this.yMax);
+        this.motes[i * 4] = this.rng.uniform(0, this.xMax);
+        this.motes[i * 4 + 1] = this.rng.uniform(0, this.yMax);
+        this.motes[i * 4 + 3] = this.stepCounter;
       }
-      this.motes[i * 3 + 2] = 0; // Reset collision count
+      this.motes[i * 4 + 2] = 0; // Reset collision count
       this.velocities[i * 2] = 0; // Reset x velocity
       this.velocities[i * 2 + 1] = 0; // Reset y velocity
     }
@@ -106,8 +108,8 @@ class MoteSimulator {
 
     // Populate the grid
     for (let i = 0; i < this.nMotes; i++) {
-      const x = Math.floor(this.motes[i * 3] / gridSize);
-      const y = Math.floor(this.motes[i * 3 + 1] / gridSize);
+      const x = Math.floor(this.motes[i * 4] / gridSize);
+      const y = Math.floor(this.motes[i * 4 + 1] / gridSize);
       const key = `${x},${y}`;
       if (!grid.has(key)) {
         grid.set(key, []);
@@ -136,8 +138,8 @@ class MoteSimulator {
           for (let i of motesInCell) {
             for (let j of neighborMotes) {
               if (i < j) {
-                const dx = this.motes[j * 3] - this.motes[i * 3];
-                const dy = this.motes[j * 3 + 1] - this.motes[i * 3 + 1];
+                const dx = this.motes[j * 4] - this.motes[i * 4];
+                const dy = this.motes[j * 4 + 1] - this.motes[i * 4 + 1];
                 const d = Math.sqrt(dx * dx + dy * dy);
                 if (d < this.spec.moteRadius) {
                   const v = new p5.Vector(dx, dy);
@@ -155,11 +157,11 @@ class MoteSimulator {
     for (let i = 0; i < this.nMotes; i++) {
       // Compute the flow field vector for the mote
       const flowVector = this.flowField.flow(
-        new p5.Vector(this.motes[i * 3], this.motes[i * 3 + 1])
+        new p5.Vector(this.motes[i * 4], this.motes[i * 4 + 1])
       );
 
       // Scale the magnitude of the flow field vector
-      const nCollisions = this.motes[i * 3 + 2];
+      const nCollisions = this.motes[i * 4 + 2];
       const flowCoefficient = Math.pow(
         this.spec.cxFlowCoefficient,
         nCollisions
@@ -167,8 +169,8 @@ class MoteSimulator {
       flowVector.mult(this.spec.flowCoefficient * flowCoefficient);
 
       // Update the mote position based on the flow field vector and the aggregate collision vector
-      this.motes[i * 3] += flowVector.x + this.velocities[i * 2];
-      this.motes[i * 3 + 1] += flowVector.y + this.velocities[i * 2 + 1];
+      this.motes[i * 4] += flowVector.x + this.velocities[i * 2];
+      this.motes[i * 4 + 1] += flowVector.y + this.velocities[i * 2 + 1];
     }
   }
 
@@ -187,8 +189,8 @@ class MoteSimulator {
     this.velocities[b * 2 + 1] += v.y;
 
     // Increment collision counts
-    this.motes[a * 3 + 2]++;
-    this.motes[b * 3 + 2]++;
+    this.motes[a * 4 + 2]++;
+    this.motes[b * 4 + 2]++;
   }
 
   // Render phase
@@ -226,16 +228,17 @@ class MoteSimulator {
   }
 
   private renderMote(idx: number, rc: RenderContext) {
-    const x = this.motes[idx * 3];
-    const y = this.motes[idx * 3 + 1];
-    const n = this.motes[idx * 3 + 2];
+    const x = this.motes[idx * 4];
+    const y = this.motes[idx * 4 + 1];
+    const n = this.motes[idx * 4 + 2];
+    const age = this.stepCounter - this.motes[idx * 4 + 3];
     const moteSpec = this.moteSpecs[idx];
 
     let hue = this.spec.moteHueBaseline + n * this.spec.moteHueFactor;
     hue = Math.min(hue, this.spec.moteMaxHue);
-    let b = Math.min(1, n / 20);
+    let b = Math.min(1, age / 20);
     let size = this.spec.moteRenderRadius;
-    let rotation = (n / 10) % (2 * Math.PI);
+    let rotation = (age / 10) % (2 * Math.PI);
     let hsb = {
       hue: hue,
       sat: 100,
