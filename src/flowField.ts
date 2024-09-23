@@ -41,13 +41,13 @@ export function flowSpec(r: Rng, spec: Spec, bounds: p5.Vector): FlowSpec {
 
 export class FlowField {
   spacing = 4;
-  fieldPoints: number[][]; // Angle (theta) in a grid on the field
+  fieldPoints: Float64Array[]; // Angle (theta) in a grid on the field
 
   constructor(spec: FlowSpec) {
     const iMax = Math.ceil(spec.bounds.x / this.spacing);
     const jMax = Math.ceil(spec.bounds.y / this.spacing);
     this.fieldPoints = Array.from({ length: iMax }, () =>
-      Array(jMax).fill(spec.defaultTheta)
+      new Float64Array(jMax).fill(spec.defaultTheta)
     );
 
     for (const { pos, theta, radius } of spec.disturbances) {
@@ -118,7 +118,7 @@ export class DynamicFlowField {
   bounds: p5.Vector;
   rng: Rng;
 
-  fieldPoints: number[][]; // Angle (theta) in a grid on the field
+  fieldPoints: Float64Array[]; // Angle (theta) in a grid on the field
 
   constructor(rng: Rng, bounds: p5.Vector) {
     this.rng = rng;
@@ -165,7 +165,7 @@ export class DynamicFlowField {
     const iMax = Math.ceil(this.bounds.x / this.spacing);
     const jMax = Math.ceil(this.bounds.y / this.spacing);
     this.fieldPoints = Array.from({ length: iMax }, () =>
-      Array(jMax).fill(this.defaultTheta)
+      new Float64Array(jMax).fill(this.defaultTheta)
     );
 
     for (const { pos, theta, radius } of this.disturbances) {
@@ -183,8 +183,10 @@ export class DynamicFlowField {
         const x = this.spacing * i;
         for (let j = minJ; j < maxJ; j++) {
           const y = this.spacing * j;
-          const d = dist(pos.x, pos.y, x, y);
-          const thetaAdjust = rescale(d, 0, radius, theta, 0);
+          const dx = pos.x - x;
+          const dy = pos.y - y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          const thetaAdjust = d <= radius ? theta * (1 - d / radius) : 0;
           this.fieldPoints[i][j] += thetaAdjust;
         }
       }
