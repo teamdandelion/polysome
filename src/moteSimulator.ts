@@ -105,6 +105,7 @@ class MoteSimulator {
   processCollisions(): void {
     const gridSize = this.spec.moteRadius;
     const grid = new Map<string, number[]>();
+    const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
 
     // Populate the grid
     for (let i = 0; i < this.nMotes; i++) {
@@ -132,10 +133,9 @@ class MoteSimulator {
         `${x - 1},${y + 1}`,
       ];
 
-      const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
       for (let neighborKey of neighbors) {
-        if (grid.has(neighborKey)) {
-          const neighborMotes = grid.get(neighborKey)!;
+        const neighborMotes = grid.get(neighborKey);
+        if (neighborMotes) {
           for (let i of motesInCell) {
             for (let j of neighborMotes) {
               if (i < j) {
