@@ -103,7 +103,7 @@ class MoteSimulator {
   }
 
   processCollisions(): void {
-    const gridSize = this.spec.moteRadius;
+    const gridSize = this.spec.moteRadius * 2;
     const grid = new Map<string, number[]>();
     const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
 
