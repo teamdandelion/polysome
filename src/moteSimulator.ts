@@ -87,7 +87,7 @@ class MoteSimulator {
       // Check if the mote is out of bounds
       if (
         this.motes[i * 4] < 0 ||
-        this.motes[i * 4] > this.xMax ||
+        this.motes[i * 4] >= this.xMax ||
         this.motes[i * 4 + 1] < 0 ||
         this.motes[i * 4 + 1] >= this.yMax
       ) {
