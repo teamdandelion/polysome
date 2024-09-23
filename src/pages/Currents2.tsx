@@ -13,7 +13,6 @@ type CurrentsPageProps = {
 
 const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
   const sketchRef = useRef<HTMLDivElement | null>(null);
-  let sketchInstance: p5 | null = null;
 
   useEffect(() => {
     if (!sketchRef.current) {
@@ -35,11 +34,7 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
     const sketch = sketchify(currentsInstance);
     new p5(sketch, sketchRef.current);
 
-    return () => {
-      if (sketchInstance) {
-        sketchInstance.remove();
-      }
-    };
+    return () => {};
   }, []); // Empty dependency array means this effect runs once on mount and clean up on unmount
 
   return (
