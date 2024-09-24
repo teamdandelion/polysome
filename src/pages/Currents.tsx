@@ -13,14 +13,13 @@ type CurrentsPageProps = {
 
 const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
   const sketchRef = useRef<HTMLDivElement | null>(null);
-  let sketchInstance: p5 | null = null;
 
   useEffect(() => {
     if (!sketchRef.current) {
       return;
     }
     seed = seed ?? randomSeed();
-    console.log("Currents v2");
+    console.log("Currents v3");
     console.log(seed);
     const ww = window.innerWidth;
     const wh = window.innerHeight;
@@ -35,11 +34,7 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
     const sketch = sketchify(currentsInstance);
     new p5(sketch, sketchRef.current);
 
-    return () => {
-      if (sketchInstance) {
-        sketchInstance.remove();
-      }
-    };
+    return () => {};
   }, []); // Empty dependency array means this effect runs once on mount and clean up on unmount
 
   return (
