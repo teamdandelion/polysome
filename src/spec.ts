@@ -16,13 +16,9 @@ export class Spec {
   useForceField = false;
   forceFieldResolution = 4;
 
-  clusterRadius = 16;
-  clusterSize = 12;
+  clusterRadius = 14;
+  clusterSize = 10;
   clusterRenderRadius = 9;
-
-  metaclusterRadius = 16 * 4;
-  metaclusterSize = 7;
-  metaclusterRenderRadius = 11;
 
   // Flow field settings
   numDisturbances = 30;

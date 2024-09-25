@@ -14,16 +14,12 @@ self.onmessage = function (e) {
     const step = simulator.step();
     const motesBuffer = simulator.motes.slice().buffer;
     const clusters = simulator.clusters.map((vector) => vector.toJSON());
-    const metaclusters = simulator.metaclusters.map((cluster) =>
-      cluster.map((vector) => vector.toJSON())
-    );
     self.postMessage(
       {
         type: "update",
         motes: motesBuffer,
         stepCounter: step,
         clusters,
-        metaclusters,
       },
       [motesBuffer]
     );

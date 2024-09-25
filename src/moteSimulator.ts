@@ -10,9 +10,7 @@ class MoteSimulator {
 
   private nMotes: number;
   public motes: Float32Array;
-  public metaclusters: Vector[][] = [];
-  public clusters: Vector[] = []; // clusters not in any meta-cluster
-
+  public clusters: Vector[] = [];
   private velocities: Float32Array;
   private flowField: DynamicFlowField;
   private spec: Spec;
@@ -45,7 +43,6 @@ class MoteSimulator {
     this.reset(); // Reset mote colllision velocities and collision counts
     this.processCollisions(); // Compute collision velocity and count for each mote
     this.moveMotes(); // Move motes based on collision velocities and flow field
-    this.computeMetaClusters(); // Compute clusters-of-clusters
     return this.stepCounter++;
   }
 
@@ -175,17 +172,6 @@ class MoteSimulator {
     }
   }
 
-  computeMetaClusters() {
-    // use dbscan on the clusters to find metaclusters
-    const { clusters, noise } = dbscan(
-      this.clusters,
-      this.spec.metaclusterRadius,
-      this.spec.metaclusterSize
-    );
-    this.metaclusters = clusters;
-    this.clusters = noise;
-  }
-
   // Handle collisions
   private collide(a: number, b: number, d: number, v: Vector): void {
     let forceFactor = this.spec.moteForce;
@@ -204,59 +190,6 @@ class MoteSimulator {
     this.motes[a * 4 + 2]++;
     this.motes[b * 4 + 2]++;
   }
-}
-
-// DBSCAN algorithm for clustering
-function dbscan(
-  vectors: Vector[],
-  r: number,
-  k: number
-): { clusters: Vector[][]; noise: Vector[] } {
-  const clusters: Vector[][] = [];
-  const visited = new Set<Vector>();
-  const noise = new Set<Vector>();
-
-  function getNeighbors(vector: Vector): Vector[] {
-    return vectors.filter((other) => Vector.dist(vector, other) <= r);
-  }
-
-  function expandCluster(
-    vector: Vector,
-    neighbors: Vector[],
-    cluster: Vector[]
-  ) {
-    cluster.push(vector);
-    visited.add(vector);
-
-    for (const neighbor of neighbors) {
-      if (!visited.has(neighbor)) {
-        visited.add(neighbor);
-        const neighborNeighbors = getNeighbors(neighbor);
-        if (neighborNeighbors.length >= k) {
-          expandCluster(neighbor, neighborNeighbors, cluster);
-        }
-      }
-      if (!clusters.some((c) => c.includes(neighbor))) {
-        cluster.push(neighbor);
-      }
-    }
-  }
-
-  for (const vector of vectors) {
-    if (!visited.has(vector)) {
-      visited.add(vector);
-      const neighbors = getNeighbors(vector);
-      if (neighbors.length >= k) {
-        const cluster: Vector[] = [];
-        expandCluster(vector, neighbors, cluster);
-        clusters.push(cluster);
-      } else {
-        noise.add(vector);
-      }
-    }
-  }
-
-  return { clusters, noise: Array.from(noise) };
 }
 
 export { MoteSimulator };
