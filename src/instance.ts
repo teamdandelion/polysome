@@ -1,13 +1,5 @@
 import p5 from "p5";
 
-import { World } from "./world";
-import { Mote } from "./mote";
-import { FlowField, flowSpec } from "./flowField";
-import { Spec } from "./spec";
-import randomSeed from "./randomSeed";
-import { makeSeededRng, Rng } from "./safeRandom";
-import { RenderContext } from "./renderContext";
-
 export interface PolysomeInstance {
   setup(p5: p5): void;
   step(): void;

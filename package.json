@@ -2,6 +2,7 @@
   "name": "polysome",
   "version": "0.0.0",
   "description": "An abstract biological exploration",
+  "type": "module",
   "directories": {
     "lib": "lib"
   },

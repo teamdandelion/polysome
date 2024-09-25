@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from "react";
 import p5 from "p5";
 
-import randomSeed from "../randomSeed";
-import { sketchify } from "../instance";
-import { Currents } from "../currents";
+import randomSeed from "../randomSeed.js";
+import { sketchify } from "../instance.js";
+import { Currents } from "../currents.js";
 import "./Currents.css";
 
 type CurrentsPageProps = {

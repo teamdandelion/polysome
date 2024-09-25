@@ -1,41 +1,7 @@
-import p5 from "p5";
-
-import { IFlowField } from "./flowField";
-import { Rng } from "./safeRandom";
-import { Spec } from "./spec";
-import { RenderContext } from "./renderContext";
-import { Mote } from "./mote";
-
-type RingRenderSpec = {
-  sizeFactor: number;
-  thickness: number;
-  opacity: number;
-  xOffset: number;
-  yOffset: number;
-  wFactor: number;
-  hFactor: number;
-};
-
-type MoteRenderSpec = {
-  rings: RingRenderSpec[];
-};
-
-function randomMoteSpec(rng: Rng): MoteRenderSpec {
-  let rings = [];
-  let numRings = rng.choice([1]);
-  for (let i = 0; i < numRings; i++) {
-    rings.push({
-      sizeFactor: Math.max(rng.gauss(1, 0.4), 0.1),
-      thickness: rng.gauss(0.5, 0.12),
-      opacity: Math.min(rng.gauss(0.9, 0.2), 1),
-      xOffset: rng.gauss(0, 0.3),
-      yOffset: rng.gauss(0, 0.3),
-      wFactor: rng.gauss(1, 0.042),
-      hFactor: rng.gauss(1, 0.042),
-    });
-  }
-  return { rings };
-}
+import { DynamicFlowField } from "./flowField.js";
+import { Rng, makeSeededRng } from "./safeRandom.js";
+import { Spec } from "./spec.js";
+import { Vector } from "./vector.js";
 
 class MoteSimulator {
   private rng: Rng;
@@ -43,25 +9,21 @@ class MoteSimulator {
   private yMax: number;
 
   private nMotes: number;
-  private motes: Float32Array;
+  public motes: Float32Array;
   private velocities: Float32Array;
-  private flowField: IFlowField;
+  private flowField: DynamicFlowField;
   private spec: Spec;
-  private moteSpecs: MoteRenderSpec[];
   private start: number;
-  private stepCounter = 0;
+  public stepCounter = 0;
 
-  constructor(spec: Spec, rng: Rng, flowField: IFlowField, bounds: p5.Vector) {
+  constructor(spec: Spec, seed: string, xDim: number, yDim: number) {
     this.spec = spec;
-    this.xMax = bounds.x;
-    this.yMax = bounds.y;
-    this.rng = rng;
-    this.flowField = flowField;
+    this.xMax = xDim;
+    this.yMax = yDim;
+    this.rng = makeSeededRng(seed);
+    this.flowField = new DynamicFlowField(this.rng, new Vector(xDim, yDim));
 
     this.nMotes = spec.numMotes;
-    this.moteSpecs = Array.from({ length: this.nMotes }, () =>
-      randomMoteSpec(rng)
-    );
     this.motes = new Float32Array(this.nMotes * 4); // x, y, nCollisions, stepAdded
     this.velocities = new Float32Array(this.nMotes * 2); // vx, vy
 
@@ -75,11 +37,12 @@ class MoteSimulator {
     this.start = Date.now();
   }
 
-  step(): void {
+  step(): number {
+    this.flowField.step(); // Update the flow field
     this.reset(); // Reset mote colllision velocities and collision counts
     this.processCollisions(); // Compute collision velocity and count for each mote
     this.moveMotes(); // Move motes based on collision velocities and flow field
-    this.stepCounter++;
+    return this.stepCounter++;
   }
 
   reset(): void {
@@ -143,7 +106,7 @@ class MoteSimulator {
                 const dy = this.motes[j * 4 + 1] - this.motes[i * 4 + 1];
                 const dsq = dx * dx + dy * dy;
                 if (dsq < radiusSq) {
-                  const v = new p5.Vector(dx, dy);
+                  const v = new Vector(dx, dy);
                   const d = Math.sqrt(dsq);
                   this.collide(i, j, d, v);
                 }
@@ -159,7 +122,7 @@ class MoteSimulator {
     for (let i = 0; i < this.nMotes; i++) {
       // Compute the flow field vector for the mote
       const flowVector = this.flowField.flow(
-        new p5.Vector(this.motes[i * 4], this.motes[i * 4 + 1])
+        new Vector(this.motes[i * 4], this.motes[i * 4 + 1])
       );
 
       // Scale the magnitude of the flow field vector
@@ -177,7 +140,7 @@ class MoteSimulator {
   }
 
   // Handle collisions
-  private collide(a: number, b: number, d: number, v: p5.Vector): void {
+  private collide(a: number, b: number, d: number, v: Vector): void {
     let forceFactor = this.spec.moteForce;
     if (d >= this.spec.moteRadius - this.spec.moteCollisionDecay) {
       forceFactor =
@@ -193,76 +156,6 @@ class MoteSimulator {
     // Increment collision counts
     this.motes[a * 4 + 2]++;
     this.motes[b * 4 + 2]++;
-  }
-
-  // Render phase
-  render(rc: RenderContext): void {
-    rc.background(240, 100, 10);
-
-    rc.strokeWeight(1.5);
-    rc.noFill();
-
-    for (let i = 0; i < this.nMotes; i++) {
-      this.renderMote(i, rc);
-    }
-
-    if (this.spec.debugPane) {
-      const p5 = rc.p5;
-      p5.fill(240, 100, 10, 60);
-      let x = p5.windowWidth - 180;
-      let y = 10;
-      p5.rect(x, y, 180, 110);
-      p5.fill(60, 20, 100);
-      p5.textSize(14);
-      function textLine(line: string) {
-        p5.text(line, x + 10, y + 20);
-        y += 20;
-      }
-      const elapsed = (Date.now() - this.start) / 1000;
-      textLine(`Polysome             ${p5.frameRate().toFixed(0)} fps`);
-      textLine(
-        `step: ${this.stepCounter.toLocaleString()}               ${elapsed.toFixed(
-          0
-        )}s`
-      );
-      textLine(`nMotes: ${this.nMotes.toLocaleString()}`);
-    }
-  }
-
-  private renderMote(idx: number, rc: RenderContext) {
-    const x = this.motes[idx * 4];
-    const y = this.motes[idx * 4 + 1];
-    const n = this.motes[idx * 4 + 2];
-    const age = this.stepCounter - this.motes[idx * 4 + 3];
-    const moteSpec = this.moteSpecs[idx];
-
-    let hue = this.spec.moteHueBaseline + n * this.spec.moteHueFactor;
-    hue = Math.min(hue, this.spec.moteMaxHue);
-    let b = Math.min(1, age / 20);
-    let size = this.spec.moteRenderRadius;
-    let rotation = (age / 10) % (2 * Math.PI);
-    let hsb = {
-      hue: hue,
-      sat: 100,
-      bright: 80 + n * this.spec.moteBrightFactor,
-    };
-    for (let i = 0; i < moteSpec.rings.length; i++) {
-      let {
-        opacity,
-        thickness,
-        xOffset,
-        yOffset,
-        sizeFactor,
-        wFactor,
-        hFactor,
-      } = moteSpec.rings[i];
-      rc.stroke(hsb.hue, hsb.sat, hsb.bright, b * 100 * opacity);
-      rc.sWeight(thickness);
-      let w = size * sizeFactor * wFactor;
-      let h = size * sizeFactor * hFactor;
-
-      rc.ellipse(x + xOffset, y + yOffset, w, h);
-    }
   }
 }
 

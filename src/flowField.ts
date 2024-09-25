@@ -1,11 +1,10 @@
-import p5 from "p5";
-import { dist, rescale, pi } from "./safeMath";
-import { Rng } from "./safeRandom";
-import { Spec } from "./spec";
-import { RenderContext } from "./renderContext";
+import { dist, rescale, pi } from "./safeMath.js";
+import { Rng } from "./safeRandom.js";
+import { Spec } from "./spec.js";
+import { Vector } from "./vector.js";
 
 type DisturbanceSpec = {
-  pos: p5.Vector;
+  pos: Vector;
   theta: number;
   radius: number;
 };
@@ -13,14 +12,14 @@ type DisturbanceSpec = {
 type FlowSpec = {
   defaultTheta: number;
   disturbances: DisturbanceSpec[];
-  bounds: p5.Vector;
+  bounds: Vector;
 };
 
 export interface IFlowField {
-  flow(pos: p5.Vector): p5.Vector;
+  flow(pos: Vector): Vector;
 }
 
-export function flowSpec(r: Rng, spec: Spec, bounds: p5.Vector): FlowSpec {
+export function flowSpec(r: Rng, spec: Spec, bounds: Vector): FlowSpec {
   const { numDisturbances, thetaVariance, defaultTheta } = spec;
   const disturbances: DisturbanceSpec[] = [];
   for (let i = 0; i < numDisturbances; i++) {
@@ -31,7 +30,7 @@ export function flowSpec(r: Rng, spec: Spec, bounds: p5.Vector): FlowSpec {
       r.gauss(spec.disturbanceRadiusMean, spec.disturbanceRadiusVariance)
     );
     disturbances.push({
-      pos: new p5.Vector(disturbanceX, disturbanceY),
+      pos: new Vector(disturbanceX, disturbanceY),
       theta: disturbanceTheta,
       radius: disturbanceRadius,
     });
@@ -73,35 +72,17 @@ export class FlowField {
     }
   }
 
-  flow(pos: p5.Vector): p5.Vector {
+  flow(pos: Vector): Vector {
     const i = Math.floor(pos.x / this.spacing);
     const j = Math.floor(pos.y / this.spacing);
     const theta = this.fieldPoints[i][j];
-    return p5.Vector.fromAngle(theta);
-  }
-}
-
-export class TestFlowField {
-  center: p5.Vector;
-  constructor(cx: number, cy: number) {
-    this.center = new p5.Vector(cx, cy);
-  }
-
-  flow(pos: p5.Vector): p5.Vector {
-    const toCenter = p5.Vector.sub(this.center, pos).normalize();
-    const rotator = new p5.Vector(-toCenter.y, toCenter.x).div(2);
-    const combined = toCenter.add(rotator);
-    const dist = p5.Vector.dist(pos, this.center);
-    if (dist < 1) {
-      return combined.mult(dist);
-    }
-    return combined;
+    return Vector.fromAngle(theta);
   }
 }
 
 type DynamicDisturbance = {
-  pos: p5.Vector;
-  vel: p5.Vector;
+  pos: Vector;
+  vel: Vector;
   theta: number;
   radius: number;
 };
@@ -115,12 +96,12 @@ export class DynamicFlowField {
   defaultTheta: number;
 
   disturbances: DynamicDisturbance[] = [];
-  bounds: p5.Vector;
+  bounds: Vector;
   rng: Rng;
 
   fieldPoints: Float64Array[]; // Angle (theta) in a grid on the field
 
-  constructor(rng: Rng, bounds: p5.Vector) {
+  constructor(rng: Rng, bounds: Vector) {
     this.rng = rng;
     this.bounds = bounds;
     this.defaultTheta = rng.uniform(0, pi(2));
@@ -133,7 +114,7 @@ export class DynamicFlowField {
     this.computeFlowField();
   }
 
-  inBounds(pos: p5.Vector) {
+  inBounds(pos: Vector) {
     return (
       pos.x >= 0 &&
       pos.x <= this.bounds.x &&
@@ -152,9 +133,9 @@ export class DynamicFlowField {
     const disturbanceHeading = this.rng.uniform(0, pi(2));
     const disturbanceSpeed = this.rng.uniform(0, 0.5);
     const disturbanceVel =
-      p5.Vector.fromAngle(disturbanceHeading).mult(disturbanceSpeed);
+      Vector.fromAngle(disturbanceHeading).mult(disturbanceSpeed);
     this.disturbances.push({
-      pos: new p5.Vector(disturbanceX, disturbanceY),
+      pos: new Vector(disturbanceX, disturbanceY),
       vel: disturbanceVel,
       theta: disturbanceTheta,
       radius: disturbanceRadius,
@@ -203,23 +184,10 @@ export class DynamicFlowField {
     this.computeFlowField();
   }
 
-  flow(pos: p5.Vector): p5.Vector {
+  flow(pos: Vector): Vector {
     const i = Math.floor(pos.x / this.spacing);
     const j = Math.floor(pos.y / this.spacing);
     const theta = this.fieldPoints[i][j];
-    return p5.Vector.fromAngle(theta);
-  }
-}
-
-export function renderFF(ff: IFlowField, bounds: p5.Vector, rc: RenderContext) {
-  const spacing = 10;
-  rc.p5.stroke(200, 20, 80, 20);
-  rc.strokeWeight(2);
-  for (let x = 0; x < bounds.x; x += spacing) {
-    for (let y = 0; y < bounds.y; y += spacing) {
-      const pos = new p5.Vector(x, y);
-      const flow = ff.flow(pos);
-      rc.line(x, y, x + flow.x * spacing, y + flow.y * spacing);
-    }
+    return Vector.fromAngle(theta);
   }
 }
