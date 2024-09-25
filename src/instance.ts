@@ -29,6 +29,7 @@ export class Instance {
   private motes: Float32Array;
   private stepCounter = 0;
   private clusters: Vector[] = [];
+  private metaclusters: Vector[][] = [];
   rc: RenderContext | null;
   bounds: p5.Vector;
 
@@ -62,9 +63,13 @@ export class Instance {
 
     // Set up message handling from the worker
     this.moteSimWorker.onmessage = (e) => {
-      const { type, motes, stepCounter, clusters } = e.data;
+      const { type, motes, stepCounter, clusters, metaclusters } = e.data;
       if (type === "update") {
         this.motes = new Float32Array(motes);
+        this.clusters = clusters.map((v: any) => Vector.fromJSON(v));
+        this.metaclusters = metaclusters.map((mc: any[]) =>
+          mc.map((v) => Vector.fromJSON(v))
+        );
         this.clusters = clusters.map((v: any) => Vector.fromJSON(v));
         this.stepCounter = stepCounter;
       }
@@ -81,6 +86,7 @@ export class Instance {
     }
     this.moteRenderer.render(
       this.motes,
+      this.metaclusters,
       this.clusters,
       this.stepCounter,
       this.rc

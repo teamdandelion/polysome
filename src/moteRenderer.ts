@@ -62,6 +62,7 @@ class MoteRenderer {
   // Render phase
   render(
     motes: Float32Array,
+    metaclusters: Vector[][],
     clusters: Vector[],
     stepCounter: number,
     rc: RenderContext
@@ -79,17 +80,42 @@ class MoteRenderer {
       { length: this.nMotes },
       (_, i) => new Vector(motes[i * 4], motes[i * 4 + 1])
     );
+
     for (const cluster of clusters) {
-      // set white stroke
-      rc.stroke(0, 0, 100, 60);
       rc.sWeight(1);
-      // draw circle around cluster
+      // se4t white stroke
+      rc.stroke(0, 0, 100, 100);
       rc.ellipse(
         cluster.x,
         cluster.y,
         this.spec.clusterRenderRadius,
         this.spec.clusterRenderRadius
       );
+    }
+
+    for (const metacluster of metaclusters) {
+      let hue =
+        this.spec.moteHueBaseline +
+        metacluster.length * this.spec.moteHueFactor;
+      hue = Math.min(hue, this.spec.moteMaxHue);
+
+      let hsb = {
+        hue: hue,
+        sat: 100,
+        bright: 100,
+      };
+      rc.stroke(hsb.hue, hsb.sat, hsb.bright, 100);
+
+      rc.sWeight(2);
+      for (const cluster of metacluster) {
+        // draw circle around cluster
+        rc.ellipse(
+          cluster.x,
+          cluster.y,
+          this.spec.metaclusterRenderRadius,
+          this.spec.metaclusterRenderRadius
+        );
+      }
     }
 
     if (this.spec.debugPane) {
@@ -112,6 +138,11 @@ class MoteRenderer {
         )}s`
       );
       textLine(`nMotes: ${this.nMotes.toLocaleString()}`);
+      const totalClusters =
+        metaclusters.reduce((acc, c) => acc + c.length, 0) + clusters.length;
+      textLine(`total clusters: ${totalClusters.toLocaleString()}`);
+      textLine(`metaclusters: ${metaclusters.length.toLocaleString()}`);
+      textLine(`clusters: ${clusters.length.toLocaleString()}`);
     }
   }
 
