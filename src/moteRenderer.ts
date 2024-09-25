@@ -3,6 +3,7 @@ import p5 from "p5";
 import { Rng } from "./safeRandom.js";
 import { Spec } from "./spec.js";
 import { RenderContext } from "./renderContext.js";
+import { Vector } from "./vector.js";
 
 type RingRenderSpec = {
   sizeFactor: number;
@@ -59,7 +60,12 @@ class MoteRenderer {
   }
 
   // Render phase
-  render(motes: Float32Array, stepCounter: number, rc: RenderContext): void {
+  render(
+    motes: Float32Array,
+    clusters: Vector[],
+    stepCounter: number,
+    rc: RenderContext
+  ): void {
     rc.background(240, 100, 10);
 
     rc.strokeWeight(1.5);
@@ -67,6 +73,23 @@ class MoteRenderer {
 
     for (let i = 0; i < this.nMotes; i++) {
       this.renderMote(motes, i, stepCounter, rc);
+    }
+
+    const vectors = Array.from(
+      { length: this.nMotes },
+      (_, i) => new Vector(motes[i * 4], motes[i * 4 + 1])
+    );
+    for (const cluster of clusters) {
+      // set white stroke
+      rc.stroke(0, 0, 100, 60);
+      rc.sWeight(1);
+      // draw circle around cluster
+      rc.ellipse(
+        cluster.x,
+        cluster.y,
+        this.spec.clusterRenderRadius,
+        this.spec.clusterRenderRadius
+      );
     }
 
     if (this.spec.debugPane) {
@@ -132,6 +155,50 @@ class MoteRenderer {
       rc.ellipse(x + xOffset, y + yOffset, w, h);
     }
   }
+}
+
+function dbscan(motes: Vector[], r: number, k: number): Vector[][] {
+  const clusters: Vector[][] = [];
+  const visited = new Set<Vector>();
+  const noise = new Set<Vector>();
+
+  function getNeighbors(mote: Vector): Vector[] {
+    return motes.filter((other) => Vector.dist(mote, other) <= r);
+  }
+
+  function expandCluster(mote: Vector, neighbors: Vector[], cluster: Vector[]) {
+    cluster.push(mote);
+    visited.add(mote);
+
+    for (const neighbor of neighbors) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        const neighborNeighbors = getNeighbors(neighbor);
+        if (neighborNeighbors.length >= k) {
+          expandCluster(neighbor, neighborNeighbors, cluster);
+        }
+      }
+      if (!clusters.some((c) => c.includes(neighbor))) {
+        cluster.push(neighbor);
+      }
+    }
+  }
+
+  for (const mote of motes) {
+    if (!visited.has(mote)) {
+      visited.add(mote);
+      const neighbors = getNeighbors(mote);
+      if (neighbors.length >= k) {
+        const cluster: Vector[] = [];
+        expandCluster(mote, neighbors, cluster);
+        clusters.push(cluster);
+      } else {
+        noise.add(mote);
+      }
+    }
+  }
+
+  return clusters;
 }
 
 export { MoteRenderer };

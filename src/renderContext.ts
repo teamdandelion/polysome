@@ -1,7 +1,7 @@
 import p5 from "p5";
-import { Spec } from "./spec";
-import { pi, rescale } from "./safeMath";
-import { Rng } from "./safeRandom";
+import { Spec } from "./spec.js";
+import { pi, rescale } from "./safeMath.js";
+import { Rng } from "./safeRandom.js";
 
 export class RenderContext {
   p5: p5;

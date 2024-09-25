@@ -16,6 +16,10 @@ export class Spec {
   useForceField = false;
   forceFieldResolution = 4;
 
+  clusterRadius = 14;
+  clusterSize = 10;
+  clusterRenderRadius = 9;
+
   // Flow field settings
   numDisturbances = 30;
   thetaVariance = 3.14;

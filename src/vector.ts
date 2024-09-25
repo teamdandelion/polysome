@@ -37,4 +37,14 @@ export class Vector {
   static dist(v1: Vector, v2: Vector): number {
     return Math.sqrt((v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2);
   }
+
+  // Serialize the Vector to a plain object
+  toJSON() {
+    return { x: this.x, y: this.y };
+  }
+
+  // Deserialize a plain object to a Vector
+  static fromJSON(json: { x: number; y: number }): Vector {
+    return new Vector(json.x, json.y);
+  }
 }

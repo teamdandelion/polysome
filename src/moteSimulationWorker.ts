@@ -13,8 +13,14 @@ self.onmessage = function (e) {
   } else if (type === "step") {
     const step = simulator.step();
     const motesBuffer = simulator.motes.slice().buffer;
+    const clusters = simulator.clusters.map((vector) => vector.toJSON());
     self.postMessage(
-      { type: "update", motes: motesBuffer, stepCounter: step },
+      {
+        type: "update",
+        motes: motesBuffer,
+        stepCounter: step,
+        clusters,
+      },
       [motesBuffer]
     );
   }

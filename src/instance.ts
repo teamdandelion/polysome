@@ -1,6 +1,7 @@
 import p5 from "p5";
 
 import { Spec } from "./spec.js";
+import { Vector } from "./vector.js";
 import { makeSeededRng, Rng } from "./safeRandom.js";
 import { RenderContext } from "./renderContext.js";
 import { MoteRenderer } from "./moteRenderer.js";
@@ -27,6 +28,7 @@ export class Instance {
   private moteRenderer: MoteRenderer;
   private motes: Float32Array;
   private stepCounter = 0;
+  private clusters: Vector[] = [];
   rc: RenderContext | null;
   bounds: p5.Vector;
 
@@ -60,9 +62,10 @@ export class Instance {
 
     // Set up message handling from the worker
     this.moteSimWorker.onmessage = (e) => {
-      const { type, motes, stepCounter } = e.data;
+      const { type, motes, stepCounter, clusters } = e.data;
       if (type === "update") {
         this.motes = new Float32Array(motes);
+        this.clusters = clusters.map((v: any) => Vector.fromJSON(v));
         this.stepCounter = stepCounter;
       }
     };
@@ -76,6 +79,11 @@ export class Instance {
     if (!this.rc) {
       throw new Error("Instance not setup");
     }
-    this.moteRenderer.render(this.motes, this.stepCounter, this.rc);
+    this.moteRenderer.render(
+      this.motes,
+      this.clusters,
+      this.stepCounter,
+      this.rc
+    );
   }
 }

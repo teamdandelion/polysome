@@ -10,6 +10,7 @@ class MoteSimulator {
 
   private nMotes: number;
   public motes: Float32Array;
+  public clusters: Vector[] = [];
   private velocities: Float32Array;
   private flowField: DynamicFlowField;
   private spec: Spec;
@@ -69,6 +70,9 @@ class MoteSimulator {
     const gridSize = this.spec.moteRadius * 2;
     const grid = new Map<string, number[]>();
     const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
+    // Each cluster will just be characterized by its average x and y position
+    this.clusters = [];
+    let includedInCluster = new Set<number>();
 
     // Populate the grid
     for (let i = 0; i < this.nMotes; i++) {
@@ -100,6 +104,10 @@ class MoteSimulator {
         const neighborMotes = grid.get(neighborKey);
         if (neighborMotes) {
           for (let i of motesInCell) {
+            let potentialCluster: Set<number> | null = null;
+            if (!includedInCluster.has(i)) {
+              potentialCluster = new Set([i]);
+            }
             for (let j of neighborMotes) {
               if (i < j) {
                 const dx = this.motes[j * 4] - this.motes[i * 4];
@@ -109,8 +117,33 @@ class MoteSimulator {
                   const v = new Vector(dx, dy);
                   const d = Math.sqrt(dsq);
                   this.collide(i, j, d, v);
+                  if (
+                    d < this.spec.clusterRadius &&
+                    !includedInCluster.has(j) &&
+                    potentialCluster
+                  ) {
+                    potentialCluster.add(j);
+                  }
                 }
               }
+            }
+            if (
+              potentialCluster &&
+              potentialCluster.size > this.spec.clusterSize
+            ) {
+              includedInCluster = new Set([
+                ...Array.from(includedInCluster),
+                ...Array.from(potentialCluster),
+              ]);
+              const avgPosition = Array.from(potentialCluster).reduce(
+                (acc, mote) =>
+                  acc.add(
+                    new Vector(this.motes[mote * 4], this.motes[mote * 4 + 1])
+                  ),
+                new Vector(0, 0)
+              );
+              avgPosition.mult(1 / potentialCluster.size);
+              this.clusters.push(avgPosition);
             }
           }
         }
