@@ -2,8 +2,7 @@ import React, { useRef, useEffect } from "react";
 import p5 from "p5";
 
 import randomSeed from "../randomSeed.js";
-import { sketchify } from "../instance.js";
-import { Currents } from "../currents.js";
+import { sketchify, Instance } from "../instance.js";
 import "./Currents.css";
 
 type CurrentsPageProps = {
@@ -30,8 +29,8 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
     } else {
       xDim = (ww / wh) * yDim;
     }
-    const currentsInstance = new Currents(seed, xDim, yDim, debug);
-    const sketch = sketchify(currentsInstance);
+    const instsance = new Instance(seed, xDim, yDim, debug);
+    const sketch = sketchify(instsance);
     new p5(sketch, sketchRef.current);
 
     return () => {};
