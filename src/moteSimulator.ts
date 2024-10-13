@@ -3,6 +3,37 @@ import { Rng, makeSeededRng } from "./safeRandom.js";
 import { Spec } from "./spec.js";
 import { Vector } from "./vector.js";
 
+class Cluster {
+  public position: Vector;
+  public motes: Set<number>;
+
+  constructor(initialMote: number, initialPosition: Vector) {
+    this.position = initialPosition;
+    this.motes = new Set([initialMote]);
+  }
+
+  update(motes: Float32Array) {
+    let sum = new Vector(0, 0);
+    for (const moteIndex of this.motes) {
+      sum.add(new Vector(motes[moteIndex * 4], motes[moteIndex * 4 + 1]));
+    }
+    this.position = sum.mult(1 / this.motes.size);
+  }
+
+  toJSON() {
+    return {
+      position: this.position.toJSON(),
+      motes: Array.from(this.motes),
+    };
+  }
+
+  static fromJSON(json: any) {
+    const cluster = new Cluster(-1, Vector.fromJSON(json.position));
+    cluster.motes = new Set(json.motes);
+    return cluster;
+  }
+}
+
 class MoteSimulator {
   private rng: Rng;
   private xMax: number;
@@ -10,7 +41,7 @@ class MoteSimulator {
 
   private nMotes: number;
   public motes: Float32Array;
-  public clusters: Vector[] = [];
+  public clusters: Cluster[] = [];
   private velocities: Float32Array;
   private flowField: DynamicFlowField;
   private spec: Spec;
@@ -43,6 +74,7 @@ class MoteSimulator {
     this.reset(); // Reset mote colllision velocities and collision counts
     this.processCollisions(); // Compute collision velocity and count for each mote
     this.moveMotes(); // Move motes based on collision velocities and flow field
+    this.updateClusters(); // Update mote clusters
     return this.stepCounter++;
   }
 
@@ -70,10 +102,15 @@ class MoteSimulator {
     const gridSize = this.spec.moteRadius * 2;
     const grid = new Map<string, number[]>();
     const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
-    // Each cluster will just be characterized by its average x and y position
-    this.clusters = [];
-    let includedInCluster = new Set<number>();
+    let motesInClusters = new Set<number>(
+      this.clusters.flatMap((cluster) => Array.from(cluster.motes))
+    );
 
+    // Create a map for quick cluster lookup
+    const clusterMap = new Map<number, Cluster>();
+    this.clusters.forEach((cluster) =>
+      cluster.motes.forEach((mote) => clusterMap.set(mote, cluster))
+    );
     // Populate the grid
     for (let i = 0; i < this.nMotes; i++) {
       const x = Math.floor(this.motes[i * 4] / gridSize);
@@ -104,46 +141,47 @@ class MoteSimulator {
         const neighborMotes = grid.get(neighborKey);
         if (neighborMotes) {
           for (let i of motesInCell) {
-            let potentialCluster: Set<number> | null = null;
-            if (!includedInCluster.has(i)) {
-              potentialCluster = new Set([i]);
-            }
+            let potentialCluster =
+              clusterMap.get(i) ??
+              new Cluster(
+                i,
+                new Vector(this.motes[i * 4], this.motes[i * 4 + 1])
+              );
+            let isNewCluster = !clusterMap.has(i);
+
             for (let j of neighborMotes) {
               if (i < j) {
+                const jx = this.motes[j * 4];
+                const jy = this.motes[j * 4 + 1];
                 const dx = this.motes[j * 4] - this.motes[i * 4];
                 const dy = this.motes[j * 4 + 1] - this.motes[i * 4 + 1];
                 const dsq = dx * dx + dy * dy;
+
+                const cdx = potentialCluster.position.x - jx;
+                const cdy = potentialCluster.position.y - jy;
+                const cdSq = cdx * cdx + cdy * cdy;
+
                 if (dsq < radiusSq) {
                   const v = new Vector(dx, dy);
                   const d = Math.sqrt(dsq);
                   this.collide(i, j, d, v);
-                  if (
-                    d < this.spec.clusterRadius &&
-                    !includedInCluster.has(j) &&
-                    potentialCluster
-                  ) {
-                    potentialCluster.add(j);
+                }
+                if (cdSq < this.spec.clusterRadius * this.spec.clusterRadius) {
+                  potentialCluster.motes.add(j);
+                  if (!isNewCluster) {
+                    clusterMap.set(j, potentialCluster);
                   }
                 }
               }
             }
             if (
-              potentialCluster &&
-              potentialCluster.size > this.spec.clusterSize
+              isNewCluster &&
+              potentialCluster.motes.size > this.spec.clusterSize
             ) {
-              includedInCluster = new Set([
-                ...Array.from(includedInCluster),
-                ...Array.from(potentialCluster),
-              ]);
-              const avgPosition = Array.from(potentialCluster).reduce(
-                (acc, mote) =>
-                  acc.add(
-                    new Vector(this.motes[mote * 4], this.motes[mote * 4 + 1])
-                  ),
-                new Vector(0, 0)
-              );
-              avgPosition.mult(1 / potentialCluster.size);
-              this.clusters.push(avgPosition);
+              this.clusters.push(potentialCluster);
+              for (let mote of potentialCluster.motes) {
+                clusterMap.set(mote, potentialCluster);
+              }
             }
           }
         }
@@ -172,6 +210,57 @@ class MoteSimulator {
     }
   }
 
+  updateClusters(): void {
+    const clustersToRemove = new Set<number>();
+
+    // Update existing clusters
+    for (let i = this.clusters.length - 1; i >= 0; i--) {
+      const cluster = this.clusters[i];
+      cluster.update(this.motes);
+
+      // Remove motes that are too far from the new cluster center
+      for (const moteIndex of cluster.motes) {
+        const motePos = new Vector(
+          this.motes[moteIndex * 4],
+          this.motes[moteIndex * 4 + 1]
+        );
+        if (Vector.dist(cluster.position, motePos) > this.spec.clusterRadius) {
+          cluster.motes.delete(moteIndex);
+        }
+      }
+
+      // Mark clusters that are too small for removal
+      if (cluster.motes.size < this.spec.clusterCollapseSize) {
+        clustersToRemove.add(i);
+      }
+    }
+
+    // Merge clusters
+    for (let i = this.clusters.length - 1; i >= 0; i--) {
+      if (clustersToRemove.has(i)) continue;
+      const cluster = this.clusters[i];
+      for (let j = i - 1; j >= 0; j--) {
+        if (clustersToRemove.has(j)) continue;
+        const otherCluster = this.clusters[j];
+        if (
+          Vector.dist(cluster.position, otherCluster.position) <
+          this.spec.clusterRadius
+        ) {
+          cluster.motes = new Set([...cluster.motes, ...otherCluster.motes]);
+          cluster.update(this.motes); // Update position after merging
+          clustersToRemove.add(j);
+        }
+      }
+    }
+
+    // Remove marked clusters
+    for (let i = this.clusters.length - 1; i >= 0; i--) {
+      if (clustersToRemove.has(i)) {
+        this.clusters.splice(i, 1);
+      }
+    }
+  }
+
   // Handle collisions
   private collide(a: number, b: number, d: number, v: Vector): void {
     let forceFactor = this.spec.moteForce;
@@ -192,4 +281,4 @@ class MoteSimulator {
   }
 }
 
-export { MoteSimulator };
+export { MoteSimulator, Cluster };

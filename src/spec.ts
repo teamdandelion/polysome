@@ -18,6 +18,7 @@ export class Spec {
 
   clusterRadius = 14;
   clusterSize = 10;
+  clusterCollapseSize = 7;
   clusterRenderRadius = 9;
 
   // Flow field settings

@@ -4,6 +4,7 @@ import { Rng } from "./safeRandom.js";
 import { Spec } from "./spec.js";
 import { RenderContext } from "./renderContext.js";
 import { Vector } from "./vector.js";
+import { Cluster } from "./moteSimulator.js";
 
 type RingRenderSpec = {
   sizeFactor: number;
@@ -62,7 +63,7 @@ class MoteRenderer {
   // Render phase
   render(
     motes: Float32Array,
-    clusters: Vector[],
+    clusters: Cluster[],
     stepCounter: number,
     rc: RenderContext
   ): void {
@@ -85,8 +86,8 @@ class MoteRenderer {
       rc.sWeight(1);
       // draw circle around cluster
       rc.ellipse(
-        cluster.x,
-        cluster.y,
+        cluster.position.x,
+        cluster.position.y,
         this.spec.clusterRenderRadius,
         this.spec.clusterRenderRadius
       );
@@ -112,6 +113,7 @@ class MoteRenderer {
         )}s`
       );
       textLine(`nMotes: ${this.nMotes.toLocaleString()}`);
+      textLine(`nClusters: ${clusters.length.toLocaleString()}`);
     }
   }
 

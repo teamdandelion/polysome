@@ -5,6 +5,7 @@ import { Vector } from "./vector.js";
 import { makeSeededRng, Rng } from "./safeRandom.js";
 import { RenderContext } from "./renderContext.js";
 import { MoteRenderer } from "./moteRenderer.js";
+import { Cluster } from "./moteSimulator.js";
 
 export function sketchify(instance: Instance) {
   return (p5: p5) => sketch(instance, p5);
@@ -28,7 +29,7 @@ export class Instance {
   private moteRenderer: MoteRenderer;
   private motes: Float32Array;
   private stepCounter = 0;
-  private clusters: Vector[] = [];
+  private clusters: Cluster[] = [];
   rc: RenderContext | null;
   bounds: p5.Vector;
 
@@ -65,7 +66,7 @@ export class Instance {
       const { type, motes, stepCounter, clusters } = e.data;
       if (type === "update") {
         this.motes = new Float32Array(motes);
-        this.clusters = clusters.map((v: any) => Vector.fromJSON(v));
+        this.clusters = clusters.map((v: any) => Cluster.fromJSON(v));
         this.stepCounter = stepCounter;
       }
     };
