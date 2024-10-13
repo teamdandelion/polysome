@@ -157,48 +157,4 @@ class MoteRenderer {
   }
 }
 
-function dbscan(motes: Vector[], r: number, k: number): Vector[][] {
-  const clusters: Vector[][] = [];
-  const visited = new Set<Vector>();
-  const noise = new Set<Vector>();
-
-  function getNeighbors(mote: Vector): Vector[] {
-    return motes.filter((other) => Vector.dist(mote, other) <= r);
-  }
-
-  function expandCluster(mote: Vector, neighbors: Vector[], cluster: Vector[]) {
-    cluster.push(mote);
-    visited.add(mote);
-
-    for (const neighbor of neighbors) {
-      if (!visited.has(neighbor)) {
-        visited.add(neighbor);
-        const neighborNeighbors = getNeighbors(neighbor);
-        if (neighborNeighbors.length >= k) {
-          expandCluster(neighbor, neighborNeighbors, cluster);
-        }
-      }
-      if (!clusters.some((c) => c.includes(neighbor))) {
-        cluster.push(neighbor);
-      }
-    }
-  }
-
-  for (const mote of motes) {
-    if (!visited.has(mote)) {
-      visited.add(mote);
-      const neighbors = getNeighbors(mote);
-      if (neighbors.length >= k) {
-        const cluster: Vector[] = [];
-        expandCluster(mote, neighbors, cluster);
-        clusters.push(cluster);
-      } else {
-        noise.add(mote);
-      }
-    }
-  }
-
-  return clusters;
-}
-
 export { MoteRenderer };
