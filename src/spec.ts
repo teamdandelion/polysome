@@ -19,7 +19,15 @@ export class Spec {
   clusterRadius = 14;
   clusterSize = 10;
   clusterCollapseSize = 7;
-  clusterRenderRadius = 9;
+  clusterRenderRadius = 11;
+
+  // Cluster dynamics parameters
+  clusterCohesionFactor = 0.0;
+  maxCohesionForce = 1.0;
+  clusterSeparationFactor = 0.0;
+  clusterSeparationRadius = 6;
+  clusterAlignmentFactor = 0.0;
+  velocityDamping = 0.98;
 
   // Flow field settings
   numDisturbances = 30;

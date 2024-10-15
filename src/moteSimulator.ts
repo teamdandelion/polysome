@@ -73,8 +73,9 @@ class MoteSimulator {
     this.flowField.step(); // Update the flow field
     this.reset(); // Reset mote colllision velocities and collision counts
     this.processCollisions(); // Compute collision velocity and count for each mote
-    this.moveMotes(); // Move motes based on collision velocities and flow field
     this.updateClusters(); // Update mote clusters
+    this.applyClusterDynamics(); // Apply cluster dynamics
+    this.moveMotes(); // Move motes based on collision velocities and flow field
     return this.stepCounter++;
   }
 
@@ -259,6 +260,68 @@ class MoteSimulator {
         this.clusters.splice(i, 1);
       }
     }
+  }
+
+  applyClusterDynamics(): void {
+    for (const cluster of this.clusters) {
+      for (const moteIndex of cluster.motes) {
+        const motePos = new Vector(
+          this.motes[moteIndex * 4],
+          this.motes[moteIndex * 4 + 1]
+        );
+        const distanceToCenter = Vector.dist(motePos, cluster.position);
+
+        // Apply cohesion force
+        const cohesionForce = cluster.position.copy().sub(motePos);
+        const cohesionStrength = Math.min(
+          distanceToCenter * this.spec.clusterCohesionFactor,
+          this.spec.maxCohesionForce
+        );
+        cohesionForce.setMag(cohesionStrength);
+
+        // Apply separation force
+        let separationForce = new Vector(0, 0);
+        if (distanceToCenter < this.spec.clusterSeparationRadius) {
+          separationForce = motePos.copy().sub(cluster.position);
+          const separationStrength =
+            this.spec.clusterSeparationFactor *
+            (1 - distanceToCenter / this.spec.clusterSeparationRadius);
+          separationForce.setMag(separationStrength);
+        }
+
+        // Apply alignment force (assuming we have a method to calculate cluster velocity)
+        const clusterVelocity = this.calculateClusterVelocity(cluster);
+        const alignmentForce = clusterVelocity.sub(
+          new Vector(
+            this.velocities[moteIndex * 2],
+            this.velocities[moteIndex * 2 + 1]
+          )
+        );
+        alignmentForce.mult(this.spec.clusterAlignmentFactor);
+
+        // Combine forces
+        const totalForce = cohesionForce
+          .add(separationForce)
+          .add(alignmentForce);
+
+        // Apply the combined force
+        this.velocities[moteIndex * 2] += totalForce.x;
+        this.velocities[moteIndex * 2 + 1] += totalForce.y;
+      }
+    }
+  }
+
+  calculateClusterVelocity(cluster: Cluster): Vector {
+    let avgVelocity = new Vector(0, 0);
+    for (const moteIndex of cluster.motes) {
+      avgVelocity.add(
+        new Vector(
+          this.velocities[moteIndex * 2],
+          this.velocities[moteIndex * 2 + 1]
+        )
+      );
+    }
+    return avgVelocity.mult(1 / cluster.motes.size);
   }
 
   // Handle collisions
