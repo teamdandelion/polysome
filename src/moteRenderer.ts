@@ -82,7 +82,7 @@ class MoteRenderer {
     );
     for (const cluster of clusters) {
       // set white stroke
-      rc.stroke(0, 0, 100, 60);
+      rc.stroke(0, 0, 100, 42);
       rc.sWeight(1);
       // draw circle around cluster
       rc.ellipse(
