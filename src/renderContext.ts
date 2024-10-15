@@ -50,6 +50,15 @@ export class RenderContext {
     this.ctx.strokeStyle = color.toString();
   }
 
+  fill(h: number, s: number, b: number) {
+    const color = this.p5.color(h, s, b);
+    this.ctx.fillStyle = color.toString();
+  }
+
+  textSize(s: number) {
+    this.ctx.font = `${s}px sans-serif`;
+  }
+
   vrtx(x: number, y: number) {
     const [px, py] = this.convert(x, y);
     this.p5.vertex(px, py);
