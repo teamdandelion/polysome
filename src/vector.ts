@@ -7,9 +7,19 @@ export class Vector {
     this.y = y;
   }
 
+  copy(): Vector {
+    return new Vector(this.x, this.y);
+  }
+
   add(v: Vector): Vector {
     this.x += v.x;
     this.y += v.y;
+    return this;
+  }
+
+  sub(v: Vector): Vector {
+    this.x -= v.x;
+    this.y -= v.y;
     return this;
   }
 
