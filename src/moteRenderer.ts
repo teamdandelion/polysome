@@ -96,7 +96,7 @@ class MoteRenderer {
       rc.fill(0, 0, 100);
       rc.textSize(12);
       rc.text(
-        cluster.mass.toString(),
+        cluster.motes.size.toString(),
         cluster.position.x + 5,
         cluster.position.y + 8
       );
