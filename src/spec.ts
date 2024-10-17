@@ -16,6 +16,7 @@ export class Spec {
   useForceField = false;
   forceFieldResolution = 4;
 
+  drawClusters = false;
   clusterRadius = 14;
   clusterSize = 10;
   clusterCollapseSize = 7;

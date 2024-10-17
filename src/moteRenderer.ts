@@ -80,26 +80,29 @@ class MoteRenderer {
       { length: this.nMotes },
       (_, i) => new Vector(motes[i * 4], motes[i * 4 + 1])
     );
-    for (const cluster of clusters) {
-      // set white stroke
-      rc.stroke(0, 0, 100, 42);
-      rc.noFill();
-      rc.sWeight(1);
-      // draw circle around cluster
-      rc.ellipse(
-        cluster.position.x,
-        cluster.position.y,
-        this.spec.clusterRenderRadius,
-        this.spec.clusterRenderRadius
-      );
-      // add white text showing the cluster size (number of motes in cluster)
-      rc.fill(0, 0, 100);
-      rc.textSize(12);
-      rc.text(
-        cluster.motes.size.toString(),
-        cluster.position.x + 5,
-        cluster.position.y + 8
-      );
+
+    if (this.spec.drawClusters) {
+      for (const cluster of clusters) {
+        // set white stroke
+        rc.stroke(0, 0, 100, 42);
+        rc.noFill();
+        rc.sWeight(1);
+        // draw circle around cluster
+        rc.ellipse(
+          cluster.position.x,
+          cluster.position.y,
+          this.spec.clusterRenderRadius,
+          this.spec.clusterRenderRadius
+        );
+        // add white text showing the cluster size (number of motes in cluster)
+        rc.fill(0, 0, 100);
+        rc.textSize(12);
+        rc.text(
+          cluster.motes.size.toString(),
+          cluster.position.x + 5,
+          cluster.position.y + 8
+        );
+      }
     }
 
     if (this.spec.debugPane) {
