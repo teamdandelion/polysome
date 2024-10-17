@@ -1,32 +1,22 @@
 export class Vector {
-  x: number;
-  y: number;
+  readonly x: number;
+  readonly y: number;
 
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
   }
 
-  copy(): Vector {
-    return new Vector(this.x, this.y);
-  }
-
   add(v: Vector): Vector {
-    this.x += v.x;
-    this.y += v.y;
-    return this;
+    return new Vector(this.x + v.x, this.y + v.y);
   }
 
   sub(v: Vector): Vector {
-    this.x -= v.x;
-    this.y -= v.y;
-    return this;
+    return new Vector(this.x - v.x, this.y - v.y);
   }
 
   mult(scalar: number): Vector {
-    this.x *= scalar;
-    this.y *= scalar;
-    return this;
+    return new Vector(this.x * scalar, this.y * scalar);
   }
 
   angle(): number {
@@ -35,9 +25,7 @@ export class Vector {
 
   setMag(magnitude: number): Vector {
     const angle = this.angle();
-    this.x = Math.cos(angle) * magnitude;
-    this.y = Math.sin(angle) * magnitude;
-    return this;
+    return new Vector(Math.cos(angle) * magnitude, Math.sin(angle) * magnitude);
   }
 
   static fromAngle(angle: number): Vector {
