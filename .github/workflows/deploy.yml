@@ -28,7 +28,7 @@ jobs:
         run: npm run build
 
       - name: Copy CNAME file
-        run: cp public/CNAME dist/
+        run: cp src/public/CNAME dist/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
