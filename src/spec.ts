@@ -1,3 +1,5 @@
+import { type ColorPoint } from "./colorInterpolationSystem.js";
+
 export class Spec {
   numMotes = 4200;
   motesPerStep = 30;
@@ -12,6 +14,18 @@ export class Spec {
   moteHueFactor = 4.5;
   moteBrightFactor = 1;
   moteMaxHue = 320;
+
+  colorInterpolationPoints: Array<ColorPoint> = [
+    { collisions: 0, color: { h: 30, s: 100, b: 100 } }, // Orange
+    { collisions: 20, color: { h: 120, s: 100, b: 100 } }, // Green
+    { collisions: 35, color: { h: 180, s: 100, b: 100 } }, // Teal
+    { collisions: 56, color: { h: 200, s: 100, b: 100 } },
+
+    { collisions: 62, color: { h: 240, s: 100, b: 100 } }, // Indigo
+    { collisions: 80, color: { h: 270, s: 100, b: 100 } }, // Purple
+    { collisions: 120, color: { h: 320, s: 100, b: 100 } }, // Magenta
+    { collisions: 160, color: { h: 320, s: 40, b: 100 } }, // White-ish
+  ];
 
   useForceField = false;
   forceFieldResolution = 4;

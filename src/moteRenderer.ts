@@ -5,6 +5,7 @@ import { Spec } from "./spec.js";
 import { RenderContext } from "./renderContext.js";
 import { Vector } from "./vector.js";
 import { Cluster } from "./moteSimulator.js";
+import { ColorInterpolationSystem } from "./colorInterpolationSystem.js";
 
 type RingRenderSpec = {
   sizeFactor: number;
@@ -46,6 +47,7 @@ class MoteRenderer {
   private spec: Spec;
   private moteSpecs: MoteRenderSpec[];
   private start: number;
+  private colorSystem: ColorInterpolationSystem;
 
   constructor(spec: Spec, rng: Rng, bounds: p5.Vector) {
     this.spec = spec;
@@ -57,7 +59,13 @@ class MoteRenderer {
     this.moteSpecs = Array.from({ length: this.nMotes }, () =>
       randomMoteSpec(rng)
     );
+    this.colorSystem = new ColorInterpolationSystem(
+      spec.colorInterpolationPoints
+    );
     this.start = Date.now();
+    this.colorSystem = new ColorInterpolationSystem(
+      spec.colorInterpolationPoints
+    );
   }
 
   // Render phase
@@ -141,16 +149,11 @@ class MoteRenderer {
     const age = stepCounter - motes[idx * 4 + 3];
     const moteSpec = this.moteSpecs[idx];
 
-    let hue = this.spec.moteHueBaseline + n * this.spec.moteHueFactor;
-    hue = Math.min(hue, this.spec.moteMaxHue);
     let b = Math.min(1, age / 20);
     let size = this.spec.moteRenderRadius;
     let rotation = (age / 10) % (2 * Math.PI);
-    let hsb = {
-      hue: hue,
-      sat: 100,
-      bright: 80 + n * this.spec.moteBrightFactor,
-    };
+
+    const hsb = this.colorSystem.getColor(n);
     for (let i = 0; i < moteSpec.rings.length; i++) {
       let {
         opacity,
@@ -161,7 +164,7 @@ class MoteRenderer {
         wFactor,
         hFactor,
       } = moteSpec.rings[i];
-      rc.stroke(hsb.hue, hsb.sat, hsb.bright, b * 100 * opacity);
+      rc.stroke(hsb.h, hsb.s, hsb.b, b * 100 * opacity);
       rc.sWeight(thickness);
       let w = size * sizeFactor * wFactor;
       let h = size * sizeFactor * hFactor;
