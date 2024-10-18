@@ -44,5 +44,5 @@ export class Spec {
   flowCoefficient = 0.5;
   cxFlowCoefficient = 1.001;
 
-  debugPane = true;
+  debugPane = false;
 }

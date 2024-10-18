@@ -40,11 +40,9 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
     <div>
       <div className="relative-div">
         <div className="placard">
-          <p className="placard-title">
-            Polysome: <i> Currents </i>
-          </p>
+          <p className="placard-title">Polysome</p>
           <p className="placard-bottom">
-            <i className="author-name">by Indigo Mané</i>
+            <i className="author-name">by Dandelion Mané</i>
           </p>
         </div>
         <div ref={sketchRef} />
