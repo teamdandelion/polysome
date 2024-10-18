@@ -32,3 +32,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist # or your build output directory
+
+      - name: List build output
+        run: |
+          echo "Contents of build directory:"
+          ls -R .  # or whatever directory Parcel outputs to
