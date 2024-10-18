@@ -2,18 +2,12 @@ import { type ColorPoint } from "./colorInterpolationSystem.js";
 
 export class Spec {
   numMotes = 4200;
-  motesPerStep = 30;
 
   moteRadius = 42;
   moteRenderRadius = 42 * 0.07;
   // Range over which mote influence decays
   moteCollisionDecay = 9;
   moteForce = 0.1;
-
-  moteHueBaseline = 10;
-  moteHueFactor = 4.5;
-  moteBrightFactor = 1;
-  moteMaxHue = 320;
 
   colorInterpolationPoints: Array<ColorPoint> = [
     { collisions: 0, color: { h: 30, s: 100, b: 100 } }, // Orange
@@ -26,9 +20,6 @@ export class Spec {
     { collisions: 120, color: { h: 320, s: 100, b: 100 } }, // Magenta
     { collisions: 160, color: { h: 320, s: 40, b: 100 } }, // White-ish
   ];
-
-  useForceField = false;
-  forceFieldResolution = 4;
 
   drawClusters = false;
   clusterRadius = 14;
@@ -53,14 +44,5 @@ export class Spec {
   flowCoefficient = 0.5;
   cxFlowCoefficient = 1.001;
 
-  // Debug rendering settings
-  // Global toggle for debug info
-  debugMode = false;
-  // Tuning which debug info is present
-  debugForceField = false;
-  debugRenderFlowfield = false;
-  debugSectorGrid = false;
-  debugSectorCounts = false;
   debugPane = true;
-  useDebugMote = false;
 }
