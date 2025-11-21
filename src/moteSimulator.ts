@@ -16,6 +16,27 @@ class MoteSimulator {
   private spec: Spec;
   public stepCounter = 0;
 
+  // Grid using flat arrays instead of Map for better performance
+  private grid: Int32Array;
+  private gridSize: number;
+  private gridWidth: number;
+  private gridHeight: number;
+  private gridCellIndices: Uint32Array; // Track where each cell starts
+  private gridCellCounts: Uint32Array; // Track count per cell
+
+  // Pre-computed neighbor offsets for collision detection
+  private static readonly NEIGHBOR_OFFSETS = [
+    [0, 0],
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+    [1, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+  ] as const;
+
   constructor(spec: Spec, seed: string, xDim: number, yDim: number) {
     this.spec = spec;
     this.xMax = xDim;
@@ -26,6 +47,15 @@ class MoteSimulator {
     this.nMotes = spec.numMotes;
     this.motes = new Float32Array(this.nMotes * 4); // x, y, nCollisions, stepAdded
     this.velocities = new Float32Array(this.nMotes * 2); // vx, vy
+
+    // Setup grid for spatial hashing
+    this.gridSize = this.spec.moteRadius * 2;
+    this.gridWidth = Math.ceil(xDim / this.gridSize);
+    this.gridHeight = Math.ceil(yDim / this.gridSize);
+    const gridCellCount = this.gridWidth * this.gridHeight;
+    this.grid = new Int32Array(this.nMotes); // Stores mote indices
+    this.gridCellIndices = new Uint32Array(gridCellCount + 1);
+    this.gridCellCounts = new Uint32Array(gridCellCount);
 
     // Initialize mote positions randomly
     for (let i = 0; i < this.nMotes; i++) {
@@ -76,50 +106,93 @@ class MoteSimulator {
   }
 
   processCollisions(): void {
-    const gridSize = this.spec.moteRadius * 2;
-    const grid = new Map<string, number[]>();
     const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
+    const gridSize = this.gridSize;
+    const gridWidth = this.gridWidth;
+    const gridHeight = this.gridHeight;
+    const motes = this.motes;
+    const grid = this.grid;
+    const gridCellCounts = this.gridCellCounts;
+    const gridCellIndices = this.gridCellIndices;
 
-    // Populate the grid
+    // Clear grid counts
+    gridCellCounts.fill(0);
+
+    // Count motes per cell
     for (let i = 0; i < this.nMotes; i++) {
-      const x = Math.floor(this.motes[i * 4] / gridSize);
-      const y = Math.floor(this.motes[i * 4 + 1] / gridSize);
-      const key = `${x},${y}`;
-      if (!grid.has(key)) {
-        grid.set(key, []);
-      }
-      grid.get(key)!.push(i);
+      const cellX = Math.floor(motes[i * 4] / gridSize);
+      const cellY = Math.floor(motes[i * 4 + 1] / gridSize);
+      const cellIdx = cellY * gridWidth + cellX;
+      gridCellCounts[cellIdx]++;
     }
 
-    // Check for collisions
-    for (let [key, motesInCell] of grid.entries()) {
-      const [x, y] = key.split(",").map(Number);
-      const neighbors = [
-        `${x},${y}`,
-        `${x + 1},${y}`,
-        `${x - 1},${y}`,
-        `${x},${y + 1}`,
-        `${x},${y - 1}`,
-        `${x + 1},${y + 1}`,
-        `${x - 1},${y - 1}`,
-        `${x + 1},${y - 1}`,
-        `${x - 1},${y + 1}`,
-      ];
+    // Compute cell start indices (prefix sum)
+    let sum = 0;
+    for (let i = 0; i < gridCellCounts.length; i++) {
+      gridCellIndices[i] = sum;
+      sum += gridCellCounts[i];
+    }
+    gridCellIndices[gridCellCounts.length] = sum;
 
-      for (let neighborKey of neighbors) {
-        const neighborMotes = grid.get(neighborKey);
-        if (neighborMotes) {
-          for (let i of motesInCell) {
-            for (let j of neighborMotes) {
-              if (i < j) {
-                const dx = this.motes[j * 4] - this.motes[i * 4];
-                const dy = this.motes[j * 4 + 1] - this.motes[i * 4 + 1];
-                const dsq = dx * dx + dy * dy;
+    // Reset counts for insertion
+    gridCellCounts.fill(0);
 
-                if (dsq < radiusSq) {
-                  const d = Math.sqrt(dsq);
-                  this.collide(i, j, d, dx, dy);
-                }
+    // Place motes into grid
+    for (let i = 0; i < this.nMotes; i++) {
+      const cellX = Math.floor(motes[i * 4] / gridSize);
+      const cellY = Math.floor(motes[i * 4 + 1] / gridSize);
+      const cellIdx = cellY * gridWidth + cellX;
+      const insertPos = gridCellIndices[cellIdx] + gridCellCounts[cellIdx];
+      grid[insertPos] = i;
+      gridCellCounts[cellIdx]++;
+    }
+
+    // Iterate through all cells
+    for (let cellY = 0; cellY < gridHeight; cellY++) {
+      for (let cellX = 0; cellX < gridWidth; cellX++) {
+        const cellIdx = cellY * gridWidth + cellX;
+        const cellStart = gridCellIndices[cellIdx];
+        const cellEnd = cellStart + gridCellCounts[cellIdx];
+
+        // Skip empty cells
+        if (cellStart === cellEnd) continue;
+
+        // Check collisions with all 9 neighbor cells (including self)
+        for (let n = 0; n < 9; n++) {
+          const offset = MoteSimulator.NEIGHBOR_OFFSETS[n];
+          const neighborX = cellX + offset[0];
+          const neighborY = cellY + offset[1];
+
+          // Skip out-of-bounds neighbors
+          if (
+            neighborX < 0 ||
+            neighborX >= gridWidth ||
+            neighborY < 0 ||
+            neighborY >= gridHeight
+          ) {
+            continue;
+          }
+
+          const neighborIdx = neighborY * gridWidth + neighborX;
+          const neighborStart = gridCellIndices[neighborIdx];
+          const neighborEnd = neighborStart + gridCellCounts[neighborIdx];
+
+          // Check all mote pairs between cells
+          for (let i = cellStart; i < cellEnd; i++) {
+            const moteA = grid[i];
+            for (let j = neighborStart; j < neighborEnd; j++) {
+              const moteB = grid[j];
+
+              // Avoid duplicate checks and self-collision
+              if (moteA >= moteB) continue;
+
+              const deltaX = motes[moteB * 4] - motes[moteA * 4];
+              const deltaY = motes[moteB * 4 + 1] - motes[moteA * 4 + 1];
+              const dsq = deltaX * deltaX + deltaY * deltaY;
+
+              if (dsq < radiusSq) {
+                const d = Math.sqrt(dsq);
+                this.collide(moteA, moteB, d, deltaX, deltaY);
               }
             }
           }
