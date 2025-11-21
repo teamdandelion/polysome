@@ -23,6 +23,7 @@ class MoteSimulator {
   private gridHeight: number;
   private gridCellIndices: Uint32Array; // Track where each cell starts
   private gridCellCounts: Uint32Array; // Track count per cell
+  private moteCellIndices: Uint32Array; // Cache pre-computed cell index for each mote
 
   // Pre-computed neighbor offsets for collision detection
   // Only include "upper/right half" to avoid duplicate pair checks
@@ -53,6 +54,7 @@ class MoteSimulator {
     this.grid = new Int32Array(this.nMotes); // Stores mote indices
     this.gridCellIndices = new Uint32Array(gridCellCount + 1);
     this.gridCellCounts = new Uint32Array(gridCellCount);
+    this.moteCellIndices = new Uint32Array(this.nMotes); // Cache cell indices
 
     // Initialize mote positions randomly
     for (let i = 0; i < this.nMotes; i++) {
@@ -125,11 +127,14 @@ class MoteSimulator {
     // Clear grid counts
     gridCellCounts.fill(0);
 
-    // Count motes per cell (using multiply + bitwise OR for faster floor)
+    const moteCellIndices = this.moteCellIndices;
+
+    // Count motes per cell and cache cell indices (compute once, use twice)
     for (let i = 0; i < this.nMotes; i++) {
       const cellX = (motes[i * 4] * invGridSize) | 0;
       const cellY = (motes[i * 4 + 1] * invGridSize) | 0;
       const cellIdx = cellY * gridWidth + cellX;
+      moteCellIndices[i] = cellIdx; // Cache for reuse
       gridCellCounts[cellIdx]++;
     }
 
@@ -144,11 +149,9 @@ class MoteSimulator {
     // Reset counts for insertion
     gridCellCounts.fill(0);
 
-    // Place motes into grid (using multiply + bitwise OR for faster floor)
+    // Place motes into grid (reuse cached cell indices)
     for (let i = 0; i < this.nMotes; i++) {
-      const cellX = (motes[i * 4] * invGridSize) | 0;
-      const cellY = (motes[i * 4 + 1] * invGridSize) | 0;
-      const cellIdx = cellY * gridWidth + cellX;
+      const cellIdx = moteCellIndices[i]; // Reuse cached value!
       const insertPos = gridCellIndices[cellIdx] + gridCellCounts[cellIdx];
       grid[insertPos] = i;
       gridCellCounts[cellIdx]++;
