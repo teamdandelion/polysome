@@ -1,6 +1,5 @@
 import { Spec } from "./spec.js";
 import { Vector } from "./vector.js";
-import { pi, rescale } from "./safeMath.js";
 import { Rng } from "./safeRandom.js";
 import { hsbToRgb } from "./colorUtils.js";
 

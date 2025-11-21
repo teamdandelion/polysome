@@ -5,6 +5,9 @@ import { RenderContext } from "./renderContext.js";
 import { MoteRenderer } from "./moteRenderer.js";
 import { MoteSimulator } from "./moteSimulator.js";
 
+const PERF_LOG_INTERVAL = 10;
+const NO_LOGGING_AFTER = 60;
+
 export class Instance {
   rng: Rng;
   spec: Spec;
@@ -48,31 +51,21 @@ export class Instance {
     const animate = () => {
       const frameStart = performance.now();
 
-      // Run simulation
-      const simStart = performance.now();
-      this.step();
-      const simTime = performance.now() - simStart;
-
-      // Render
-      const renderStart = performance.now();
-      this.draw();
-      const renderTime = performance.now() - renderStart;
+      const simTime = this.step();
+      const renderTime = this.draw();
 
       const frameTime = performance.now() - frameStart;
 
-      // Record complete frame stats
       this.perfStats.push({
         simTime: simTime,
         renderTime: renderTime,
         frameTime: frameTime,
       });
 
-      // Keep only last 60 frames
-      if (this.perfStats.length > 60) {
+      if (this.perfStats.length > PERF_LOG_INTERVAL) {
         this.perfStats.shift();
       }
 
-      // Log performance data
       this.logPerformance();
 
       this.animationFrameId = requestAnimationFrame(animate);
@@ -88,36 +81,37 @@ export class Instance {
   }
 
   step() {
+    const start = performance.now();
     this.moteSimulator.step();
+    return performance.now() - start;
   }
 
   draw() {
     if (!this.rc) {
       throw new Error("Instance not setup");
     }
+    const start = performance.now();
 
     this.moteRenderer.render(
       this.moteSimulator.motes,
       this.moteSimulator.stepCounter,
       this.rc
     );
+    return performance.now() - start;
   }
 
   private logPerformance() {
     const step = this.moteSimulator.stepCounter;
 
-    if (this.perfStats.length === 0) return;
+    if (this.perfStats.length === 0 || step > NO_LOGGING_AFTER) return;
 
     const latest = this.perfStats[this.perfStats.length - 1];
 
-    // Log first 10 steps in detail
-    if (step <= 10) {
+    if (step < PERF_LOG_INTERVAL) {
       console.log(
         `Step ${step}: sim=${latest.simTime.toFixed(2)}ms render=${latest.renderTime.toFixed(2)}ms frame=${latest.frameTime.toFixed(2)}ms`
       );
-    }
-    // Log averages every 60 steps
-    else if (step % 60 === 0) {
+    } else if (step % PERF_LOG_INTERVAL === 0) {
       const avgSim =
         this.perfStats.reduce((sum, s) => sum + s.simTime, 0) /
         this.perfStats.length;
