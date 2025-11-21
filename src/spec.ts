@@ -5,23 +5,24 @@ export class Spec {
    * Total number of motes in the simulation. Initialized randomly across the canvas and
    * reset to random positions when they drift out of bounds.
    */
-  numMotes = 4200;
+  numMotes = 2100;
 
   /**
-   * Detection radius for mote collisions in pixels. Motes within this distance trigger
+   * Detection radius for mote collisions in logical units. Motes within this distance trigger
    * repulsive forces and increment collision counters. Used for spatial hashing grid size
-   * (gridSize = moteRadius * 2).
+   * (gridSize = moteRadius * 2). The canvas has a fixed area of 1M logical units²,
+   * scaled to pixels based on screen size.
    */
-  moteRadius = 42;
+  moteRadius = 60;
 
   /**
-   * Visual rendering radius of each mote in pixels (typically much smaller than collision
+   * Visual rendering radius of each mote in logical units (typically much smaller than collision
    * radius). Rendered as ellipses with randomized specs (size, thickness, opacity, offset).
    */
-  moteRenderRadius = 42 * 0.07;
+  moteRenderRadius = 42 * 0.12;
 
   /**
-   * Distance in pixels over which mote-to-mote repulsive force gradually decays to zero.
+   * Distance in logical units over which mote-to-mote repulsive force gradually decays to zero.
    * When distance between motes >= (moteRadius - moteCollisionDecay), force scales linearly
    * from full strength to zero. Creates softer collision boundaries.
    */
@@ -32,7 +33,7 @@ export class Spec {
    * is normalized by distance and may be reduced by moteCollisionDecay. This creates the
    * "pressure" that pushes motes apart.
    */
-  moteForce = 0.1;
+  moteForce = 0.2;
 
   /**
    * Color gradient mapping collision counts to HSB colors. Motes interpolate through these
@@ -42,18 +43,18 @@ export class Spec {
    */
   colorInterpolationPoints: Array<ColorPoint> = [
     { collisions: 0, color: { h: 30, s: 100, b: 100 } }, // Orange
-    { collisions: 20, color: { h: 120, s: 100, b: 100 } }, // Green
-    { collisions: 35, color: { h: 180, s: 100, b: 100 } }, // Teal
-    { collisions: 56, color: { h: 200, s: 100, b: 100 } },
+    { collisions: 10, color: { h: 120, s: 100, b: 100 } }, // Green
+    { collisions: 25, color: { h: 180, s: 100, b: 100 } }, // Teal
+    { collisions: 36, color: { h: 200, s: 100, b: 100 } },
 
-    { collisions: 62, color: { h: 240, s: 100, b: 100 } }, // Indigo
-    { collisions: 80, color: { h: 270, s: 100, b: 100 } }, // Purple
-    { collisions: 120, color: { h: 320, s: 100, b: 100 } }, // Magenta
-    { collisions: 160, color: { h: 320, s: 40, b: 100 } }, // White-ish
+    { collisions: 42, color: { h: 240, s: 100, b: 100 } }, // Indigo
+    { collisions: 50, color: { h: 270, s: 100, b: 100 } }, // Purple
+    { collisions: 70, color: { h: 320, s: 100, b: 100 } }, // Magenta
+    { collisions: 90, color: { h: 320, s: 40, b: 100 } }, // White-ish
   ];
 
   /**
-   * Grid spacing in pixels for the flow field. The canvas is divided into a grid where
+   * Grid spacing in logical units for the flow field. The canvas is divided into a grid where
    * each point stores a flow angle (theta). Smaller values create more detailed flow
    * patterns but increase computation and memory.
    */
@@ -81,27 +82,27 @@ export class Spec {
   defaultTheta = 0;
 
   /**
-   * Mean radius in pixels for flow field disturbances (center of Gaussian distribution).
+   * Mean radius in logical units for flow field disturbances (center of Gaussian distribution).
    * Larger values create broader regions of flow rotation. Combined with variance, creates
    * variety in disturbance sizes.
    */
   disturbanceRadiusMean = 100;
 
   /**
-   * Standard deviation for Gaussian sampling of disturbance radii in pixels. High variance
+   * Standard deviation for Gaussian sampling of disturbance radii in logical units. High variance
    * creates dramatic size differences between disturbances. Values can range from very small
    * to very large circular influence regions.
    */
   disturbanceRadiusVariance = 200;
 
   /**
-   * Minimum velocity for moving disturbances in pixels per simulation step. Disturbances
+   * Minimum velocity for moving disturbances in logical units per simulation step. Disturbances
    * drift across the canvas between this speed and disturbanceSpeedMax, bouncing off edges.
    */
   disturbanceSpeedMin = 0;
 
   /**
-   * Maximum velocity for moving disturbances in pixels per simulation step. Higher values
+   * Maximum velocity for moving disturbances in logical units per simulation step. Higher values
    * create faster-moving flow patterns that dynamically reshape the directional field.
    */
   disturbanceSpeedMax = 0.5;

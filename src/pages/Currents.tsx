@@ -24,13 +24,13 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
 
     const ww = window.innerWidth;
     const wh = window.innerHeight;
-    let xDim = 1000;
-    let yDim = 1000;
-    if (ww > wh) {
-      yDim = (wh / ww) * xDim;
-    } else {
-      xDim = (ww / wh) * yDim;
-    }
+
+    // Fixed area normalization: canvas always has 1M logical units²
+    // regardless of aspect ratio, ensuring consistent mote density
+    const NORMALIZED_AREA = 1000000;
+    const aspectRatio = ww / wh;
+    const yDim = Math.sqrt(NORMALIZED_AREA / aspectRatio);
+    const xDim = yDim * aspectRatio;
 
     const instance = new Instance(seed, xDim, yDim, debug);
     instance.setup(canvas);

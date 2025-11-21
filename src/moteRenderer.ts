@@ -23,7 +23,7 @@ function randomMoteSpec(rng: Rng): MoteRenderSpec {
   let numRings = rng.choice([1]);
   for (let i = 0; i < numRings; i++) {
     rings.push({
-      sizeFactor: Math.max(rng.gauss(1, 0.4), 0.1),
+      sizeFactor: Math.max(rng.gauss(1, 0.3), 0.2),
       thickness: rng.gauss(0.5, 0.12),
       opacity: Math.min(rng.gauss(0.9, 0.2), 1),
       xOffset: rng.gauss(0, 0.3),
