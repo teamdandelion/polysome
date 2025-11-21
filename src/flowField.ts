@@ -1,93 +1,15 @@
-import { dist, rescale, pi } from "./safeMath.js";
+import { pi } from "./safeMath.js";
 import { Rng } from "./safeRandom.js";
-import { Spec } from "./spec.js";
 import { Vector } from "./vector.js";
 
-type DisturbanceSpec = {
-  pos: Vector;
-  theta: number;
-  radius: number;
-};
-
-type FlowSpec = {
-  defaultTheta: number;
-  disturbances: DisturbanceSpec[];
-  bounds: Vector;
-};
-
-export interface IFlowField {
-  flow(pos: Vector): Vector;
-}
-
-export function flowSpec(r: Rng, spec: Spec, bounds: Vector): FlowSpec {
-  const { numDisturbances, thetaVariance, defaultTheta } = spec;
-  const disturbances: DisturbanceSpec[] = [];
-  for (let i = 0; i < numDisturbances; i++) {
-    const disturbanceX = r.uniform(0, bounds.x);
-    const disturbanceY = r.uniform(0, bounds.y);
-    const disturbanceTheta = r.gauss(0, thetaVariance);
-    const disturbanceRadius = Math.abs(
-      r.gauss(spec.disturbanceRadiusMean, spec.disturbanceRadiusVariance)
-    );
-    disturbances.push({
-      pos: new Vector(disturbanceX, disturbanceY),
-      theta: disturbanceTheta,
-      radius: disturbanceRadius,
-    });
-  }
-  return { defaultTheta, disturbances, bounds };
-}
-
-export class FlowField {
-  spacing = 4;
-  fieldPoints: Float64Array[]; // Angle (theta) in a grid on the field
-
-  constructor(spec: FlowSpec) {
-    const iMax = Math.ceil(spec.bounds.x / this.spacing);
-    const jMax = Math.ceil(spec.bounds.y / this.spacing);
-    this.fieldPoints = Array.from({ length: iMax }, () =>
-      new Float64Array(jMax).fill(spec.defaultTheta)
-    );
-
-    for (const { pos, theta, radius } of spec.disturbances) {
-      const minX = pos.x - radius;
-      const maxX = pos.x + radius;
-      const minY = pos.y - radius;
-      const maxY = pos.y + radius;
-
-      const minI = Math.max(0, Math.floor(minX / this.spacing));
-      const maxI = Math.min(iMax, Math.ceil(maxX / this.spacing));
-      const minJ = Math.max(0, Math.floor(minY / this.spacing));
-      const maxJ = Math.min(jMax, Math.ceil(maxY / this.spacing));
-
-      for (let i = minI; i < maxI; i++) {
-        const x = this.spacing * i;
-        for (let j = minJ; j < maxJ; j++) {
-          const y = this.spacing * j;
-          const d = dist(pos.x, pos.y, x, y);
-          const thetaAdjust = rescale(d, 0, radius, theta, 0);
-          this.fieldPoints[i][j] += thetaAdjust;
-        }
-      }
-    }
-  }
-
-  flow(pos: Vector): Vector {
-    const i = Math.floor(pos.x / this.spacing);
-    const j = Math.floor(pos.y / this.spacing);
-    const theta = this.fieldPoints[i][j];
-    return Vector.fromAngle(theta);
-  }
-}
-
-type DynamicDisturbance = {
+type FlowFieldDisturbance = {
   pos: Vector;
   vel: Vector;
   theta: number;
   radius: number;
 };
 
-export class DynamicFlowField {
+export class FlowField {
   spacing = 4;
   numDisturbances = 30;
   thetaVariance = 3.14;
@@ -95,7 +17,7 @@ export class DynamicFlowField {
   disturbanceRadiusVariance = 200;
   defaultTheta: number;
 
-  disturbances: DynamicDisturbance[] = [];
+  disturbances: FlowFieldDisturbance[] = [];
   bounds: Vector;
   rng: Rng;
 

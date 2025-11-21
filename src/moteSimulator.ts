@@ -1,4 +1,4 @@
-import { DynamicFlowField } from "./flowField.js";
+import { FlowField } from "./flowField.js";
 import { PerfMap } from "./perfBuffer.js";
 import { Rng, makeSeededRng } from "./safeRandom.js";
 import { Spec } from "./spec.js";
@@ -12,7 +12,7 @@ class MoteSimulator {
   private nMotes: number;
   public motes: Float32Array;
   private velocities: Float32Array;
-  private flowField: DynamicFlowField;
+  private flowField: FlowField;
   private spec: Spec;
   public stepCounter = 0;
 
@@ -42,7 +42,7 @@ class MoteSimulator {
     this.xMax = xDim;
     this.yMax = yDim;
     this.rng = makeSeededRng(seed);
-    this.flowField = new DynamicFlowField(this.rng, new Vector(xDim, yDim));
+    this.flowField = new FlowField(this.rng, new Vector(xDim, yDim));
 
     this.nMotes = spec.numMotes;
     this.motes = new Float32Array(this.nMotes * 4); // x, y, nCollisions, stepAdded
