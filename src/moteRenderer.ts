@@ -120,7 +120,7 @@ class MoteRenderer {
       this.lastFpsUpdate = now;
     }
 
-    if (this.spec.debugPane) {
+    if (this.spec.debugMode) {
       rc.fill(240, 100, 10, 60);
       let x = rc.canvasWidth - 180;
       let y = 10;

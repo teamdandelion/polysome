@@ -19,8 +19,8 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
     }
 
     seed = seed ?? randomSeed();
-    console.log("Currents v4 (no p5!)");
-    console.log(seed);
+    console.log("Currents v4");
+    console.log(debug, seed);
 
     const ww = window.innerWidth;
     const wh = window.innerHeight;
