@@ -1,4 +1,5 @@
 import { DynamicFlowField } from "./flowField.js";
+import { PerfMap } from "./perfBuffer.js";
 import { Rng, makeSeededRng } from "./safeRandom.js";
 import { Spec } from "./spec.js";
 import { Vector } from "./vector.js";
@@ -35,12 +36,23 @@ class MoteSimulator {
     }
   }
 
-  step(): number {
+  step(): PerfMap {
+    const perf = new Map<string, number>();
+    const stepStart = performance.now();
+
     this.flowField.step(); // Update the flow field
     this.reset(); // Reset mote colllision velocities and collision counts
+
+    const collisionsStart = performance.now();
     this.processCollisions(); // Compute collision velocity and count for each mote
+    perf.set("simulate/processCollisions", performance.now() - collisionsStart);
+
     this.moveMotes(); // Move motes based on collision velocities and flow field
-    return this.stepCounter++;
+
+    perf.set("simulate", performance.now() - stepStart);
+    this.stepCounter++;
+
+    return perf;
   }
 
   reset(): void {
@@ -147,7 +159,13 @@ class MoteSimulator {
    * @param deltaX - X component of the vector from mote A to mote B
    * @param deltaY - Y component of the vector from mote A to mote B
    */
-  private collide(aIndex: number, bIndex: number, distance: number, deltaX: number, deltaY: number): void {
+  private collide(
+    aIndex: number,
+    bIndex: number,
+    distance: number,
+    deltaX: number,
+    deltaY: number
+  ): void {
     let forceFactor = this.spec.moteForce;
     if (distance >= this.spec.moteRadius - this.spec.moteCollisionDecay) {
       forceFactor =

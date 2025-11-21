@@ -4,9 +4,12 @@ import { makeSeededRng, Rng } from "./safeRandom.js";
 import { RenderContext } from "./renderContext.js";
 import { MoteRenderer } from "./moteRenderer.js";
 import { MoteSimulator } from "./moteSimulator.js";
+import { PerfBuffer, PerfMap } from "./perfBuffer.js";
 
 const PERF_LOG_INTERVAL = 10;
 const NO_LOGGING_AFTER = 60;
+const PERF_TEMPLATE =
+  "frame=$frame render=$render simulate=$simulate processCollisions=$simulate/processCollisions";
 
 export class Instance {
   rng: Rng;
@@ -18,11 +21,7 @@ export class Instance {
   private animationFrameId: number | null = null;
 
   // Performance tracking
-  private perfStats: Array<{
-    simTime: number;
-    renderTime: number;
-    frameTime: number;
-  }> = [];
+  private perfBuffer: PerfBuffer = new PerfBuffer(1000);
 
   constructor(seed: string, xDim: number, yDim: number, debug: boolean) {
     this.rc = null;
@@ -51,20 +50,23 @@ export class Instance {
     const animate = () => {
       const frameStart = performance.now();
 
-      const simTime = this.step();
-      const renderTime = this.draw();
+      // Get simulator performance metrics
+      const stepPerf = this.step();
+
+      // Measure render time
+      const renderStart = performance.now();
+      this.draw();
+      const renderTime = performance.now() - renderStart;
 
       const frameTime = performance.now() - frameStart;
 
-      this.perfStats.push({
-        simTime: simTime,
-        renderTime: renderTime,
-        frameTime: frameTime,
-      });
+      // Combine all performance metrics
+      const perf: PerfMap = new Map(stepPerf);
+      perf.set("frame", frameTime);
+      perf.set("render", renderTime);
 
-      if (this.perfStats.length > PERF_LOG_INTERVAL) {
-        this.perfStats.shift();
-      }
+      // Record in buffer
+      this.perfBuffer.recordPerf(this.moteSimulator.stepCounter, perf);
 
       this.logPerformance();
 
@@ -80,51 +82,33 @@ export class Instance {
     }
   }
 
-  step() {
-    const start = performance.now();
-    this.moteSimulator.step();
-    return performance.now() - start;
+  step(): PerfMap {
+    return this.moteSimulator.step();
   }
 
   draw() {
     if (!this.rc) {
       throw new Error("Instance not setup");
     }
-    const start = performance.now();
 
     this.moteRenderer.render(
       this.moteSimulator.motes,
       this.moteSimulator.stepCounter,
       this.rc
     );
-    return performance.now() - start;
   }
 
   private logPerformance() {
     const step = this.moteSimulator.stepCounter;
 
-    if (this.perfStats.length === 0 || step > NO_LOGGING_AFTER) return;
+    if (step > NO_LOGGING_AFTER) return;
 
-    const latest = this.perfStats[this.perfStats.length - 1];
-
+    // Log individual steps for the first PERF_LOG_INTERVAL steps
     if (step < PERF_LOG_INTERVAL) {
-      console.log(
-        `Step ${step}: sim=${latest.simTime.toFixed(2)}ms render=${latest.renderTime.toFixed(2)}ms frame=${latest.frameTime.toFixed(2)}ms`
-      );
+      this.perfBuffer.logPerf(PERF_TEMPLATE);
     } else if (step % PERF_LOG_INTERVAL === 0) {
-      const avgSim =
-        this.perfStats.reduce((sum, s) => sum + s.simTime, 0) /
-        this.perfStats.length;
-      const avgRender =
-        this.perfStats.reduce((sum, s) => sum + s.renderTime, 0) /
-        this.perfStats.length;
-      const avgFrame =
-        this.perfStats.reduce((sum, s) => sum + s.frameTime, 0) /
-        this.perfStats.length;
-
-      console.log(
-        `Step ${step} (avg last ${this.perfStats.length}): sim=${avgSim.toFixed(2)}ms render=${avgRender.toFixed(2)}ms frame=${avgFrame.toFixed(2)}ms (${(1000 / avgFrame).toFixed(1)} fps)`
-      );
+      // Log averaged performance every PERF_LOG_INTERVAL steps
+      this.perfBuffer.logAveragePerf(PERF_LOG_INTERVAL, PERF_TEMPLATE);
     }
   }
 }
