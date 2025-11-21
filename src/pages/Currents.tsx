@@ -47,7 +47,7 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
         <div className="placard">
           <p className="placard-title">Polysome</p>
           <p className="placard-bottom">
-            <i className="author-name">by Dandelion Indigo Mané</i>
+            <i className="author-name">Dandelion Mané</i>
           </p>
         </div>
         <canvas

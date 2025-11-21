@@ -12,7 +12,7 @@ const LandingPage = () => {
           <a href="/currents">Currents</a>
         </li>
       </ul>
-      <p className="byline">by Indigo Mané</p>
+      <p className="byline">by Dandelion Mané</p>
     </div>
   );
 };
