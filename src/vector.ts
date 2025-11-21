@@ -1,6 +1,6 @@
 export class Vector {
-  readonly x: number;
-  readonly y: number;
+  x: number;
+  y: number;
 
   constructor(x: number, y: number) {
     this.x = x;
@@ -8,15 +8,21 @@ export class Vector {
   }
 
   add(v: Vector): Vector {
-    return new Vector(this.x + v.x, this.y + v.y);
+    this.x += v.x;
+    this.y += v.y;
+    return this;
   }
 
   sub(v: Vector): Vector {
-    return new Vector(this.x - v.x, this.y - v.y);
+    this.x -= v.x;
+    this.y -= v.y;
+    return this;
   }
 
   mult(scalar: number): Vector {
-    return new Vector(this.x * scalar, this.y * scalar);
+    this.x *= scalar;
+    this.y *= scalar;
+    return this;
   }
 
   angle(): number {
@@ -25,7 +31,9 @@ export class Vector {
 
   setMag(magnitude: number): Vector {
     const angle = this.angle();
-    return new Vector(Math.cos(angle) * magnitude, Math.sin(angle) * magnitude);
+    this.x = Math.cos(angle) * magnitude;
+    this.y = Math.sin(angle) * magnitude;
+    return this;
   }
 
   static fromAngle(angle: number): Vector {
