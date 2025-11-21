@@ -101,16 +101,20 @@ export class Instance {
   private logPerformance() {
     const step = this.moteSimulator.stepCounter;
 
-    if (step > REDUCED_LOGGING_AFTER) return;
+    let interval = 10;
+    if (step >= 100) {
+      interval = 100;
+    }
+    if (step >= 500) {
+      interval = 500;
+    }
+    if (step >= 1000) {
+      interval = 1000;
+    }
 
-    // Log individual steps for the first PERF_LOG_INTERVAL steps
-    if (step < PERF_LOG_INTERVAL) {
+    if (step < interval) {
       this.perfBuffer.logPerf(PERF_TEMPLATE);
-    } else if (step % PERF_LOG_INTERVAL === 0) {
-      const interval =
-        step < REDUCED_LOGGING_AFTER
-          ? PERF_LOG_INTERVAL
-          : REDUCED_LOGGING_AFTER;
+    } else if (step % interval === 0) {
       this.perfBuffer.logAveragePerf(interval, PERF_TEMPLATE);
     }
   }
