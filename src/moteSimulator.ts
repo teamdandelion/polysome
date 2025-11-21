@@ -25,16 +25,13 @@ class MoteSimulator {
   private gridCellCounts: Uint32Array; // Track count per cell
 
   // Pre-computed neighbor offsets for collision detection
+  // Only include "upper/right half" to avoid duplicate pair checks
+  // Self-cell [0,0] handled specially with i < j check
   private static readonly NEIGHBOR_OFFSETS = [
-    [0, 0],
-    [1, 0],
-    [-1, 0],
-    [0, 1],
-    [0, -1],
-    [1, 1],
-    [-1, -1],
-    [1, -1],
-    [-1, 1],
+    [1, 0],  // right
+    [0, 1],  // down
+    [1, 1],  // down-right
+    [-1, 1], // down-left
   ] as const;
 
   constructor(spec: Spec, seed: string, xDim: number, yDim: number) {
@@ -115,20 +112,23 @@ class MoteSimulator {
   processCollisions(): void {
     const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
     const gridSize = this.gridSize;
+    const invGridSize = 1 / gridSize;
     const gridWidth = this.gridWidth;
     const gridHeight = this.gridHeight;
     const motes = this.motes;
+    const velocities = this.velocities;
     const grid = this.grid;
     const gridCellCounts = this.gridCellCounts;
     const gridCellIndices = this.gridCellIndices;
+    const spec = this.spec;
 
     // Clear grid counts
     gridCellCounts.fill(0);
 
-    // Count motes per cell
+    // Count motes per cell (using multiply + bitwise OR for faster floor)
     for (let i = 0; i < this.nMotes; i++) {
-      const cellX = Math.floor(motes[i * 4] / gridSize);
-      const cellY = Math.floor(motes[i * 4 + 1] / gridSize);
+      const cellX = (motes[i * 4] * invGridSize) | 0;
+      const cellY = (motes[i * 4 + 1] * invGridSize) | 0;
       const cellIdx = cellY * gridWidth + cellX;
       gridCellCounts[cellIdx]++;
     }
@@ -144,10 +144,10 @@ class MoteSimulator {
     // Reset counts for insertion
     gridCellCounts.fill(0);
 
-    // Place motes into grid
+    // Place motes into grid (using multiply + bitwise OR for faster floor)
     for (let i = 0; i < this.nMotes; i++) {
-      const cellX = Math.floor(motes[i * 4] / gridSize);
-      const cellY = Math.floor(motes[i * 4 + 1] / gridSize);
+      const cellX = (motes[i * 4] * invGridSize) | 0;
+      const cellY = (motes[i * 4 + 1] * invGridSize) | 0;
       const cellIdx = cellY * gridWidth + cellX;
       const insertPos = gridCellIndices[cellIdx] + gridCellCounts[cellIdx];
       grid[insertPos] = i;
@@ -164,8 +164,44 @@ class MoteSimulator {
         // Skip empty cells
         if (cellStart === cellEnd) continue;
 
-        // Check collisions with all 9 neighbor cells (including self)
-        for (let n = 0; n < 9; n++) {
+        // 1) Check self-cell pairs (i < j to avoid duplicates)
+        for (let idxA = cellStart; idxA < cellEnd; idxA++) {
+          const moteA = grid[idxA];
+          for (let idxB = idxA + 1; idxB < cellEnd; idxB++) {
+            const moteB = grid[idxB];
+
+            const deltaX = motes[moteB * 4] - motes[moteA * 4];
+            const deltaY = motes[moteB * 4 + 1] - motes[moteA * 4 + 1];
+            const dsq = deltaX * deltaX + deltaY * deltaY;
+
+            if (dsq < radiusSq) {
+              const d = Math.sqrt(dsq);
+
+              // Inline collision handling
+              let forceFactor = spec.moteForce;
+              if (d >= spec.moteRadius - spec.moteCollisionDecay) {
+                forceFactor =
+                  (spec.moteForce * (spec.moteRadius - d)) /
+                  spec.moteCollisionDecay;
+              }
+
+              const magnitude = d > 0 ? forceFactor / d : 0;
+              const forceX = deltaX * magnitude;
+              const forceY = deltaY * magnitude;
+
+              velocities[moteA * 2] -= forceX;
+              velocities[moteA * 2 + 1] -= forceY;
+              velocities[moteB * 2] += forceX;
+              velocities[moteB * 2 + 1] += forceY;
+
+              motes[moteA * 4 + 2]++;
+              motes[moteB * 4 + 2]++;
+            }
+          }
+        }
+
+        // 2) Check collisions with upper/right neighbor cells only (avoids duplicates)
+        for (let n = 0; n < 4; n++) {
           const offset = MoteSimulator.NEIGHBOR_OFFSETS[n];
           const neighborX = cellX + offset[0];
           const neighborY = cellY + offset[1];
@@ -184,14 +220,11 @@ class MoteSimulator {
           const neighborStart = gridCellIndices[neighborIdx];
           const neighborEnd = neighborStart + gridCellCounts[neighborIdx];
 
-          // Check all mote pairs between cells
+          // Check all mote pairs between cells (no need for moteA >= moteB check)
           for (let i = cellStart; i < cellEnd; i++) {
             const moteA = grid[i];
             for (let j = neighborStart; j < neighborEnd; j++) {
               const moteB = grid[j];
-
-              // Avoid duplicate checks and self-collision
-              if (moteA >= moteB) continue;
 
               const deltaX = motes[moteB * 4] - motes[moteA * 4];
               const deltaY = motes[moteB * 4 + 1] - motes[moteA * 4 + 1];
@@ -201,24 +234,24 @@ class MoteSimulator {
                 const d = Math.sqrt(dsq);
 
                 // Inline collision handling
-                let forceFactor = this.spec.moteForce;
-                if (d >= this.spec.moteRadius - this.spec.moteCollisionDecay) {
+                let forceFactor = spec.moteForce;
+                if (d >= spec.moteRadius - spec.moteCollisionDecay) {
                   forceFactor =
-                    (this.spec.moteForce * (this.spec.moteRadius - d)) /
-                    this.spec.moteCollisionDecay;
+                    (spec.moteForce * (spec.moteRadius - d)) /
+                    spec.moteCollisionDecay;
                 }
 
                 const magnitude = d > 0 ? forceFactor / d : 0;
                 const forceX = deltaX * magnitude;
                 const forceY = deltaY * magnitude;
 
-                this.velocities[moteA * 2] -= forceX;
-                this.velocities[moteA * 2 + 1] -= forceY;
-                this.velocities[moteB * 2] += forceX;
-                this.velocities[moteB * 2 + 1] += forceY;
+                velocities[moteA * 2] -= forceX;
+                velocities[moteA * 2 + 1] -= forceY;
+                velocities[moteB * 2] += forceX;
+                velocities[moteB * 2 + 1] += forceY;
 
-                this.motes[moteA * 4 + 2]++;
-                this.motes[moteB * 4 + 2]++;
+                motes[moteA * 4 + 2]++;
+                motes[moteB * 4 + 2]++;
               }
             }
           }
