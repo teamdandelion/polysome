@@ -6,8 +6,6 @@ import { MoteRenderer } from "./moteRenderer.js";
 import { MoteSimulator } from "./moteSimulator.js";
 import { PerfBuffer, PerfMap } from "./perfBuffer.js";
 
-const PERF_LOG_INTERVAL = 10;
-const REDUCED_LOGGING_AFTER = 100;
 const PERF_TEMPLATE =
   "frame=$frame render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes";
 
@@ -31,7 +29,6 @@ export class Instance {
     this.bounds = new Vector(xDim, yDim);
     this.moteRenderer = new MoteRenderer(this.spec, this.rng, this.bounds);
 
-    // Initialize simulator directly on main thread
     this.moteSimulator = new MoteSimulator(this.spec, seed, xDim, yDim);
   }
 
@@ -53,19 +50,16 @@ export class Instance {
       // Get simulator performance metrics
       const stepPerf = this.step();
 
-      // Measure render time
       const renderStart = performance.now();
       this.draw();
       const renderTime = performance.now() - renderStart;
 
       const frameTime = performance.now() - frameStart;
 
-      // Combine all performance metrics
       const perf: PerfMap = new Map(stepPerf);
       perf.set("frame", frameTime);
       perf.set("render", renderTime);
 
-      // Record in buffer
       this.perfBuffer.recordPerf(this.moteSimulator.stepCounter, perf);
 
       this.logPerformance();

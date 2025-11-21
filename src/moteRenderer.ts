@@ -36,10 +36,6 @@ function randomMoteSpec(rng: Rng): MoteRenderSpec {
 }
 
 class MoteRenderer {
-  private rng: Rng;
-  private xMax: number;
-  private yMax: number;
-
   private nMotes: number;
   private spec: Spec;
   private moteSpecs: MoteRenderSpec[];
@@ -51,9 +47,6 @@ class MoteRenderer {
 
   constructor(spec: Spec, rng: Rng, bounds: Vector) {
     this.spec = spec;
-    this.xMax = bounds.x;
-    this.yMax = bounds.y;
-    this.rng = rng;
 
     this.nMotes = spec.numMotes;
     this.moteSpecs = Array.from({ length: this.nMotes }, () =>
@@ -126,7 +119,6 @@ class MoteRenderer {
 
     let b = Math.min(1, age / 20);
     let size = this.spec.moteRenderRadius;
-    let rotation = (age / 10) % (2 * Math.PI);
 
     const hsb = this.colorSystem.getColor(n);
     for (let i = 0; i < moteSpec.rings.length; i++) {

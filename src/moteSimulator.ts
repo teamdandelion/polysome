@@ -124,7 +124,6 @@ class MoteSimulator {
     const gridCellIndices = this.gridCellIndices;
     const spec = this.spec;
 
-    // Clear grid counts
     gridCellCounts.fill(0);
 
     const moteCellIndices = this.moteCellIndices;
