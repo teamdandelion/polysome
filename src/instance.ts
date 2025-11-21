@@ -7,7 +7,7 @@ import { MoteSimulator } from "./moteSimulator.js";
 import { PerfBuffer, PerfMap } from "./perfBuffer.js";
 
 const PERF_LOG_INTERVAL = 10;
-const NO_LOGGING_AFTER = 60;
+const REDUCED_LOGGING_AFTER = 100;
 const PERF_TEMPLATE =
   "frame=$frame render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes";
 
@@ -101,14 +101,17 @@ export class Instance {
   private logPerformance() {
     const step = this.moteSimulator.stepCounter;
 
-    if (step > NO_LOGGING_AFTER) return;
+    if (step > REDUCED_LOGGING_AFTER) return;
 
     // Log individual steps for the first PERF_LOG_INTERVAL steps
     if (step < PERF_LOG_INTERVAL) {
       this.perfBuffer.logPerf(PERF_TEMPLATE);
     } else if (step % PERF_LOG_INTERVAL === 0) {
-      // Log averaged performance every PERF_LOG_INTERVAL steps
-      this.perfBuffer.logAveragePerf(PERF_LOG_INTERVAL, PERF_TEMPLATE);
+      const interval =
+        step < REDUCED_LOGGING_AFTER
+          ? PERF_LOG_INTERVAL
+          : REDUCED_LOGGING_AFTER;
+      this.perfBuffer.logAveragePerf(interval, PERF_TEMPLATE);
     }
   }
 }
