@@ -22,13 +22,21 @@ export class FlowField {
   rng: Rng;
 
   fieldPoints: Float64Array[]; // Angle (theta) in a grid on the field
+  private iMax: number; // Cache grid dimensions
+  private jMax: number;
 
   constructor(rng: Rng, bounds: Vector) {
     this.rng = rng;
     this.bounds = bounds;
     this.defaultTheta = rng.uniform(0, pi(2));
 
-    this.fieldPoints = [];
+    // Pre-allocate fieldPoints array once
+    this.iMax = Math.ceil(bounds.x / this.spacing);
+    this.jMax = Math.ceil(bounds.y / this.spacing);
+    this.fieldPoints = Array.from({ length: this.iMax }, () =>
+      new Float64Array(this.jMax)
+    );
+
     this.disturbances = [];
     while (this.disturbances.length < this.numDisturbances) {
       this.addDisturbance();
@@ -65,11 +73,10 @@ export class FlowField {
   }
 
   computeFlowField() {
-    const iMax = Math.ceil(this.bounds.x / this.spacing);
-    const jMax = Math.ceil(this.bounds.y / this.spacing);
-    this.fieldPoints = Array.from({ length: iMax }, () =>
-      new Float64Array(jMax).fill(this.defaultTheta)
-    );
+    // Reuse existing arrays, just reset values
+    for (let i = 0; i < this.iMax; i++) {
+      this.fieldPoints[i].fill(this.defaultTheta);
+    }
 
     for (const { pos, theta, radius } of this.disturbances) {
       const minX = pos.x - radius;
@@ -78,9 +85,9 @@ export class FlowField {
       const maxY = pos.y + radius;
 
       const minI = Math.max(0, Math.floor(minX / this.spacing));
-      const maxI = Math.min(iMax, Math.ceil(maxX / this.spacing));
+      const maxI = Math.min(this.iMax, Math.ceil(maxX / this.spacing));
       const minJ = Math.max(0, Math.floor(minY / this.spacing));
-      const maxJ = Math.min(jMax, Math.ceil(maxY / this.spacing));
+      const maxJ = Math.min(this.jMax, Math.ceil(maxY / this.spacing));
 
       for (let i = minI; i < maxI; i++) {
         const x = this.spacing * i;
