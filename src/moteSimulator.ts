@@ -42,7 +42,7 @@ class MoteSimulator {
     this.xMax = xDim;
     this.yMax = yDim;
     this.rng = makeSeededRng(seed);
-    this.flowField = new FlowField(this.rng, new Vector(xDim, yDim));
+    this.flowField = new FlowField(this.rng, spec, new Vector(xDim, yDim));
 
     this.nMotes = spec.numMotes;
     this.motes = new Float32Array(this.nMotes * 4); // x, y, nCollisions, stepAdded

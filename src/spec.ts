@@ -22,11 +22,14 @@ export class Spec {
   ];
 
   // Flow field settings
+  flowFieldSpacing = 4;
   numDisturbances = 30;
   thetaVariance = 3.14;
   defaultTheta = 0;
   disturbanceRadiusMean = 100;
   disturbanceRadiusVariance = 200;
+  disturbanceSpeedMin = 0;
+  disturbanceSpeedMax = 0.5;
   flowCoefficient = 0.5;
   cxFlowCoefficient = 1.001;
 

@@ -1,5 +1,6 @@
 import { pi } from "./safeMath.js";
 import { Rng } from "./safeRandom.js";
+import { Spec } from "./spec.js";
 import { Vector } from "./vector.js";
 
 type FlowFieldDisturbance = {
@@ -10,12 +11,9 @@ type FlowFieldDisturbance = {
 };
 
 export class FlowField {
-  spacing = 4;
-  numDisturbances = 30;
-  thetaVariance = 3.14;
-  disturbanceRadiusMean = 100;
-  disturbanceRadiusVariance = 200;
-  defaultTheta: number;
+  private spec: Spec;
+  private spacing: number;
+  private defaultTheta: number;
 
   disturbances: FlowFieldDisturbance[] = [];
   bounds: Vector;
@@ -25,9 +23,11 @@ export class FlowField {
   private iMax: number; // Cache grid dimensions
   private jMax: number;
 
-  constructor(rng: Rng, bounds: Vector) {
+  constructor(rng: Rng, spec: Spec, bounds: Vector) {
     this.rng = rng;
+    this.spec = spec;
     this.bounds = bounds;
+    this.spacing = spec.flowFieldSpacing;
     this.defaultTheta = rng.uniform(0, pi(2));
 
     // Pre-allocate fieldPoints array once
@@ -38,7 +38,7 @@ export class FlowField {
     );
 
     this.disturbances = [];
-    while (this.disturbances.length < this.numDisturbances) {
+    while (this.disturbances.length < spec.numDisturbances) {
       this.addDisturbance();
     }
     this.computeFlowField();
@@ -56,12 +56,18 @@ export class FlowField {
   addDisturbance() {
     const disturbanceX = this.rng.uniform(0, this.bounds.x);
     const disturbanceY = this.rng.uniform(0, this.bounds.y);
-    const disturbanceTheta = this.rng.gauss(0, this.thetaVariance);
+    const disturbanceTheta = this.rng.gauss(0, this.spec.thetaVariance);
     const disturbanceRadius = Math.abs(
-      this.rng.gauss(this.disturbanceRadiusMean, this.disturbanceRadiusVariance)
+      this.rng.gauss(
+        this.spec.disturbanceRadiusMean,
+        this.spec.disturbanceRadiusVariance
+      )
     );
     const disturbanceHeading = this.rng.uniform(0, pi(2));
-    const disturbanceSpeed = this.rng.uniform(0, 0.5);
+    const disturbanceSpeed = this.rng.uniform(
+      this.spec.disturbanceSpeedMin,
+      this.spec.disturbanceSpeedMax
+    );
     const disturbanceVel =
       Vector.fromAngle(disturbanceHeading).mult(disturbanceSpeed);
     this.disturbances.push({
