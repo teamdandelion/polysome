@@ -9,7 +9,7 @@ import { PerfBuffer, PerfMap } from "./perfBuffer.js";
 const PERF_LOG_INTERVAL = 10;
 const NO_LOGGING_AFTER = 60;
 const PERF_TEMPLATE =
-  "frame=$frame render=$render simulate=$simulate processCollisions=$simulate/processCollisions";
+  "frame=$frame render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes";
 
 export class Instance {
   rng: Rng;

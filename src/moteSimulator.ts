@@ -70,14 +70,21 @@ class MoteSimulator {
     const perf = new Map<string, number>();
     const stepStart = performance.now();
 
+    const flowFieldStart = performance.now();
     this.flowField.step(); // Update the flow field
+    perf.set("simulate/flowField", performance.now() - flowFieldStart);
+
+    const resetStart = performance.now();
     this.reset(); // Reset mote colllision velocities and collision counts
+    perf.set("simulate/reset", performance.now() - resetStart);
 
     const collisionsStart = performance.now();
     this.processCollisions(); // Compute collision velocity and count for each mote
     perf.set("simulate/processCollisions", performance.now() - collisionsStart);
 
+    const moveStart = performance.now();
     this.moveMotes(); // Move motes based on collision velocities and flow field
+    perf.set("simulate/moveMotes", performance.now() - moveStart);
 
     perf.set("simulate", performance.now() - stepStart);
     this.stepCounter++;
