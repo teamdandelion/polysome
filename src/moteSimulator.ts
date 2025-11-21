@@ -105,9 +105,8 @@ class MoteSimulator {
                 const dsq = dx * dx + dy * dy;
 
                 if (dsq < radiusSq) {
-                  const v = new Vector(dx, dy);
                   const d = Math.sqrt(dsq);
-                  this.collide(i, j, d, v);
+                  this.collide(i, j, d, dx, dy);
                 }
               }
             }
@@ -138,23 +137,37 @@ class MoteSimulator {
     }
   }
 
-  // Handle collisions
-  private collide(a: number, b: number, d: number, v: Vector): void {
+  /**
+   * Handles collision between two motes by computing repulsion forces and updating velocities.
+   * Forces are calculated based on distance and applied along the vector connecting the two motes.
+   *
+   * @param aIndex - Index of the first mote
+   * @param bIndex - Index of the second mote
+   * @param distance - Distance between the two motes
+   * @param deltaX - X component of the vector from mote A to mote B
+   * @param deltaY - Y component of the vector from mote A to mote B
+   */
+  private collide(aIndex: number, bIndex: number, distance: number, deltaX: number, deltaY: number): void {
     let forceFactor = this.spec.moteForce;
-    if (d >= this.spec.moteRadius - this.spec.moteCollisionDecay) {
+    if (distance >= this.spec.moteRadius - this.spec.moteCollisionDecay) {
       forceFactor =
-        (this.spec.moteForce * (this.spec.moteRadius - d)) /
+        (this.spec.moteForce * (this.spec.moteRadius - distance)) /
         this.spec.moteCollisionDecay;
     }
-    v = v.setMag(forceFactor);
-    this.velocities[a * 2] -= v.x;
-    this.velocities[a * 2 + 1] -= v.y;
-    this.velocities[b * 2] += v.x;
-    this.velocities[b * 2 + 1] += v.y;
+
+    // Calculate normalized force vector directly without creating Vector objects
+    const magnitude = distance > 0 ? forceFactor / distance : 0;
+    const forceX = deltaX * magnitude;
+    const forceY = deltaY * magnitude;
+
+    this.velocities[aIndex * 2] -= forceX;
+    this.velocities[aIndex * 2 + 1] -= forceY;
+    this.velocities[bIndex * 2] += forceX;
+    this.velocities[bIndex * 2 + 1] += forceY;
 
     // Increment collision counts
-    this.motes[a * 4 + 2]++;
-    this.motes[b * 4 + 2]++;
+    this.motes[aIndex * 4 + 2]++;
+    this.motes[bIndex * 4 + 2]++;
   }
 }
 
