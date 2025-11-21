@@ -1,26 +1,9 @@
-import p5 from "p5";
-
 import { Spec } from "./spec.js";
 import { Vector } from "./vector.js";
 import { makeSeededRng, Rng } from "./safeRandom.js";
 import { RenderContext } from "./renderContext.js";
 import { MoteRenderer } from "./moteRenderer.js";
 import { Cluster } from "./moteSimulator.js";
-
-export function sketchify(instance: Instance) {
-  return (p5: p5) => sketch(instance, p5);
-}
-
-function sketch(instance: Instance, p5: p5) {
-  p5.setup = () => {
-    instance.setup(p5);
-  };
-
-  p5.draw = () => {
-    instance.step();
-    instance.draw();
-  };
-}
 
 export class Instance {
   rng: Rng;
@@ -31,14 +14,15 @@ export class Instance {
   private stepCounter = 0;
   private clusters: Cluster[] = [];
   rc: RenderContext | null;
-  bounds: p5.Vector;
+  bounds: Vector;
+  private animationFrameId: number | null = null;
 
   constructor(seed: string, xDim: number, yDim: number, debug: boolean) {
     this.rc = null;
     this.rng = makeSeededRng(seed);
     this.spec = new Spec();
     this.spec.debugMode = debug;
-    this.bounds = new p5.Vector(xDim, yDim);
+    this.bounds = new Vector(xDim, yDim);
     this.motes = new Float32Array(this.spec.numMotes * 4);
     this.moteRenderer = new MoteRenderer(this.spec, this.rng, this.bounds);
     this.moteSimWorker = new Worker(
@@ -51,10 +35,10 @@ export class Instance {
     });
   }
 
-  setup(p5: p5) {
+  setup(canvas: HTMLCanvasElement) {
     const zoomLevel = 1;
     this.rc = new RenderContext(
-      p5,
+      canvas,
       this.spec,
       this.bounds,
       zoomLevel,
@@ -70,6 +54,22 @@ export class Instance {
         this.stepCounter = stepCounter;
       }
     };
+  }
+
+  start() {
+    const animate = () => {
+      this.step();
+      this.draw();
+      this.animationFrameId = requestAnimationFrame(animate);
+    };
+    this.animationFrameId = requestAnimationFrame(animate);
+  }
+
+  stop() {
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
   }
 
   step() {

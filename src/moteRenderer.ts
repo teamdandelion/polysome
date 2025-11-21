@@ -1,5 +1,3 @@
-import p5 from "p5";
-
 import { Rng } from "./safeRandom.js";
 import { Spec } from "./spec.js";
 import { RenderContext } from "./renderContext.js";
@@ -48,8 +46,11 @@ class MoteRenderer {
   private moteSpecs: MoteRenderSpec[];
   private start: number;
   private colorSystem: ColorInterpolationSystem;
+  private frameCount: number = 0;
+  private lastFpsUpdate: number = Date.now();
+  private fps: number = 60;
 
-  constructor(spec: Spec, rng: Rng, bounds: p5.Vector) {
+  constructor(spec: Spec, rng: Rng, bounds: Vector) {
     this.spec = spec;
     this.xMax = bounds.x;
     this.yMax = bounds.y;
@@ -63,9 +64,6 @@ class MoteRenderer {
       spec.colorInterpolationPoints
     );
     this.start = Date.now();
-    this.colorSystem = new ColorInterpolationSystem(
-      spec.colorInterpolationPoints
-    );
   }
 
   // Render phase
@@ -113,20 +111,28 @@ class MoteRenderer {
       }
     }
 
+    // Update FPS counter
+    this.frameCount++;
+    const now = Date.now();
+    if (now - this.lastFpsUpdate > 1000) {
+      this.fps = this.frameCount;
+      this.frameCount = 0;
+      this.lastFpsUpdate = now;
+    }
+
     if (this.spec.debugPane) {
-      const p5 = rc.p5;
-      p5.fill(240, 100, 10, 60);
-      let x = p5.windowWidth - 180;
+      rc.fill(240, 100, 10, 60);
+      let x = rc.canvasWidth - 180;
       let y = 10;
-      p5.rect(x, y, 180, 110);
-      p5.fill(60, 20, 100);
-      p5.textSize(14);
-      function textLine(line: string) {
-        p5.text(line, x + 10, y + 20);
+      rc.rect(x, y, 180, 110);
+      rc.fill(60, 20, 100);
+      rc.textSize(14);
+      const textLine = (line: string) => {
+        rc.text(line, x + 10, y + 20);
         y += 20;
-      }
+      };
       const elapsed = (Date.now() - this.start) / 1000;
-      textLine(`Polysome             ${p5.frameRate().toFixed(0)} fps`);
+      textLine(`Polysome             ${this.fps} fps`);
       textLine(
         `step: ${stepCounter.toLocaleString()}               ${elapsed.toFixed(
           0

@@ -1,15 +1,17 @@
-import p5 from "p5";
 import { Spec } from "./spec.js";
+import { Vector } from "./vector.js";
 import { pi, rescale } from "./safeMath.js";
 import { Rng } from "./safeRandom.js";
+import { hsbToRgb } from "./colorUtils.js";
 
 export class RenderContext {
-  p5: p5;
   spec: Spec;
-  bounds: p5.Vector;
+  bounds: Vector;
   r: number;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  canvasWidth: number;
+  canvasHeight: number;
 
   // Ratio of how zoomed in we are. 1.1x zoom implies we are dropping
   // off the edges of the simulation to not render them.
@@ -22,46 +24,43 @@ export class RenderContext {
 
   R: Rng;
 
-  constructor(p5: p5, spec: Spec, bounds: p5.Vector, zoom: number, R: Rng) {
-    this.p5 = p5;
+  constructor(
+    canvas: HTMLCanvasElement,
+    spec: Spec,
+    bounds: Vector,
+    zoom: number,
+    R: Rng
+  ) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     this.spec = spec;
     this.bounds = bounds;
-    this.r = p5.windowWidth / bounds.x;
+    this.canvasWidth = window.innerWidth;
+    this.canvasHeight = window.innerHeight;
+    this.canvas.width = this.canvasWidth;
+    this.canvas.height = this.canvasHeight;
+    this.r = this.canvasWidth / bounds.x;
     this.zoom = zoom;
     this.zoomX = bounds.x / 2;
     this.zoomY = bounds.y / 2;
-    p5.pixelDensity(1);
-    p5.colorMode(p5.HSB, 360, 100, 100, 100);
-
-    this.canvas = p5.createCanvas(p5.windowWidth, p5.windowHeight)
-      .elt as HTMLCanvasElement;
-    this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     this.R = R;
   }
 
   background(h: number, s: number, b: number) {
-    const color = this.p5.color(h, s, b);
-    this.ctx.fillStyle = color.toString();
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = hsbToRgb(h, s, b);
+    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
   }
 
-  stroke(h: number, s: number, b: number, a: number) {
-    const color = this.p5.color(h, s, b, a);
-    this.ctx.strokeStyle = color.toString();
+  stroke(h: number, s: number, b: number, a: number = 100) {
+    this.ctx.strokeStyle = hsbToRgb(h, s, b, a);
   }
 
-  fill(h: number, s: number, b: number) {
-    const color = this.p5.color(h, s, b);
-    this.ctx.fillStyle = color.toString();
+  fill(h: number, s: number, b: number, a: number = 100) {
+    this.ctx.fillStyle = hsbToRgb(h, s, b, a);
   }
 
   textSize(s: number) {
     this.ctx.font = `${s}px sans-serif`;
-  }
-
-  vrtx(x: number, y: number) {
-    const [px, py] = this.convert(x, y);
-    this.p5.vertex(px, py);
   }
 
   w(p: number) {
@@ -77,8 +76,8 @@ export class RenderContext {
   }
 
   convert(x: number, y: number) {
-    const px = (x - this.zoomX) * this.zoom * this.r + this.p5.windowWidth / 2;
-    const py = (y - this.zoomY) * this.zoom * this.r + this.p5.windowHeight / 2;
+    const px = (x - this.zoomX) * this.zoom * this.r + this.canvasWidth / 2;
+    const py = (y - this.zoomY) * this.zoom * this.r + this.canvasHeight / 2;
     return [px, py];
   }
 

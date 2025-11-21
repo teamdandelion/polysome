@@ -1,8 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import p5 from "p5";
 
 import randomSeed from "../randomSeed.js";
-import { sketchify, Instance } from "../instance.js";
+import { Instance } from "../instance.js";
 import "./Currents.css";
 
 type CurrentsPageProps = {
@@ -11,15 +10,18 @@ type CurrentsPageProps = {
 };
 
 const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
-  const sketchRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    if (!sketchRef.current) {
+    const canvas = canvasRef.current;
+    if (!canvas) {
       return;
     }
+
     seed = seed ?? randomSeed();
-    console.log("Currents v3");
+    console.log("Currents v4 (no p5!)");
     console.log(seed);
+
     const ww = window.innerWidth;
     const wh = window.innerHeight;
     let xDim = 1000;
@@ -29,11 +31,14 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
     } else {
       xDim = (ww / wh) * yDim;
     }
-    const instsance = new Instance(seed, xDim, yDim, debug);
-    const sketch = sketchify(instsance);
-    new p5(sketch, sketchRef.current);
 
-    return () => {};
+    const instance = new Instance(seed, xDim, yDim, debug);
+    instance.setup(canvas);
+    instance.start();
+
+    return () => {
+      instance.stop();
+    };
   }, []); // Empty dependency array means this effect runs once on mount and clean up on unmount
 
   return (
@@ -45,7 +50,14 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
             <i className="author-name">by Dandelion Indigo Mané</i>
           </p>
         </div>
-        <div ref={sketchRef} />
+        <canvas
+          ref={canvasRef}
+          style={{
+            display: "block",
+            width: "100vw",
+            height: "100vh",
+          }}
+        />
       </div>
     </div>
   );
