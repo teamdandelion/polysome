@@ -15,7 +15,11 @@ export class Instance {
   private animationFrameId: number | null = null;
 
   // Performance tracking
-  private perfStats: Array<{ simTime: number; renderTime: number; frameTime: number }> = [];
+  private perfStats: Array<{
+    simTime: number;
+    renderTime: number;
+    frameTime: number;
+  }> = [];
 
   constructor(seed: string, xDim: number, yDim: number, debug: boolean) {
     this.rc = null;
@@ -94,7 +98,6 @@ export class Instance {
 
     this.moteRenderer.render(
       this.moteSimulator.motes,
-      this.moteSimulator.clusters,
       this.moteSimulator.stepCounter,
       this.rc
     );
@@ -115,9 +118,15 @@ export class Instance {
     }
     // Log averages every 60 steps
     else if (step % 60 === 0) {
-      const avgSim = this.perfStats.reduce((sum, s) => sum + s.simTime, 0) / this.perfStats.length;
-      const avgRender = this.perfStats.reduce((sum, s) => sum + s.renderTime, 0) / this.perfStats.length;
-      const avgFrame = this.perfStats.reduce((sum, s) => sum + s.frameTime, 0) / this.perfStats.length;
+      const avgSim =
+        this.perfStats.reduce((sum, s) => sum + s.simTime, 0) /
+        this.perfStats.length;
+      const avgRender =
+        this.perfStats.reduce((sum, s) => sum + s.renderTime, 0) /
+        this.perfStats.length;
+      const avgFrame =
+        this.perfStats.reduce((sum, s) => sum + s.frameTime, 0) /
+        this.perfStats.length;
 
       console.log(
         `Step ${step} (avg last ${this.perfStats.length}): sim=${avgSim.toFixed(2)}ms render=${avgRender.toFixed(2)}ms frame=${avgFrame.toFixed(2)}ms (${(1000 / avgFrame).toFixed(1)} fps)`

@@ -21,20 +21,6 @@ export class Spec {
     { collisions: 160, color: { h: 320, s: 40, b: 100 } }, // White-ish
   ];
 
-  drawClusters = false;
-  clusterRadius = 14;
-  clusterSize = 10;
-  clusterCollapseSize = 7;
-  clusterRenderRadius = 11;
-
-  // Cluster dynamics parameters
-  clusterCohesionFactor = 0.0;
-  maxCohesionForce = 1.0;
-  clusterSeparationFactor = 0.0;
-  clusterSeparationRadius = 6;
-  clusterAlignmentFactor = 0.0;
-  velocityDamping = 0.98;
-
   // Flow field settings
   numDisturbances = 30;
   thetaVariance = 3.14;

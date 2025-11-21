@@ -2,7 +2,6 @@ import { Rng } from "./safeRandom.js";
 import { Spec } from "./spec.js";
 import { RenderContext } from "./renderContext.js";
 import { Vector } from "./vector.js";
-import { Cluster } from "./moteSimulator.js";
 import { ColorInterpolationSystem } from "./colorInterpolationSystem.js";
 
 type RingRenderSpec = {
@@ -67,12 +66,7 @@ class MoteRenderer {
   }
 
   // Render phase
-  render(
-    motes: Float32Array,
-    clusters: Cluster[],
-    stepCounter: number,
-    rc: RenderContext
-  ): void {
+  render(motes: Float32Array, stepCounter: number, rc: RenderContext): void {
     rc.background(240, 100, 10);
 
     rc.strokeWeight(1.5);
@@ -86,30 +80,6 @@ class MoteRenderer {
       { length: this.nMotes },
       (_, i) => new Vector(motes[i * 4], motes[i * 4 + 1])
     );
-
-    if (this.spec.drawClusters) {
-      for (const cluster of clusters) {
-        // set white stroke
-        rc.stroke(0, 0, 100, 42);
-        rc.noFill();
-        rc.sWeight(1);
-        // draw circle around cluster
-        rc.ellipse(
-          cluster.position.x,
-          cluster.position.y,
-          this.spec.clusterRenderRadius,
-          this.spec.clusterRenderRadius
-        );
-        // add white text showing the cluster size (number of motes in cluster)
-        rc.fill(0, 0, 100);
-        rc.textSize(12);
-        rc.text(
-          cluster.motes.size.toString(),
-          cluster.position.x + 5,
-          cluster.position.y + 8
-        );
-      }
-    }
 
     // Update FPS counter
     this.frameCount++;
@@ -139,7 +109,6 @@ class MoteRenderer {
         )}s`
       );
       textLine(`nMotes: ${this.nMotes.toLocaleString()}`);
-      textLine(`nClusters: ${clusters.length.toLocaleString()}`);
     }
   }
 
