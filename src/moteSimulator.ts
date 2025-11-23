@@ -78,8 +78,9 @@ class MoteSimulator {
     perf.set("simulate/reset", performance.now() - resetStart);
 
     const collisionsStart = performance.now();
-    this.processCollisions(); // Compute collision velocity and count for each mote
+    const nCollisions = this.processCollisions(); // Compute collision velocity and count for each mote
     perf.set("simulate/processCollisions", performance.now() - collisionsStart);
+    perf.set("simulate/nCollisions", nCollisions / 1000);
 
     const moveStart = performance.now();
     this.moveMotes(); // Move motes based on collision velocities and flow field
@@ -111,7 +112,7 @@ class MoteSimulator {
     }
   }
 
-  processCollisions(): void {
+  processCollisions(): number {
     const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
     const gridSize = this.gridSize;
     const invGridSize = 1 / gridSize;
@@ -123,6 +124,7 @@ class MoteSimulator {
     const gridCellCounts = this.gridCellCounts;
     const gridCellIndices = this.gridCellIndices;
     const spec = this.spec;
+    let nCollisions = 0;
 
     gridCellCounts.fill(0);
 
@@ -180,6 +182,7 @@ class MoteSimulator {
           const dsq = deltaX * deltaX + deltaY * deltaY;
 
           if (dsq < radiusSq) {
+            nCollisions++;
             const d = Math.sqrt(dsq);
 
             // Inline collision handling
@@ -236,6 +239,7 @@ class MoteSimulator {
             const dsq = deltaX * deltaX + deltaY * deltaY;
 
             if (dsq < radiusSq) {
+              nCollisions++;
               const d = Math.sqrt(dsq);
 
               // Inline collision handling
@@ -262,6 +266,7 @@ class MoteSimulator {
         }
       }
     }
+    return nCollisions;
   }
 
   moveMotes() {

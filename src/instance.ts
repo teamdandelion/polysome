@@ -7,7 +7,7 @@ import { MoteSimulator } from "./moteSimulator.js";
 import { PerfBuffer, PerfMap } from "./perfBuffer.js";
 
 const PERF_TEMPLATE =
-  "frame=$frame render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes";
+  "frame=$frame render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes\n  nCollisions=$simulate/nCollisions";
 
 export class Instance {
   rng: Rng;
