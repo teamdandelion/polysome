@@ -1,8 +1,8 @@
-import { FlowField } from "./flowField.js";
-import { PerfMap } from "./perfBuffer.js";
-import { Rng, makeSeededRng } from "./safeRandom.js";
-import { Spec } from "./spec.js";
-import { Vector } from "./vector.js";
+import { FlowField } from "./flowField.ts";
+import { PerfMap } from "./perfBuffer.ts";
+import { Rng, makeSeededRng } from "./safeRandom.ts";
+import { Spec } from "./spec.ts";
+import { Vector } from "./vector.ts";
 
 class MoteSimulator {
   private rng: Rng;

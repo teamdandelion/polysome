@@ -1,7 +1,7 @@
-import { pi } from "./safeMath.js";
-import { Rng } from "./safeRandom.js";
-import { Spec } from "./spec.js";
-import { Vector } from "./vector.js";
+import { pi } from "./safeMath.ts";
+import { Rng } from "./safeRandom.ts";
+import { Spec } from "./spec.ts";
+import { Vector } from "./vector.ts";
 
 type FlowFieldDisturbance = {
   pos: Vector;
@@ -33,8 +33,9 @@ export class FlowField {
     // Pre-allocate fieldPoints array once
     this.iMax = Math.ceil(bounds.x / this.spacing);
     this.jMax = Math.ceil(bounds.y / this.spacing);
-    this.fieldPoints = Array.from({ length: this.iMax }, () =>
-      new Float64Array(this.jMax)
+    this.fieldPoints = Array.from(
+      { length: this.iMax },
+      () => new Float64Array(this.jMax)
     );
 
     this.disturbances = [];

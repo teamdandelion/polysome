@@ -22,9 +22,6 @@ function App() {
             />
           }
         />
-
-        <Route path="/landing" element={<LandingPage />} />
-        <Route path="/currents" element={<Currents debug={true} />} />
       </Routes>
     </Router>
   );

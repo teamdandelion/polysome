@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from "react";
 
-import randomSeed from "../randomSeed.js";
-import { Instance } from "../instance.js";
+import { randomSeed, Instance } from "polysome";
 import "./Currents.css";
 
 type CurrentsPageProps = {

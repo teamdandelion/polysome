@@ -3,32 +3,20 @@
   "version": "0.0.0",
   "description": "An abstract biological exploration",
   "type": "module",
-  "directories": {
-    "lib": "lib"
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
   },
+  "files": [
+    "src"
+  ],
   "scripts": {
-    "start": "parcel src/pages/index.html",
-    "build": "parcel build src/pages/index.html src/pages/404.html --public-url ./",
-    "test": "jest --selectProjects=test",
-    "perf": "jest --selectProjects=perf"
+    "demo": "cd demo && bun install && bun start --port 4242"
   },
   "author": "Dandelion Mané",
   "license": "MIT",
-  "dependencies": {
-    "@types/react": "^18.2.47",
-    "@types/react-dom": "^18.2.18",
-    "parcel": "^2.10.3",
-    "prettier": "^3.1.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.2"
-  },
   "devDependencies": {
-    "@types/jest": "^29.5.11",
-    "@types/stack-utils": "^2.0.3",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "process": "^0.11.10",
-    "ts-jest": "^29.1.1"
+    "prettier": "^3.1.0",
+    "typescript": "^5.0.0"
   }
 }

@@ -1,4 +1,4 @@
-// Helpful math functions, adapted from safeMath.js in qql-art/frontend
+// Helpful math functions, adapted from safeMath.ts in qql-art/frontend
 
 export function pi(v: number): number {
   return Math.PI * v;

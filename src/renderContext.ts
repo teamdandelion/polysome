@@ -1,7 +1,7 @@
-import { Spec } from "./spec.js";
-import { Vector } from "./vector.js";
-import { Rng } from "./safeRandom.js";
-import { hsbToRgb } from "./colorUtils.js";
+import { Spec } from "./spec.ts";
+import { Vector } from "./vector.ts";
+import { Rng } from "./safeRandom.ts";
+import { hsbToRgb } from "./colorUtils.ts";
 
 export class RenderContext {
   spec: Spec;

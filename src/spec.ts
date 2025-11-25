@@ -1,4 +1,4 @@
-import { type ColorPoint } from "./colorInterpolationSystem.js";
+import { type ColorPoint } from "./colorInterpolationSystem.ts";
 
 export class Spec {
   /**

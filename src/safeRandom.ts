@@ -1,4 +1,4 @@
-import randomSeed from "./randomSeed.js";
+import randomSeed from "./randomSeed.ts";
 
 // Note that the index order [0, 1, 2, 3] is little-endian
 const eps = Math.pow(2, -32),
@@ -170,7 +170,7 @@ export class Rng {
 // internally gets a 32-bit from tokenData hash bytes
 function hash32(bytes: number[], seed = 0) {
   // murmur2 32bit
-  // https://github.com/garycourt/murmurhash-js/blob/master/murmurhash2_gc.js
+  // https://github.com/garycourt/murmurhash-js/blob/master/murmurhash2_gc.ts
   const K = 16;
   const mask = 65535;
   const maskByte = 0xff;

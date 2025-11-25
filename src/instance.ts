@@ -1,10 +1,10 @@
-import { Spec } from "./spec.js";
-import { Vector } from "./vector.js";
-import { makeSeededRng, Rng } from "./safeRandom.js";
-import { RenderContext } from "./renderContext.js";
-import { MoteRenderer } from "./moteRenderer.js";
-import { MoteSimulator } from "./moteSimulator.js";
-import { PerfBuffer, PerfMap } from "./perfBuffer.js";
+import { Spec } from "./spec.ts";
+import { Vector } from "./vector.ts";
+import { makeSeededRng, Rng } from "./safeRandom.ts";
+import { RenderContext } from "./renderContext.ts";
+import { MoteRenderer } from "./moteRenderer.ts";
+import { MoteSimulator } from "./moteSimulator.ts";
+import { PerfBuffer, PerfMap } from "./perfBuffer.ts";
 
 const PERF_TEMPLATE =
   "frame=$frame render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes\n  nCollisions=$simulate/nCollisions";

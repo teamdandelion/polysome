@@ -1,8 +1,8 @@
-import { Rng } from "./safeRandom.js";
-import { Spec } from "./spec.js";
-import { RenderContext } from "./renderContext.js";
-import { Vector } from "./vector.js";
-import { ColorInterpolationSystem } from "./colorInterpolationSystem.js";
+import { Rng } from "./safeRandom.ts";
+import { Spec } from "./spec.ts";
+import { RenderContext } from "./renderContext.ts";
+import { Vector } from "./vector.ts";
+import { ColorInterpolationSystem } from "./colorInterpolationSystem.ts";
 
 type RingRenderSpec = {
   sizeFactor: number;
