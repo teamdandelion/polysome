@@ -1,7 +1,6 @@
 import { Rng } from "./safeRandom.ts";
 import { Spec } from "./spec.ts";
 import { RenderContext } from "./renderContext.ts";
-import { Vector } from "./vector.ts";
 import { ColorInterpolationSystem } from "./colorInterpolationSystem.ts";
 
 type RingRenderSpec = {
@@ -45,7 +44,7 @@ class MoteRenderer {
   private lastFpsUpdate: number = Date.now();
   private fps: number = 60;
 
-  constructor(spec: Spec, rng: Rng, bounds: Vector) {
+  constructor(spec: Spec, rng: Rng) {
     this.spec = spec;
 
     this.nMotes = spec.numMotes;
@@ -68,11 +67,6 @@ class MoteRenderer {
     for (let i = 0; i < this.nMotes; i++) {
       this.renderMote(motes, i, stepCounter, rc);
     }
-
-    const vectors = Array.from(
-      { length: this.nMotes },
-      (_, i) => new Vector(motes[i * 4], motes[i * 4 + 1])
-    );
 
     // Update FPS counter
     this.frameCount++;

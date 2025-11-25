@@ -194,8 +194,10 @@ function hash32(bytes: number[], seed = 0) {
   }
   /* eslint-disable no-fallthrough */
   switch (l) {
+    // @ts-expect-error
     case 3:
       h ^= (bytes[i + 2] & maskByte) << K;
+    // @ts-expect-error
     case 2:
       h ^= (bytes[i + 1] & maskByte) << 8;
     case 1:

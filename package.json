@@ -11,11 +11,14 @@
     "src"
   ],
   "scripts": {
-    "demo": "cd demo && bun install && bun start --port 4242"
+    "demo": "cd demo && bun install && bun start --port 4242",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
   },
   "author": "Dandelion Mané",
   "license": "MIT",
   "devDependencies": {
+    "husky": "^9.1.7",
     "prettier": "^3.1.0",
     "typescript": "^5.0.0"
   }

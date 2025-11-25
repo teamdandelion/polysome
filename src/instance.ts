@@ -27,7 +27,7 @@ export class Instance {
     this.spec = new Spec();
     this.spec.debugMode = debug;
     this.bounds = new Vector(xDim, yDim);
-    this.moteRenderer = new MoteRenderer(this.spec, this.rng, this.bounds);
+    this.moteRenderer = new MoteRenderer(this.spec, this.rng);
 
     this.moteSimulator = new MoteSimulator(this.spec, seed, xDim, yDim);
   }

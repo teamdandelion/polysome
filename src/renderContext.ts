@@ -129,9 +129,3 @@ export class RenderContext {
     this.ctx.lineWidth = w * this.zoom * this.r;
   }
 }
-
-interface HSB {
-  hue: number;
-  sat: number;
-  bright: number;
-}
