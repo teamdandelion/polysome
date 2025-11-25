@@ -38,9 +38,9 @@ class MoteRenderer {
   }
 
   render(
-    motesX: Float32Array,
-    motesY: Float32Array,
-    motesCollisions: Uint8Array,
+    moteX: Float32Array,
+    moteY: Float32Array,
+    motePressure: Uint8Array,
     rc: RenderContext
   ): void {
     rc.background(240, 100, 10);
@@ -48,30 +48,18 @@ class MoteRenderer {
     rc.strokeWeight(1.5);
     rc.noFill();
 
+    const size = this.spec.moteRenderRadius;
+
     for (let i = 0; i < this.nMotes; i++) {
-      this.renderMote(motesX, motesY, motesCollisions, i, rc);
+      const x = moteX[i];
+      const y = moteY[i];
+      const pressure = motePressure[i];
+      let { thickness, xOffset, yOffset, sizeFactor } = this.moteSpecs[i];
+      const hsb = this.colorSystem.getColor(pressure);
+      rc.stroke(hsb.h, hsb.s, hsb.b);
+      rc.strokeWeight(thickness);
+      rc.circle(x + xOffset, y + yOffset, size * sizeFactor);
     }
-  }
-
-  private renderMote(
-    motesX: Float32Array,
-    motesY: Float32Array,
-    motesCollisions: Uint8Array,
-    idx: number,
-    rc: RenderContext
-  ) {
-    const x = motesX[idx];
-    const y = motesY[idx];
-    const n = motesCollisions[idx];
-    const moteSpec = this.moteSpecs[idx];
-
-    let size = this.spec.moteRenderRadius;
-
-    const hsb = this.colorSystem.getColor(n);
-    let { thickness, xOffset, yOffset, sizeFactor } = moteSpec;
-    rc.stroke(hsb.h, hsb.s, hsb.b, 100);
-    rc.strokeWeight(thickness);
-    rc.circle(x + xOffset, y + yOffset, size * sizeFactor);
   }
 }
 
