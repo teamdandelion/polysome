@@ -8,7 +8,7 @@ export class Spec {
   numMotes = 4200;
 
   /**
-   * Detection radius for mote collisions in pixels. Motes within this distance trigger
+   * Detection radius for mote pressure in pixels. Motes within this distance trigger
    * repulsive forces and increment collision counters. Used for spatial hashing grid size
    * (gridSize = moteRadius * 2).
    */
@@ -41,15 +41,15 @@ export class Spec {
    * eventually reaching near-white at very high collision counts.
    */
   colorInterpolationPoints: Array<ColorPoint> = [
-    { collisions: 0, color: { h: 30, s: 100, b: 100 } }, // Orange
-    { collisions: 20, color: { h: 120, s: 100, b: 100 } }, // Green
-    { collisions: 35, color: { h: 180, s: 100, b: 100 } }, // Teal
-    { collisions: 56, color: { h: 200, s: 100, b: 100 } },
+    { pressure: 0, color: { h: 30, s: 100, b: 100 } }, // Orange
+    { pressure: 20, color: { h: 120, s: 100, b: 100 } }, // Green
+    { pressure: 35, color: { h: 180, s: 100, b: 100 } }, // Teal
+    { pressure: 56, color: { h: 200, s: 100, b: 100 } },
 
-    { collisions: 62, color: { h: 240, s: 100, b: 100 } }, // Indigo
-    { collisions: 80, color: { h: 270, s: 100, b: 100 } }, // Purple
-    { collisions: 120, color: { h: 320, s: 100, b: 100 } }, // Magenta
-    { collisions: 160, color: { h: 320, s: 40, b: 100 } }, // White-ish
+    { pressure: 62, color: { h: 240, s: 100, b: 100 } }, // Indigo
+    { pressure: 80, color: { h: 270, s: 100, b: 100 } }, // Purple
+    { pressure: 120, color: { h: 320, s: 100, b: 100 } }, // Magenta
+    { pressure: 160, color: { h: 320, s: 40, b: 100 } }, // White-ish
   ];
 
   /**
@@ -115,7 +115,7 @@ export class Spec {
 
   /**
    * Per-collision exponential multiplier for flow influence. Flow strength is multiplied by
-   * (cxFlowCoefficient ^ collisionCount). Values >1.0 mean motes with more collisions are
+   * (cxFlowCoefficient ^ collisionCount). Values >1.0 mean motes with more pressure are
    * pushed harder by the flow field. At 1.001, effect is subtle but compounds significantly
    * at high collision counts.
    */

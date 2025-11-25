@@ -1,7 +1,7 @@
 // colorInterpolationSystem.ts
 
 export interface ColorPoint {
-  collisions: number;
+  pressure: number;
   color: { h: number; s: number; b: number };
 }
 
@@ -9,24 +9,22 @@ export class ColorInterpolationSystem {
   private colorPoints: ColorPoint[];
 
   constructor(colorPoints: ColorPoint[]) {
-    this.colorPoints = colorPoints.sort((a, b) => a.collisions - b.collisions);
+    this.colorPoints = colorPoints.sort((a, b) => a.pressure - b.pressure);
   }
 
   getColor(collisions: number): { h: number; s: number; b: number } {
-    if (collisions <= this.colorPoints[0].collisions) {
+    if (collisions <= this.colorPoints[0].pressure) {
       return this.colorPoints[0].color;
     }
 
-    if (
-      collisions >= this.colorPoints[this.colorPoints.length - 1].collisions
-    ) {
+    if (collisions >= this.colorPoints[this.colorPoints.length - 1].pressure) {
       return this.colorPoints[this.colorPoints.length - 1].color;
     }
 
     let lowerIndex = 0;
     let upperIndex = 1;
 
-    while (collisions > this.colorPoints[upperIndex].collisions) {
+    while (collisions > this.colorPoints[upperIndex].pressure) {
       lowerIndex++;
       upperIndex++;
     }
@@ -35,8 +33,8 @@ export class ColorInterpolationSystem {
     const upperPoint = this.colorPoints[upperIndex];
 
     const t =
-      (collisions - lowerPoint.collisions) /
-      (upperPoint.collisions - lowerPoint.collisions);
+      (collisions - lowerPoint.pressure) /
+      (upperPoint.pressure - lowerPoint.pressure);
 
     return {
       h: this.interpolate(lowerPoint.color.h, upperPoint.color.h, t),
