@@ -5,8 +5,7 @@
   "description": "Demo application for Polysome",
   "type": "module",
   "scripts": {
-    "start": "parcel index.html",
-    "build": "parcel build index.html 404.html --public-url ./"
+    "start": "parcel index.html"
   },
   "dependencies": {
     "polysome": "file:..",

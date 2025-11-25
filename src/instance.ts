@@ -87,8 +87,9 @@ export class Instance {
     }
 
     this.moteRenderer.render(
-      this.moteSimulator.motes,
-      this.moteSimulator.stepCounter,
+      this.moteSimulator.motesX,
+      this.moteSimulator.motesY,
+      this.moteSimulator.motesCollisions,
       this.rc
     );
   }
