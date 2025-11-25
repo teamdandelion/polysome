@@ -12,10 +12,10 @@ type MoteRenderSpec = {
 
 function randomMoteSpec(rng: Rng): MoteRenderSpec {
   return {
-    sizeFactor: Math.max(rng.gauss(1, 0.4), 0.1),
-    thickness: rng.gauss(0.5, 0.12),
-    xOffset: rng.gauss(0, 0.3),
-    yOffset: rng.gauss(0, 0.3),
+    sizeFactor: Math.max(rng.gauss(1, 0.3), 0.3),
+    thickness: rng.gauss(0.5, 0.2),
+    xOffset: rng.gauss(0, 1),
+    yOffset: rng.gauss(0, 1),
   };
 }
 
@@ -44,8 +44,6 @@ class MoteRenderer {
     rc: RenderContext
   ): void {
     rc.background(240, 100, 10);
-
-    rc.strokeWeight(1.5);
     rc.noFill();
 
     const size = this.spec.moteRenderRadius;
