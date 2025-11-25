@@ -7,7 +7,7 @@ import { MoteSimulator } from "./moteSimulator.ts";
 import { PerfBuffer, PerfMap } from "./perfBuffer.ts";
 
 const PERF_TEMPLATE =
-  "frame=$frame render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes\n  nCollisions=$simulate/nCollisions";
+  "frame=$frame frameGap=$frameGap render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes\n  nCollisions=$simulate/nCollisions";
 
 export class Instance {
   rng: Rng;
@@ -44,10 +44,10 @@ export class Instance {
   }
 
   start() {
+    let lastFrame = performance.now();
     const animate = () => {
       const frameStart = performance.now();
 
-      // Get simulator performance metrics
       const stepPerf = this.step();
 
       const renderStart = performance.now();
@@ -57,14 +57,15 @@ export class Instance {
       const frameTime = performance.now() - frameStart;
 
       const perf: PerfMap = new Map(stepPerf);
+      perf.set("frameGap", frameStart - lastFrame);
       perf.set("frame", frameTime);
       perf.set("render", renderTime);
-
       this.perfBuffer.recordPerf(this.moteSimulator.stepCounter, perf);
 
       this.logPerformance();
 
       this.animationFrameId = requestAnimationFrame(animate);
+      lastFrame = performance.now();
     };
     this.animationFrameId = requestAnimationFrame(animate);
   }
