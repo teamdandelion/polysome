@@ -62,14 +62,6 @@ export class RenderContext {
     this.ctx.font = `${s}px sans-serif`;
   }
 
-  w(p: number) {
-    return p * this.bounds.x;
-  }
-
-  sWeight(v: number) {
-    this.ctx.lineWidth = v * this.zoom * this.r;
-  }
-
   noStroke() {
     this.ctx.strokeStyle = "transparent";
   }

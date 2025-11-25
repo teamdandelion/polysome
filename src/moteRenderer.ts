@@ -9,8 +9,6 @@ type MoteRenderSpec = {
   opacity: number;
   xOffset: number;
   yOffset: number;
-  wFactor: number;
-  hFactor: number;
 };
 
 function randomMoteSpec(rng: Rng): MoteRenderSpec {
@@ -20,8 +18,6 @@ function randomMoteSpec(rng: Rng): MoteRenderSpec {
     opacity: Math.min(rng.gauss(0.9, 0.2), 1),
     xOffset: rng.gauss(0, 0.3),
     yOffset: rng.gauss(0, 0.3),
-    wFactor: rng.gauss(1, 0.042),
-    hFactor: rng.gauss(1, 0.042),
   };
 }
 
@@ -71,14 +67,10 @@ class MoteRenderer {
     let size = this.spec.moteRenderRadius;
 
     const hsb = this.colorSystem.getColor(n);
-    let { opacity, thickness, xOffset, yOffset, sizeFactor, wFactor, hFactor } =
-      moteSpec;
+    let { opacity, thickness, xOffset, yOffset, sizeFactor } = moteSpec;
     rc.stroke(hsb.h, hsb.s, hsb.b, b * 100 * opacity);
-    rc.sWeight(thickness);
-    let w = size * sizeFactor * wFactor;
-    let h = size * sizeFactor * hFactor;
-
-    rc.ellipse(x + xOffset, y + yOffset, w, h);
+    rc.strokeWeight(thickness);
+    rc.circle(x + xOffset, y + yOffset, size * sizeFactor);
   }
 }
 
