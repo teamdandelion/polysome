@@ -1,4 +1,11 @@
-import randomSeed from "./randomSeed.ts";
+// picks a uniformly random `bytes32` using JS Math.random state
+// (i.e., not itself seeded by `safe-random.ts`)
+export function randomSeed(): string {
+  let nibbles = Array(64)
+    .fill(0)
+    .map(() => Math.floor(Math.random() * 16).toString(16));
+  return "0x" + nibbles.join("");
+}
 
 // Note that the index order [0, 1, 2, 3] is little-endian
 const eps = Math.pow(2, -32),

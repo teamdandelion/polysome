@@ -1,6 +1,6 @@
 import { Spec } from "./spec.ts";
 import { Vector } from "./vector.ts";
-import { makeSeededRng, Rng } from "./safeRandom.ts";
+import { makeSeededRng, Rng } from "./random.ts";
 import { RenderContext } from "./renderContext.ts";
 import { MoteRenderer } from "./moteRenderer.ts";
 import { MoteSimulator } from "./moteSimulator.ts";

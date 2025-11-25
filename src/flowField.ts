@@ -1,5 +1,5 @@
 import { pi } from "./safeMath.ts";
-import { Rng } from "./safeRandom.ts";
+import { Rng } from "./random.ts";
 import { Spec } from "./spec.ts";
 import { Vector } from "./vector.ts";
 

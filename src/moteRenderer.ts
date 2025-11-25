@@ -1,4 +1,4 @@
-import { Rng } from "./safeRandom.ts";
+import { Rng } from "./random.ts";
 import { Spec } from "./spec.ts";
 import { RenderContext } from "./renderContext.ts";
 import { ColorInterpolationSystem } from "./colorInterpolationSystem.ts";

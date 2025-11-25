@@ -10,8 +10,7 @@ export type { PerfMap } from "./perfBuffer.ts";
 export { Vector } from "./vector.ts";
 
 // Random number generation
-export { makeSeededRng, type Rng } from "./safeRandom.ts";
-export { default as randomSeed } from "./randomSeed.ts";
+export { randomSeed, makeSeededRng, type Rng } from "./random.ts";
 
 // Rendering context (if users want custom rendering)
 export { RenderContext } from "./renderContext.ts";

@@ -175,12 +175,3 @@ export function distLowerBound(x1: number, y1: number, x2: number, y2: number) {
 
   return max + beta * min;
 }
-
-export function addPolarOffset(
-  x: number,
-  y: number,
-  theta: number,
-  magnitude: number
-): number[] {
-  return [x + magnitude * cos(theta), y + magnitude * sin(theta)];
-}

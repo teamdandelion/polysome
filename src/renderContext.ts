@@ -1,6 +1,6 @@
 import { Spec } from "./spec.ts";
 import { Vector } from "./vector.ts";
-import { Rng } from "./safeRandom.ts";
+import { Rng } from "./random.ts";
 import { hsbToRgb } from "./colorUtils.ts";
 
 export class RenderContext {

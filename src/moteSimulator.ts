@@ -1,6 +1,6 @@
 import { FlowField } from "./flowField.ts";
 import { PerfMap } from "./perfBuffer.ts";
-import { Rng, makeSeededRng } from "./safeRandom.ts";
+import { Rng, makeSeededRng } from "./random.ts";
 import { Spec } from "./spec.ts";
 import { Vector } from "./vector.ts";
 
