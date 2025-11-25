@@ -69,8 +69,10 @@ export class FlowField {
       this.spec.disturbanceSpeedMin,
       this.spec.disturbanceSpeedMax
     );
-    const disturbanceVel =
-      Vector.fromAngle(disturbanceHeading).mult(disturbanceSpeed);
+    const disturbanceVel = new Vector(0, 0).fromAngle(
+      disturbanceHeading,
+      disturbanceSpeed
+    );
     this.disturbances.push({
       pos: new Vector(disturbanceX, disturbanceY),
       vel: disturbanceVel,
@@ -120,10 +122,10 @@ export class FlowField {
     this.computeFlowField();
   }
 
-  flow(pos: Vector): Vector {
-    const i = Math.floor(pos.x / this.spacing);
-    const j = Math.floor(pos.y / this.spacing);
+  flow(x: number, y: number, magnitude: number, vectorToMutate: Vector): void {
+    const i = Math.floor(x / this.spacing);
+    const j = Math.floor(y / this.spacing);
     const theta = this.fieldPoints[i][j];
-    return Vector.fromAngle(theta);
+    vectorToMutate.fromAngle(theta, magnitude);
   }
 }

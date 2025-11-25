@@ -270,20 +270,20 @@ class MoteSimulator {
   }
 
   moveMotes() {
+    const flowVector = new Vector(0, 0);
+
     for (let i = 0; i < this.nMotes; i++) {
-      // Compute the flow field vector for the mote
-      let flowVector = this.flowField.flow(
-        new Vector(this.motes[i * 4], this.motes[i * 4 + 1])
-      );
-
-      // Scale the magnitude of the flow field vector
       const nCollisions = this.motes[i * 4 + 2];
-      const flowCoefficient = Math.pow(
-        this.spec.cxFlowCoefficient,
-        nCollisions
-      );
-      flowVector = flowVector.mult(this.spec.flowCoefficient * flowCoefficient);
+      const flowCoefficient =
+        this.spec.flowCoefficient *
+        Math.pow(this.spec.cxFlowCoefficient, nCollisions);
 
+      this.flowField.flow(
+        this.motes[i * 4],
+        this.motes[i * 4 + 1],
+        flowCoefficient,
+        flowVector
+      );
       // Update the mote position based on the flow field vector and the aggregate collision vector
       this.motes[i * 4] += flowVector.x + this.velocities[i * 2];
       this.motes[i * 4 + 1] += flowVector.y + this.velocities[i * 2 + 1];

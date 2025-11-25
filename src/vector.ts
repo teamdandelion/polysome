@@ -36,8 +36,10 @@ export class Vector {
     return this;
   }
 
-  static fromAngle(angle: number): Vector {
-    return new Vector(Math.cos(angle), Math.sin(angle));
+  fromAngle(angle: number, magnitude: number): Vector {
+    this.x = Math.cos(angle) * magnitude;
+    this.y = Math.sin(angle) * magnitude;
+    return this;
   }
 
   static dist(v1: Vector, v2: Vector): number {
