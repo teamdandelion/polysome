@@ -62,11 +62,10 @@ class MoteSimulator {
     this.gridCellCounts = new Uint32Array(gridCellCount);
     this.moteCellIndices = new Uint32Array(this.nMotes); // Cache cell indices
 
-    // Initialize mote positions on edges
+    // Initialize mote positions uniformly across the canvas
     for (let i = 0; i < this.nMotes; i++) {
-      const pos = this.placeOnEdge();
-      this.moteX[i] = pos.x;
-      this.moteY[i] = pos.y;
+      this.moteX[i] = this.rng.uniform(0, xDim);
+      this.moteY[i] = this.rng.uniform(0, yDim);
     }
   }
 
@@ -197,10 +196,11 @@ class MoteSimulator {
 
             // Inline collision handling
             let forceFactor = params.moteForce;
-            if (d >= params.moteRadius - params.moteCollisionDecay) {
+            const decayDistance = params.pressureDecay * params.moteRadius;
+            if (d >= params.moteRadius - decayDistance) {
               forceFactor =
                 (params.moteForce * (params.moteRadius - d)) /
-                params.moteCollisionDecay;
+                decayDistance;
             }
 
             const magnitude = d > 0 ? forceFactor / d : 0;
@@ -254,10 +254,11 @@ class MoteSimulator {
 
               // Inline collision handling
               let forceFactor = params.moteForce;
-              if (d >= params.moteRadius - params.moteCollisionDecay) {
+              const decayDistance = params.pressureDecay * params.moteRadius;
+              if (d >= params.moteRadius - decayDistance) {
                 forceFactor =
                   (params.moteForce * (params.moteRadius - d)) /
-                  params.moteCollisionDecay;
+                  decayDistance;
               }
 
               const magnitude = d > 0 ? forceFactor / d : 0;

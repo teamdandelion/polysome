@@ -201,7 +201,7 @@ numMotes = 4200; // Particle count
 moteRadius = 42; // Collision detection radius
 moteRenderRadius = 2.94; // Visual size (42 * 0.07)
 moteForce = 0.1; // Collision response strength
-moteCollisionDecay = 9; // Force falloff distance
+pressureDecay = 0.214; // Force falloff proportion of moteRadius
 
 numDisturbances = 30; // Flow field generators
 flowCoefficient = 0.5; // How much motes follow flow

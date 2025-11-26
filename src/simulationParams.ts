@@ -13,15 +13,15 @@ export class SimulationParams {
   moteRadius = 42;
 
   /**
-   * Distance in pixels over which mote-to-mote repulsive force gradually decays to zero.
-   * When distance between motes >= (moteRadius - moteCollisionDecay), force scales linearly
+   * Proportion of moteRadius over which mote-to-mote repulsive force gradually decays to zero.
+   * When distance between motes >= (moteRadius - pressureDecay * moteRadius), force scales linearly
    * from full strength to zero. Creates softer collision boundaries.
    */
-  moteCollisionDecay = 9;
+  pressureDecay = 0.214;
 
   /**
    * Base magnitude of repulsive force applied when motes collide. The actual force applied
-   * is normalized by distance and may be reduced by moteCollisionDecay. This creates the
+   * is normalized by distance and may be reduced by pressureDecay. This creates the
    * "pressure" that pushes motes apart.
    */
   moteForce = 0.1;
