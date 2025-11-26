@@ -15,7 +15,7 @@ class MoteSimulator {
   public motePressure: Uint8Array;
   private moteVelocityX: Float32Array;
   private moteVelocityY: Float32Array;
-  private flowField: FlowField;
+  public flowField: FlowField;
   private params: SimulationParams;
   public stepCounter = 0;
 

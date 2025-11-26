@@ -24,13 +24,11 @@ function randomMoteSpec(rng: Rng, params: RenderParams): MoteRenderSpec {
 
 class MoteRenderer {
   private nMotes: number;
-  private params: RenderParams;
   private moteSpecs: MoteRenderSpec[];
   private colorSystem: ColorInterpolationSystem;
   private moteRenderRadius: number;
 
   constructor(params: RenderParams, nMotes: number, moteRadius: number, rng: Rng) {
-    this.params = params;
     this.moteRenderRadius = moteRadius * params.moteRenderScale;
 
     this.nMotes = nMotes;
@@ -48,11 +46,6 @@ class MoteRenderer {
     motePressure: Uint8Array,
     rc: RenderContext
   ): void {
-    rc.background(
-      this.params.backgroundColor.h,
-      this.params.backgroundColor.s,
-      this.params.backgroundColor.b
-    );
     rc.noFill();
 
     const size = this.moteRenderRadius;

@@ -5,6 +5,7 @@ import { makeSeededRng, Rng } from "./random.ts";
 import { RenderContext } from "./renderContext.ts";
 import { MoteRenderer } from "./moteRenderer.ts";
 import { MoteSimulator } from "./moteSimulator.ts";
+import { FlowFieldRenderer } from "./flowFieldRenderer.ts";
 import { PerfBuffer, PerfMap } from "./perfBuffer.ts";
 
 const PERF_TEMPLATE =
@@ -16,6 +17,7 @@ export class Instance {
   renderParams: RenderParams;
   private moteSimulator: MoteSimulator;
   private moteRenderer: MoteRenderer;
+  private flowFieldRenderer: FlowFieldRenderer;
   rc: RenderContext | null;
   bounds: Vector;
   private animationFrameId: number | null = null;
@@ -37,6 +39,10 @@ export class Instance {
     );
 
     this.moteSimulator = new MoteSimulator(this.simParams, seed, xDim, yDim);
+    this.flowFieldRenderer = new FlowFieldRenderer(
+      this.renderParams,
+      this.moteSimulator.flowField
+    );
   }
 
   setup(canvas: HTMLCanvasElement) {
@@ -93,6 +99,17 @@ export class Instance {
       throw new Error("Instance not setup");
     }
 
+    // Clear background first
+    this.rc.background(
+      this.renderParams.backgroundColor.h,
+      this.renderParams.backgroundColor.s,
+      this.renderParams.backgroundColor.b
+    );
+
+    // Render flow field (behind motes)
+    this.flowFieldRenderer.render(this.rc);
+
+    // Render motes on top
     this.moteRenderer.render(
       this.moteSimulator.moteX,
       this.moteSimulator.moteY,

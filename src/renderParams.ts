@@ -67,4 +67,39 @@ export class RenderParams {
     { pressure: 120, color: { h: 320, s: 100, b: 100 } }, // Magenta
     { pressure: 160, color: { h: 320, s: 40, b: 100 } }, // White-ish
   ];
+
+  /**
+   * Whether to show the flow field visualization
+   */
+  showFlowField = true;
+
+  /**
+   * Number of steps to trace forward and backward from each field point
+   */
+  flowFieldNumSteps = 50;
+
+  /**
+   * Size of each step when tracing the flow field streamlines
+   */
+  flowFieldStepSize = 2;
+
+  /**
+   * Sample rate for field points (1 = every point, 2 = every other point, etc.)
+   */
+  flowFieldSampleRate = 2;
+
+  /**
+   * Stroke weight for flow field lines
+   */
+  flowFieldStrokeWeight = 0.5;
+
+  /**
+   * Opacity of flow field lines (0-100)
+   */
+  flowFieldOpacity = 10;
+
+  /**
+   * Color of flow field lines in HSB
+   */
+  flowFieldColor = { h: 180, s: 50, b: 80 };
 }
