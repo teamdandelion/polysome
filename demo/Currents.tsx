@@ -8,7 +8,7 @@ type CurrentsPageProps = {
   seed?: string;
 };
 
-const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
+const CurrentsPage: React.FC<CurrentsPageProps> = ({ seed }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -19,7 +19,6 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
 
     seed = seed ?? randomSeed();
     console.log("Currents v4");
-    console.log(debug, seed);
 
     const ww = window.innerWidth;
     const wh = window.innerHeight;
@@ -31,7 +30,7 @@ const CurrentsPage: React.FC<CurrentsPageProps> = ({ debug, seed }) => {
       xDim = (ww / wh) * yDim;
     }
 
-    const instance = new Instance(seed, xDim, yDim, debug);
+    const instance = new Instance(seed, xDim, yDim);
     instance.setup(canvas);
     instance.start();
 

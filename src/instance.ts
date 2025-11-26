@@ -23,12 +23,11 @@ export class Instance {
   // Performance tracking
   private perfBuffer: PerfBuffer = new PerfBuffer(1000);
 
-  constructor(seed: string, xDim: number, yDim: number, debug: boolean) {
+  constructor(seed: string, xDim: number, yDim: number) {
     this.rc = null;
     this.rng = makeSeededRng(seed);
     this.simParams = new SimulationParams();
     this.renderParams = new RenderParams();
-    this.renderParams.debugMode = debug;
     this.bounds = new Vector(xDim, yDim);
     this.moteRenderer = new MoteRenderer(
       this.renderParams,

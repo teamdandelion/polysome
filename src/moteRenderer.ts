@@ -10,12 +10,15 @@ type MoteRenderSpec = {
   yOffset: number;
 };
 
-function randomMoteSpec(rng: Rng): MoteRenderSpec {
+function randomMoteSpec(rng: Rng, params: RenderParams): MoteRenderSpec {
   return {
-    sizeFactor: Math.max(rng.gauss(1, 0.3), 0.3),
-    thickness: rng.gauss(0.5, 0.2),
-    xOffset: rng.gauss(0, 1),
-    yOffset: rng.gauss(0, 1),
+    sizeFactor: Math.max(
+      rng.gauss(params.moteSizeFactorMean, params.moteSizeFactorVariance),
+      params.moteSizeFactorMin
+    ),
+    thickness: rng.gauss(params.moteThicknessMean, params.moteThicknessVariance),
+    xOffset: rng.gauss(0, params.moteOffsetVariance),
+    yOffset: rng.gauss(0, params.moteOffsetVariance),
   };
 }
 
@@ -30,7 +33,7 @@ class MoteRenderer {
 
     this.nMotes = nMotes;
     this.moteSpecs = Array.from({ length: this.nMotes }, () =>
-      randomMoteSpec(rng)
+      randomMoteSpec(rng, params)
     );
     this.colorSystem = new ColorInterpolationSystem(
       params.colorInterpolationPoints
@@ -43,7 +46,11 @@ class MoteRenderer {
     motePressure: Uint8Array,
     rc: RenderContext
   ): void {
-    rc.background(240, 100, 10);
+    rc.background(
+      this.params.backgroundColor.h,
+      this.params.backgroundColor.s,
+      this.params.backgroundColor.b
+    );
     rc.noFill();
 
     const size = this.params.moteRenderRadius;
