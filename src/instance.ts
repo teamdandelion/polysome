@@ -32,6 +32,7 @@ export class Instance {
     this.moteRenderer = new MoteRenderer(
       this.renderParams,
       this.simParams.numMotes,
+      this.simParams.moteRadius,
       this.rng
     );
 

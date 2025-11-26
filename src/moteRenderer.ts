@@ -27,9 +27,11 @@ class MoteRenderer {
   private params: RenderParams;
   private moteSpecs: MoteRenderSpec[];
   private colorSystem: ColorInterpolationSystem;
+  private moteRenderRadius: number;
 
-  constructor(params: RenderParams, nMotes: number, rng: Rng) {
+  constructor(params: RenderParams, nMotes: number, moteRadius: number, rng: Rng) {
     this.params = params;
+    this.moteRenderRadius = moteRadius * params.moteRenderScale;
 
     this.nMotes = nMotes;
     this.moteSpecs = Array.from({ length: this.nMotes }, () =>
@@ -53,7 +55,7 @@ class MoteRenderer {
     );
     rc.noFill();
 
-    const size = this.params.moteRenderRadius;
+    const size = this.moteRenderRadius;
 
     for (let i = 0; i < this.nMotes; i++) {
       const x = moteX[i];

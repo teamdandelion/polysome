@@ -2,10 +2,11 @@ import { type ColorPoint } from "./colorInterpolationSystem.ts";
 
 export class RenderParams {
   /**
-   * Visual rendering radius of each mote in pixels (typically much smaller than collision
-   * radius). Rendered as ellipses with randomized specs (size, thickness, opacity, offset).
+   * Scale factor for visual rendering of motes relative to their collision radius. At 0.07,
+   * motes render much smaller than their collision detection radius, creating visual separation
+   * even when motes are physically interacting. Rendered as ellipses with randomized specs.
    */
-  moteRenderRadius = 42 * 0.07;
+  moteRenderScale = 0.07;
 
   /**
    * Mean size multiplier for mote rendering. Each mote's size is sampled from a Gaussian
