@@ -13,10 +13,37 @@ export class FlowFieldRenderer {
   }
 
   render(rc: RenderContext) {
-    if (!this.params.showFlowField) {
-      return;
+    // Render disturbances first (if enabled)
+    if (this.params.showDisturbances) {
+      this.renderDisturbances(rc);
     }
 
+    // Render flow field streamlines
+    if (this.params.showFlowField) {
+      this.renderStreamlines(rc);
+    }
+  }
+
+  private renderDisturbances(rc: RenderContext) {
+    for (const disturbance of this.flowField.disturbances) {
+      const { pos, theta, radius } = disturbance;
+
+      // Draw the influence circle
+      rc.noFill();
+      rc.strokeWeight(this.params.disturbanceStrokeWeight);
+
+      // Color based on theta (positive = warm, negative = cool)
+      const color =
+        theta > 0
+          ? this.params.disturbancePositiveColor
+          : this.params.disturbanceNegativeColor;
+
+      rc.stroke(color.h, color.s, color.b, this.params.disturbanceOpacity);
+      rc.circle(pos.x, pos.y, radius);
+    }
+  }
+
+  private renderStreamlines(rc: RenderContext) {
     const spacing = this.flowField.bounds.x / this.flowField.fieldPoints.length;
     const stepSize = this.params.flowFieldStepSize;
     const numSteps = this.params.flowFieldNumSteps;
@@ -26,16 +53,36 @@ export class FlowFieldRenderer {
     rc.noFill();
 
     // Iterate through field points
-    for (let i = 0; i < this.flowField.fieldPoints.length; i += this.params.flowFieldSampleRate) {
-      for (let j = 0; j < this.flowField.fieldPoints[i].length; j += this.params.flowFieldSampleRate) {
+    for (
+      let i = 0;
+      i < this.flowField.fieldPoints.length;
+      i += this.params.flowFieldSampleRate
+    ) {
+      for (
+        let j = 0;
+        j < this.flowField.fieldPoints[i].length;
+        j += this.params.flowFieldSampleRate
+      ) {
         const x = spacing * i;
         const y = spacing * j;
 
         // Compute forward trajectory
-        const forwardPoints = this.computeTrajectory(x, y, stepSize, numSteps, 1);
+        const forwardPoints = this.computeTrajectory(
+          x,
+          y,
+          stepSize,
+          numSteps,
+          1
+        );
 
         // Compute backward trajectory
-        const backwardPoints = this.computeTrajectory(x, y, stepSize, numSteps, -1);
+        const backwardPoints = this.computeTrajectory(
+          x,
+          y,
+          stepSize,
+          numSteps,
+          -1
+        );
 
         // Draw the streamline
         this.drawStreamline(rc, backwardPoints.reverse(), forwardPoints);
@@ -76,7 +123,7 @@ export class FlowFieldRenderer {
   private drawStreamline(
     rc: RenderContext,
     backwardPoints: Array<{ x: number; y: number }>,
-    forwardPoints: Array<{ x: number; y: number }>,
+    forwardPoints: Array<{ x: number; y: number }>
   ) {
     const allPoints = [...backwardPoints, ...forwardPoints];
 

@@ -71,7 +71,7 @@ export class RenderParams {
   /**
    * Whether to show the flow field visualization
    */
-  showFlowField = true;
+  showFlowField = false;
 
   /**
    * Number of steps to trace forward and backward from each field point
@@ -102,4 +102,29 @@ export class RenderParams {
    * Color of flow field lines in HSB
    */
   flowFieldColor = { h: 180, s: 50, b: 80 };
+
+  /**
+   * Whether to show disturbances visualization
+   */
+  showDisturbances = false;
+
+  /**
+   * Stroke weight for disturbance visualization
+   */
+  disturbanceStrokeWeight = 1;
+
+  /**
+   * Opacity of disturbance visualization (0-100)
+   */
+  disturbanceOpacity = 30;
+
+  /**
+   * Color for disturbances with positive theta (clockwise rotation)
+   */
+  disturbancePositiveColor = { h: 30, s: 80, b: 100 }; // Orange
+
+  /**
+   * Color for disturbances with negative theta (counter-clockwise rotation)
+   */
+  disturbanceNegativeColor = { h: 240, s: 80, b: 100 }; // Blue
 }

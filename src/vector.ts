@@ -29,6 +29,10 @@ export class Vector {
     return Math.atan2(this.y, this.x);
   }
 
+  mag(): number {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
   setMag(magnitude: number): Vector {
     const angle = this.angle();
     this.x = Math.cos(angle) * magnitude;
