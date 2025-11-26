@@ -62,10 +62,11 @@ class MoteSimulator {
     this.gridCellCounts = new Uint32Array(gridCellCount);
     this.moteCellIndices = new Uint32Array(this.nMotes); // Cache cell indices
 
-    // Initialize mote positions randomly
+    // Initialize mote positions on edges
     for (let i = 0; i < this.nMotes; i++) {
-      this.moteX[i] = this.rng.uniform(0, this.xMax);
-      this.moteY[i] = this.rng.uniform(0, this.yMax);
+      const pos = this.placeOnEdge();
+      this.moteX[i] = pos.x;
+      this.moteY[i] = pos.y;
     }
   }
 
@@ -110,9 +111,10 @@ class MoteSimulator {
         this.moteY[i] < 0 ||
         this.moteY[i] >= this.yMax
       ) {
-        // Assign a random position in-bounds
-        this.moteX[i] = this.rng.uniform(0, this.xMax);
-        this.moteY[i] = this.rng.uniform(0, this.yMax);
+        // Assign a random position on edge
+        const pos = this.placeOnEdge();
+        this.moteX[i] = pos.x;
+        this.moteY[i] = pos.y;
       }
     }
   }
@@ -279,6 +281,9 @@ class MoteSimulator {
 
   moveMotes() {
     const flowVector = new Vector(0, 0);
+    const zone = this.spec.boundaryZone;
+    const bForce = this.spec.boundaryForce;
+    const bForceMax = this.spec.boundaryForceMax;
 
     for (let i = 0; i < this.nMotes; i++) {
       const nCollisions = this.motePressure[i];
@@ -292,9 +297,61 @@ class MoteSimulator {
         flowCoefficient,
         flowVector
       );
-      // Update the mote position based on the flow field vector and the aggregate collision vector
-      this.moteX[i] += flowVector.x + this.moteVelocityX[i];
-      this.moteY[i] += flowVector.y + this.moteVelocityY[i];
+
+      // Apply boundary repulsion forces
+      const x = this.moteX[i];
+      const y = this.moteY[i];
+
+      let boundaryForceX = 0;
+      let boundaryForceY = 0;
+
+      // Left boundary
+      if (x < zone) {
+        const force = Math.min(bForce * (1 - x / zone), bForceMax);
+        boundaryForceX += force;
+      }
+      // Right boundary
+      if (x > this.xMax - zone) {
+        const dist = this.xMax - x;
+        const force = Math.min(bForce * (1 - dist / zone), bForceMax);
+        boundaryForceX -= force;
+      }
+
+      // Top boundary
+      if (y < zone) {
+        const force = Math.min(bForce * (1 - y / zone), bForceMax);
+        boundaryForceY += force;
+      }
+      // Bottom boundary
+      if (y > this.yMax - zone) {
+        const dist = this.yMax - y;
+        const force = Math.min(bForce * (1 - dist / zone), bForceMax);
+        boundaryForceY -= force;
+      }
+
+      // Update the mote position based on the flow field vector, collision vector, and boundary forces
+      this.moteX[i] += flowVector.x + this.moteVelocityX[i] + boundaryForceX;
+      this.moteY[i] += flowVector.y + this.moteVelocityY[i] + boundaryForceY;
+    }
+  }
+
+  private placeOnEdge(): { x: number; y: number } {
+    const perimeter = 2 * (this.xMax + this.yMax);
+    const t = this.rng.uniform(0, perimeter);
+    const inset = this.rng.uniform(0, this.spec.boundarySpawnDepth);
+
+    if (t < this.xMax) {
+      // Top edge
+      return { x: t, y: inset };
+    } else if (t < this.xMax + this.yMax) {
+      // Right edge
+      return { x: this.xMax - inset, y: t - this.xMax };
+    } else if (t < 2 * this.xMax + this.yMax) {
+      // Bottom edge
+      return { x: this.xMax - (t - this.xMax - this.yMax), y: this.yMax - inset };
+    } else {
+      // Left edge
+      return { x: inset, y: this.yMax - (t - 2 * this.xMax - this.yMax) };
     }
   }
 }

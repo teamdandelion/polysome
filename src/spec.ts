@@ -126,4 +126,29 @@ export class Spec {
    * top-right corner of the canvas. Useful for performance monitoring and troubleshooting.
    */
   debugMode = false;
+
+  /**
+   * Thickness of the boundary repulsion zone in pixels. Motes within this distance from
+   * any edge experience an inward repulsive force. Larger values create a broader "soft wall"
+   * effect. Recommended: 2-5x moteRadius.
+   */
+  boundaryZone = 200;
+
+  /**
+   * Scale factor for boundary repulsion force. Higher values create stronger wall effects.
+   * Force magnitude is: boundaryForce * (1 - distance/boundaryZone), capped at boundaryForceMax.
+   */
+  boundaryForce = 1;
+
+  /**
+   * Maximum boundary repulsion force applied per frame. Prevents excessive force when motes
+   * are very close to walls. Should be comparable to typical flow field magnitude (1-3x).
+   */
+  boundaryForceMax = 1.5;
+
+  /**
+   * Maximum distance from edge where new motes spawn, in pixels. Should be <= boundaryZone.
+   * Smaller values create crisper edge injection; larger values create more diffuse entry.
+   */
+  boundarySpawnDepth = 50;
 }
