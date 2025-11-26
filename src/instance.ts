@@ -1,4 +1,5 @@
-import { Spec } from "./spec.ts";
+import { SimulationParams } from "./simulationParams.ts";
+import { RenderParams } from "./renderParams.ts";
 import { Vector } from "./vector.ts";
 import { makeSeededRng, Rng } from "./random.ts";
 import { RenderContext } from "./renderContext.ts";
@@ -11,7 +12,8 @@ const PERF_TEMPLATE =
 
 export class Instance {
   rng: Rng;
-  spec: Spec;
+  simParams: SimulationParams;
+  renderParams: RenderParams;
   private moteSimulator: MoteSimulator;
   private moteRenderer: MoteRenderer;
   rc: RenderContext | null;
@@ -24,19 +26,24 @@ export class Instance {
   constructor(seed: string, xDim: number, yDim: number, debug: boolean) {
     this.rc = null;
     this.rng = makeSeededRng(seed);
-    this.spec = new Spec();
-    this.spec.debugMode = debug;
+    this.simParams = new SimulationParams();
+    this.renderParams = new RenderParams();
+    this.renderParams.debugMode = debug;
     this.bounds = new Vector(xDim, yDim);
-    this.moteRenderer = new MoteRenderer(this.spec, this.rng);
+    this.moteRenderer = new MoteRenderer(
+      this.renderParams,
+      this.simParams.numMotes,
+      this.rng
+    );
 
-    this.moteSimulator = new MoteSimulator(this.spec, seed, xDim, yDim);
+    this.moteSimulator = new MoteSimulator(this.simParams, seed, xDim, yDim);
   }
 
   setup(canvas: HTMLCanvasElement) {
     const zoomLevel = 1;
     this.rc = new RenderContext(
       canvas,
-      this.spec,
+      this.renderParams,
       this.bounds,
       zoomLevel,
       this.rng

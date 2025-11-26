@@ -1,6 +1,6 @@
 import { pi } from "./safeMath.ts";
 import { Rng } from "./random.ts";
-import { Spec } from "./spec.ts";
+import { SimulationParams } from "./simulationParams.ts";
 import { Vector } from "./vector.ts";
 
 type FlowFieldDisturbance = {
@@ -11,7 +11,7 @@ type FlowFieldDisturbance = {
 };
 
 export class FlowField {
-  private spec: Spec;
+  private params: SimulationParams;
   private spacing: number;
   private defaultTheta: number;
 
@@ -23,11 +23,11 @@ export class FlowField {
   private iMax: number; // Cache grid dimensions
   private jMax: number;
 
-  constructor(rng: Rng, spec: Spec, bounds: Vector) {
+  constructor(rng: Rng, params: SimulationParams, bounds: Vector) {
     this.rng = rng;
-    this.spec = spec;
+    this.params = params;
     this.bounds = bounds;
-    this.spacing = spec.flowFieldSpacing;
+    this.spacing = params.flowFieldSpacing;
     this.defaultTheta = rng.uniform(0, pi(2));
 
     // Pre-allocate fieldPoints array once
@@ -39,7 +39,7 @@ export class FlowField {
     );
 
     this.disturbances = [];
-    while (this.disturbances.length < spec.numDisturbances) {
+    while (this.disturbances.length < params.numDisturbances) {
       this.addDisturbance();
     }
     this.computeFlowField();
@@ -57,17 +57,17 @@ export class FlowField {
   addDisturbance() {
     const disturbanceX = this.rng.uniform(0, this.bounds.x);
     const disturbanceY = this.rng.uniform(0, this.bounds.y);
-    const disturbanceTheta = this.rng.gauss(0, this.spec.thetaVariance);
+    const disturbanceTheta = this.rng.gauss(0, this.params.thetaVariance);
     const disturbanceRadius = Math.abs(
       this.rng.gauss(
-        this.spec.disturbanceRadiusMean,
-        this.spec.disturbanceRadiusVariance
+        this.params.disturbanceRadiusMean,
+        this.params.disturbanceRadiusVariance
       )
     );
     const disturbanceHeading = this.rng.uniform(0, pi(2));
     const disturbanceSpeed = this.rng.uniform(
-      this.spec.disturbanceSpeedMin,
-      this.spec.disturbanceSpeedMax
+      this.params.disturbanceSpeedMin,
+      this.params.disturbanceSpeedMax
     );
     const disturbanceVel = new Vector(0, 0).fromAngle(
       disturbanceHeading,

@@ -1,6 +1,4 @@
-import { type ColorPoint } from "./colorInterpolationSystem.ts";
-
-export class Spec {
+export class SimulationParams {
   /**
    * Total number of motes in the simulation. Initialized randomly across the canvas and
    * reset to random positions when they drift out of bounds.
@@ -15,12 +13,6 @@ export class Spec {
   moteRadius = 42;
 
   /**
-   * Visual rendering radius of each mote in pixels (typically much smaller than collision
-   * radius). Rendered as ellipses with randomized specs (size, thickness, opacity, offset).
-   */
-  moteRenderRadius = 42 * 0.07;
-
-  /**
    * Distance in pixels over which mote-to-mote repulsive force gradually decays to zero.
    * When distance between motes >= (moteRadius - moteCollisionDecay), force scales linearly
    * from full strength to zero. Creates softer collision boundaries.
@@ -33,24 +25,6 @@ export class Spec {
    * "pressure" that pushes motes apart.
    */
   moteForce = 0.1;
-
-  /**
-   * Color gradient mapping collision counts to HSB colors. Motes interpolate through these
-   * colors based on their current collision count. Low collision counts appear warmer
-   * (orange/green), higher counts progress through cooler tones (teal/purple/magenta),
-   * eventually reaching near-white at very high collision counts.
-   */
-  colorInterpolationPoints: Array<ColorPoint> = [
-    { pressure: 0, color: { h: 30, s: 100, b: 100 } }, // Orange
-    { pressure: 20, color: { h: 120, s: 100, b: 100 } }, // Green
-    { pressure: 35, color: { h: 180, s: 100, b: 100 } }, // Teal
-    { pressure: 56, color: { h: 200, s: 100, b: 100 } },
-
-    { pressure: 62, color: { h: 240, s: 100, b: 100 } }, // Indigo
-    { pressure: 80, color: { h: 270, s: 100, b: 100 } }, // Purple
-    { pressure: 120, color: { h: 320, s: 100, b: 100 } }, // Magenta
-    { pressure: 160, color: { h: 320, s: 40, b: 100 } }, // White-ish
-  ];
 
   /**
    * Grid spacing in pixels for the flow field. The canvas is divided into a grid where
@@ -120,12 +94,6 @@ export class Spec {
    * at high collision counts.
    */
   cxFlowCoefficient = 1.001;
-
-  /**
-   * Enables debug overlay showing FPS, step counter, elapsed time, and mote count in the
-   * top-right corner of the canvas. Useful for performance monitoring and troubleshooting.
-   */
-  debugMode = false;
 
   /**
    * Thickness of the boundary repulsion zone in pixels. Motes within this distance from

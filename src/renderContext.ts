@@ -1,10 +1,10 @@
-import { Spec } from "./spec.ts";
+import { RenderParams } from "./renderParams.ts";
 import { Vector } from "./vector.ts";
 import { Rng } from "./random.ts";
 import { hsbToRgb } from "./colorUtils.ts";
 
 export class RenderContext {
-  spec: Spec;
+  params: RenderParams;
   bounds: Vector;
   r: number;
   canvas: HTMLCanvasElement;
@@ -25,14 +25,14 @@ export class RenderContext {
 
   constructor(
     canvas: HTMLCanvasElement,
-    spec: Spec,
+    params: RenderParams,
     bounds: Vector,
     zoom: number,
     R: Rng
   ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    this.spec = spec;
+    this.params = params;
     this.bounds = bounds;
     this.canvasWidth = window.innerWidth;
     this.canvasHeight = window.innerHeight;

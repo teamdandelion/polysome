@@ -1,7 +1,7 @@
 import { FlowField } from "./flowField.ts";
 import { PerfMap } from "./perfBuffer.ts";
 import { Rng, makeSeededRng } from "./random.ts";
-import { Spec } from "./spec.ts";
+import { SimulationParams } from "./simulationParams.ts";
 import { Vector } from "./vector.ts";
 
 class MoteSimulator {
@@ -16,7 +16,7 @@ class MoteSimulator {
   private moteVelocityX: Float32Array;
   private moteVelocityY: Float32Array;
   private flowField: FlowField;
-  private spec: Spec;
+  private params: SimulationParams;
   public stepCounter = 0;
 
   // Grid using flat arrays instead of Map for better performance
@@ -38,14 +38,14 @@ class MoteSimulator {
     [-1, 1], // down-left
   ] as const;
 
-  constructor(spec: Spec, seed: string, xDim: number, yDim: number) {
-    this.spec = spec;
+  constructor(params: SimulationParams, seed: string, xDim: number, yDim: number) {
+    this.params = params;
     this.xMax = xDim;
     this.yMax = yDim;
     this.rng = makeSeededRng(seed);
-    this.flowField = new FlowField(this.rng, spec, new Vector(xDim, yDim));
+    this.flowField = new FlowField(this.rng, params, new Vector(xDim, yDim));
 
-    this.nMotes = spec.numMotes;
+    this.nMotes = params.numMotes;
     this.moteX = new Float32Array(this.nMotes);
     this.moteY = new Float32Array(this.nMotes);
     this.motePressure = new Uint8Array(this.nMotes);
@@ -53,7 +53,7 @@ class MoteSimulator {
     this.moteVelocityY = new Float32Array(this.nMotes);
 
     // Setup grid for spatial hashing
-    this.gridSize = this.spec.moteRadius * 2;
+    this.gridSize = this.params.moteRadius * 2;
     this.gridWidth = Math.ceil(xDim / this.gridSize);
     this.gridHeight = Math.ceil(yDim / this.gridSize);
     const gridCellCount = this.gridWidth * this.gridHeight;
@@ -120,7 +120,7 @@ class MoteSimulator {
   }
 
   computePressure(): number {
-    const radiusSq = this.spec.moteRadius * this.spec.moteRadius;
+    const radiusSq = this.params.moteRadius * this.params.moteRadius;
     const gridSize = this.gridSize;
     const invGridSize = 1 / gridSize;
     const gridWidth = this.gridWidth;
@@ -133,7 +133,7 @@ class MoteSimulator {
     const grid = this.grid;
     const gridCellCounts = this.gridCellCounts;
     const gridCellIndices = this.gridCellIndices;
-    const spec = this.spec;
+    const params = this.params;
     let nCollisions = 0;
 
     gridCellCounts.fill(0);
@@ -196,11 +196,11 @@ class MoteSimulator {
             const d = Math.sqrt(dsq);
 
             // Inline collision handling
-            let forceFactor = spec.moteForce;
-            if (d >= spec.moteRadius - spec.moteCollisionDecay) {
+            let forceFactor = params.moteForce;
+            if (d >= params.moteRadius - params.moteCollisionDecay) {
               forceFactor =
-                (spec.moteForce * (spec.moteRadius - d)) /
-                spec.moteCollisionDecay;
+                (params.moteForce * (params.moteRadius - d)) /
+                params.moteCollisionDecay;
             }
 
             const magnitude = d > 0 ? forceFactor / d : 0;
@@ -253,11 +253,11 @@ class MoteSimulator {
               const d = Math.sqrt(dsq);
 
               // Inline collision handling
-              let forceFactor = spec.moteForce;
-              if (d >= spec.moteRadius - spec.moteCollisionDecay) {
+              let forceFactor = params.moteForce;
+              if (d >= params.moteRadius - params.moteCollisionDecay) {
                 forceFactor =
-                  (spec.moteForce * (spec.moteRadius - d)) /
-                  spec.moteCollisionDecay;
+                  (params.moteForce * (params.moteRadius - d)) /
+                  params.moteCollisionDecay;
               }
 
               const magnitude = d > 0 ? forceFactor / d : 0;
@@ -281,15 +281,15 @@ class MoteSimulator {
 
   moveMotes() {
     const flowVector = new Vector(0, 0);
-    const zone = this.spec.boundaryZone;
-    const bForce = this.spec.boundaryForce;
-    const bForceMax = this.spec.boundaryForceMax;
+    const zone = this.params.boundaryZone;
+    const bForce = this.params.boundaryForce;
+    const bForceMax = this.params.boundaryForceMax;
 
     for (let i = 0; i < this.nMotes; i++) {
       const nCollisions = this.motePressure[i];
       const flowCoefficient =
-        this.spec.flowCoefficient *
-        Math.pow(this.spec.cxFlowCoefficient, nCollisions);
+        this.params.flowCoefficient *
+        Math.pow(this.params.cxFlowCoefficient, nCollisions);
 
       this.flowField.flow(
         this.moteX[i],
@@ -338,7 +338,7 @@ class MoteSimulator {
   private placeOnEdge(): { x: number; y: number } {
     const perimeter = 2 * (this.xMax + this.yMax);
     const t = this.rng.uniform(0, perimeter);
-    const inset = this.rng.uniform(0, this.spec.boundarySpawnDepth);
+    const inset = this.rng.uniform(0, this.params.boundarySpawnDepth);
 
     if (t < this.xMax) {
       // Top edge

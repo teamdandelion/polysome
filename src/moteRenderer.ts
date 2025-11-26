@@ -1,5 +1,5 @@
 import { Rng } from "./random.ts";
-import { Spec } from "./spec.ts";
+import { RenderParams } from "./renderParams.ts";
 import { RenderContext } from "./renderContext.ts";
 import { ColorInterpolationSystem } from "./colorInterpolationSystem.ts";
 
@@ -21,19 +21,19 @@ function randomMoteSpec(rng: Rng): MoteRenderSpec {
 
 class MoteRenderer {
   private nMotes: number;
-  private spec: Spec;
+  private params: RenderParams;
   private moteSpecs: MoteRenderSpec[];
   private colorSystem: ColorInterpolationSystem;
 
-  constructor(spec: Spec, rng: Rng) {
-    this.spec = spec;
+  constructor(params: RenderParams, nMotes: number, rng: Rng) {
+    this.params = params;
 
-    this.nMotes = spec.numMotes;
+    this.nMotes = nMotes;
     this.moteSpecs = Array.from({ length: this.nMotes }, () =>
       randomMoteSpec(rng)
     );
     this.colorSystem = new ColorInterpolationSystem(
-      spec.colorInterpolationPoints
+      params.colorInterpolationPoints
     );
   }
 
@@ -46,7 +46,7 @@ class MoteRenderer {
     rc.background(240, 100, 10);
     rc.noFill();
 
-    const size = this.spec.moteRenderRadius;
+    const size = this.params.moteRenderRadius;
 
     for (let i = 0; i < this.nMotes; i++) {
       const x = moteX[i];

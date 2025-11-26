@@ -1,6 +1,7 @@
 // Core API
 export { Instance } from "./instance.ts";
-export { Spec } from "./spec.ts";
+export { SimulationParams } from "./simulationParams.ts";
+export { RenderParams } from "./renderParams.ts";
 
 // Types
 export type { ColorPoint } from "./colorInterpolationSystem.ts";
