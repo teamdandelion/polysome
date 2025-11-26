@@ -11,15 +11,22 @@
     "src"
   ],
   "scripts": {
-    "demo": "cd demo && bun install && bun start --port 4242",
+    "dev": "bun build.ts --dev",
+    "build": "bun build.ts",
     "typecheck": "tsc --noEmit",
     "prepare": "husky"
   },
   "author": "Dandelion Mané",
   "license": "MIT",
   "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^18.2.47",
+    "@types/react-dom": "^18.2.18",
     "husky": "^9.1.7",
     "prettier": "^3.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.2",
     "typescript": "^5.0.0"
   }
 }
