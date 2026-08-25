@@ -9,7 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  core:
+    name: Core checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -34,3 +35,16 @@ jobs:
       - run: npm run check:evidence
       - run: npm run test:exhibits
       - run: npm run build:demo
+
+  check:
+    if: ${{ always() }}
+    needs: [core, exhibits]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every CI layer
+        env:
+          CORE_RESULT: ${{ needs.core.result }}
+          EXHIBITS_RESULT: ${{ needs.exhibits.result }}
+        run: |
+          test "$CORE_RESULT" = "success"
+          test "$EXHIBITS_RESULT" = "success"
