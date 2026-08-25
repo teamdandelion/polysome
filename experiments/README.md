@@ -52,3 +52,11 @@ it. Copy it, change the label or parameters, and commit the new manifest.
 
 See [the science plan](../docs/science.md) for measurements, parameter mapping,
 ablations, and the proposed hosted studio.
+
+## Reference result
+
+[`results/current-portrait-baseline.json`](results/current-portrait-baseline.json)
+is the first complete output for the reference manifest. It was generated from
+commit `1f9659e` and retains all eight morphology checkpoints through step 9,000.
+The result is evidence for that exact trajectory; it is not yet an estimate of
+the frequency of the phenotype across random seeds.

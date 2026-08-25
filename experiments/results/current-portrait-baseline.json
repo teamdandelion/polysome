@@ -1,0 +1,2110 @@
+{
+  "definition": {
+    "bounds": {
+      "height": 1000,
+      "width": 622.82
+    },
+    "dynamicsVersion": "legacy-v1",
+    "measurements": {
+      "atSteps": [1, 30, 150, 300, 900, 1800, 3600, 9000]
+    },
+    "parameters": {
+      "boundaryForce": 1,
+      "boundaryForceMax": 1.5,
+      "boundarySpawnDepth": 50,
+      "boundaryZone": 200,
+      "cxFlowCoefficient": 1.001,
+      "defaultTheta": 0,
+      "disturbanceRadiusMean": 100,
+      "disturbanceRadiusVariance": 200,
+      "disturbanceSpeedMax": 0.5,
+      "disturbanceSpeedMin": 0,
+      "flowCoefficient": 0.5,
+      "flowFieldSpacing": 6,
+      "moteForce": 0.1,
+      "moteRadius": 42,
+      "numDisturbances": 21,
+      "numMotes": 4200,
+      "pressureDecay": 0.214,
+      "thetaVariance": 3.14
+    },
+    "render": {
+      "burnInSteps": 9000,
+      "fps": 30,
+      "recordSteps": 300
+    },
+    "schema": "polysome.experiment/v1",
+    "seed": "0x1b50318e0b301eab6c7147d253268b6a06cdb98920792de015b8927cdd44087a"
+  },
+  "execution": {
+    "complete": true,
+    "finalMeasurementStep": 9000,
+    "untilStep": 9000
+  },
+  "label": "current-portrait-baseline",
+  "measurements": [
+    {
+      "dynamics": {
+        "reinjections": 0,
+        "totalReinjections": 0
+      },
+      "morphology": {
+        "contacts": {
+          "collisionPairs": 74915,
+          "meanContactsPerMote": 35.673809523809524,
+          "nominalUniformContactRatio": 0.9548116540229955,
+          "nominalUniformMeanContacts": 37.36214296662781
+        },
+        "domain": {
+          "height": 1000,
+          "moteRadius": 42,
+          "width": 622.82
+        },
+        "geometry": {
+          "centroid": {
+            "x": 308.15219406446533,
+            "y": 497.78241153202237
+          },
+          "covariance": {
+            "anisotropy": 0.4388283689596384,
+            "majorEigenvalue": 82464.74661345982,
+            "minorEigenvalue": 32162.888471448765,
+            "xx": 32174.731802731094,
+            "xy": 771.7521011288735,
+            "yy": 82452.90328217749
+          },
+          "radiusOfGyration": 338.5670318931077
+        },
+        "grids": [
+          {
+            "actualCellHeight": 20.833333333333332,
+            "actualCellWidth": 20.76066666666667,
+            "cellCount": 1440,
+            "cellSizeToMoteRadius": 0.5,
+            "columns": 30,
+            "denseComponents": [
+              {
+                "activeCellCount": 803,
+                "activeCellFraction": 0.5576388888888889,
+                "componentCount": 5,
+                "largestCellFraction": 0.5506944444444445,
+                "largestMassFraction": 0.7695238095238095,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 240,
+                "activeCellFraction": 0.16666666666666666,
+                "componentCount": 105,
+                "largestCellFraction": 0.006944444444444444,
+                "largestMassFraction": 0.014285714285714285,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 97,
+                "activeCellFraction": 0.06736111111111111,
+                "componentCount": 76,
+                "largestCellFraction": 0.002777777777777778,
+                "largestMassFraction": 0.005714285714285714,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 2,
+                "activeCellFraction": 0.001388888888888889,
+                "componentCount": 2,
+                "largestCellFraction": 0.0006944444444444445,
+                "largestMassFraction": 0.002142857142857143,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.5554920598635311,
+            "emptyCellFraction": 0.04236111111111111,
+            "emptyVoids": {
+              "componentCount": 52,
+              "largestCellFraction": 0.001388888888888889
+            },
+            "maximumToMeanDensity": 3.085714285714286,
+            "meanMotesPerCell": 2.9166666666666665,
+            "normalizedShannonEntropy": 0.9766926186935518,
+            "requestedCellSize": 21,
+            "rows": 48
+          },
+          {
+            "actualCellHeight": 41.666666666666664,
+            "actualCellWidth": 41.52133333333334,
+            "cellCount": 360,
+            "cellSizeToMoteRadius": 1,
+            "columns": 15,
+            "denseComponents": [
+              {
+                "activeCellCount": 188,
+                "activeCellFraction": 0.5222222222222223,
+                "componentCount": 3,
+                "largestCellFraction": 0.5166666666666667,
+                "largestMassFraction": 0.6271428571428571,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 12,
+                "activeCellFraction": 0.03333333333333333,
+                "componentCount": 11,
+                "largestCellFraction": 0.005555555555555556,
+                "largestMassFraction": 0.009047619047619047,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.2738985362561573,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.9714285714285715,
+            "meanMotesPerCell": 11.666666666666666,
+            "normalizedShannonEntropy": 0.9933930470190994,
+            "requestedCellSize": 42,
+            "rows": 24
+          },
+          {
+            "actualCellHeight": 83.33333333333333,
+            "actualCellWidth": 77.8525,
+            "cellCount": 96,
+            "cellSizeToMoteRadius": 2,
+            "columns": 8,
+            "denseComponents": [
+              {
+                "activeCellCount": 51,
+                "activeCellFraction": 0.53125,
+                "componentCount": 2,
+                "largestCellFraction": 0.5208333333333334,
+                "largestMassFraction": 0.5752380952380952,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.14508735346698712,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.3257142857142856,
+            "meanMotesPerCell": 43.75,
+            "normalizedShannonEntropy": 0.9976537167239029,
+            "requestedCellSize": 84,
+            "rows": 12
+          },
+          {
+            "actualCellHeight": 166.66666666666666,
+            "actualCellWidth": 155.705,
+            "cellCount": 24,
+            "cellSizeToMoteRadius": 4,
+            "columns": 4,
+            "denseComponents": [
+              {
+                "activeCellCount": 14,
+                "activeCellFraction": 0.5833333333333334,
+                "componentCount": 1,
+                "largestCellFraction": 0.5833333333333334,
+                "largestMassFraction": 0.6109523809523809,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.06481790296066148,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.0685714285714285,
+            "meanMotesPerCell": 175,
+            "normalizedShannonEntropy": 0.9993247638576302,
+            "requestedCellSize": 168,
+            "rows": 6
+          }
+        ],
+        "metricVersion": "polysome-morphology-v1",
+        "moteCount": 4200,
+        "pressure": {
+          "fractionAt255": 0,
+          "max": 63,
+          "mean": 35.673809523809524,
+          "p50": 36,
+          "p95": 47,
+          "p99": 52
+        },
+        "schemaVersion": 1,
+        "step": 1
+      },
+      "step": 1
+    },
+    {
+      "dynamics": {
+        "reinjections": 0,
+        "totalReinjections": 59
+      },
+      "morphology": {
+        "contacts": {
+          "collisionPairs": 82315,
+          "meanContactsPerMote": 39.19761904761905,
+          "nominalUniformContactRatio": 1.0491266275232314,
+          "nominalUniformMeanContacts": 37.36214296662781
+        },
+        "domain": {
+          "height": 1000,
+          "moteRadius": 42,
+          "width": 622.82
+        },
+        "geometry": {
+          "centroid": {
+            "x": 313.29895073451456,
+            "y": 501.03430940660695
+          },
+          "covariance": {
+            "anisotropy": 0.457543340218788,
+            "majorEigenvalue": 77778.94644417183,
+            "minorEigenvalue": 28947.137505409573,
+            "xx": 28966.559060867927,
+            "xy": 973.6593288308229,
+            "yy": 77759.52488871348
+          },
+          "radiusOfGyration": 326.68958347272326
+        },
+        "grids": [
+          {
+            "actualCellHeight": 20.833333333333332,
+            "actualCellWidth": 20.76066666666667,
+            "cellCount": 1440,
+            "cellSizeToMoteRadius": 0.5,
+            "columns": 30,
+            "denseComponents": [
+              {
+                "activeCellCount": 827,
+                "activeCellFraction": 0.5743055555555555,
+                "componentCount": 9,
+                "largestCellFraction": 0.5625,
+                "largestMassFraction": 0.7702380952380953,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 221,
+                "activeCellFraction": 0.15347222222222223,
+                "componentCount": 70,
+                "largestCellFraction": 0.027777777777777776,
+                "largestMassFraction": 0.054047619047619046,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 83,
+                "activeCellFraction": 0.05763888888888889,
+                "componentCount": 53,
+                "largestCellFraction": 0.004861111111111111,
+                "largestMassFraction": 0.010714285714285714,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.5306907320287634,
+            "emptyCellFraction": 0.044444444444444446,
+            "emptyVoids": {
+              "componentCount": 48,
+              "largestCellFraction": 0.006944444444444444
+            },
+            "maximumToMeanDensity": 2.742857142857143,
+            "meanMotesPerCell": 2.9166666666666665,
+            "normalizedShannonEntropy": 0.9783344907478505,
+            "requestedCellSize": 21,
+            "rows": 48
+          },
+          {
+            "actualCellHeight": 41.666666666666664,
+            "actualCellWidth": 41.52133333333334,
+            "cellCount": 360,
+            "cellSizeToMoteRadius": 1,
+            "columns": 15,
+            "denseComponents": [
+              {
+                "activeCellCount": 182,
+                "activeCellFraction": 0.5055555555555555,
+                "componentCount": 2,
+                "largestCellFraction": 0.5,
+                "largestMassFraction": 0.6180952380952381,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 10,
+                "activeCellFraction": 0.027777777777777776,
+                "componentCount": 9,
+                "largestCellFraction": 0.005555555555555556,
+                "largestMassFraction": 0.008809523809523809,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.28954573851790266,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.7142857142857144,
+            "meanMotesPerCell": 11.666666666666666,
+            "normalizedShannonEntropy": 0.992433326647426,
+            "requestedCellSize": 42,
+            "rows": 24
+          },
+          {
+            "actualCellHeight": 83.33333333333333,
+            "actualCellWidth": 77.8525,
+            "cellCount": 96,
+            "cellSizeToMoteRadius": 2,
+            "columns": 8,
+            "denseComponents": [
+              {
+                "activeCellCount": 49,
+                "activeCellFraction": 0.5104166666666666,
+                "componentCount": 1,
+                "largestCellFraction": 0.5104166666666666,
+                "largestMassFraction": 0.6071428571428571,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.2325136233299323,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.3942857142857144,
+            "meanMotesPerCell": 43.75,
+            "normalizedShannonEntropy": 0.9938958770638835,
+            "requestedCellSize": 84,
+            "rows": 12
+          },
+          {
+            "actualCellHeight": 166.66666666666666,
+            "actualCellWidth": 155.705,
+            "cellCount": 24,
+            "cellSizeToMoteRadius": 4,
+            "columns": 4,
+            "denseComponents": [
+              {
+                "activeCellCount": 13,
+                "activeCellFraction": 0.5416666666666666,
+                "componentCount": 1,
+                "largestCellFraction": 0.5416666666666666,
+                "largestMassFraction": 0.5830952380952381,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.10389686146909932,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.1885714285714286,
+            "meanMotesPerCell": 175,
+            "normalizedShannonEntropy": 0.998281264310289,
+            "requestedCellSize": 168,
+            "rows": 6
+          }
+        ],
+        "metricVersion": "polysome-morphology-v1",
+        "moteCount": 4200,
+        "pressure": {
+          "fractionAt255": 0,
+          "max": 61,
+          "mean": 39.19761904761905,
+          "p50": 40,
+          "p95": 53,
+          "p99": 56
+        },
+        "schemaVersion": 1,
+        "step": 30
+      },
+      "step": 30
+    },
+    {
+      "dynamics": {
+        "reinjections": 0,
+        "totalReinjections": 81
+      },
+      "morphology": {
+        "contacts": {
+          "collisionPairs": 119582,
+          "meanContactsPerMote": 56.94380952380953,
+          "nominalUniformContactRatio": 1.5241044812304325,
+          "nominalUniformMeanContacts": 37.36214296662781
+        },
+        "domain": {
+          "height": 1000,
+          "moteRadius": 42,
+          "width": 622.82
+        },
+        "geometry": {
+          "centroid": {
+            "x": 327.4418160455568,
+            "y": 502.3932346628748
+          },
+          "covariance": {
+            "anisotropy": 0.5147944703346679,
+            "majorEigenvalue": 66573.79310103621,
+            "minorEigenvalue": 21324.326947326354,
+            "xx": 21457.61288836039,
+            "xy": 2452.2138029763055,
+            "yy": 66440.50716000218
+          },
+          "radiusOfGyration": 296.4761711307716
+        },
+        "grids": [
+          {
+            "actualCellHeight": 20.833333333333332,
+            "actualCellWidth": 20.76066666666667,
+            "cellCount": 1440,
+            "cellSizeToMoteRadius": 0.5,
+            "columns": 30,
+            "denseComponents": [
+              {
+                "activeCellCount": 612,
+                "activeCellFraction": 0.425,
+                "componentCount": 16,
+                "largestCellFraction": 0.4097222222222222,
+                "largestMassFraction": 0.825952380952381,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 326,
+                "activeCellFraction": 0.2263888888888889,
+                "componentCount": 37,
+                "largestCellFraction": 0.12777777777777777,
+                "largestMassFraction": 0.35023809523809524,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 251,
+                "activeCellFraction": 0.17430555555555555,
+                "componentCount": 46,
+                "largestCellFraction": 0.04791666666666667,
+                "largestMassFraction": 0.1538095238095238,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 108,
+                "activeCellFraction": 0.075,
+                "componentCount": 60,
+                "largestCellFraction": 0.005555555555555556,
+                "largestMassFraction": 0.023571428571428573,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 1.1096607313839264,
+            "emptyCellFraction": 0.2763888888888889,
+            "emptyVoids": {
+              "componentCount": 100,
+              "largestCellFraction": 0.1361111111111111
+            },
+            "maximumToMeanDensity": 6.514285714285714,
+            "meanMotesPerCell": 2.9166666666666665,
+            "normalizedShannonEntropy": 0.9187910390472104,
+            "requestedCellSize": 21,
+            "rows": 48
+          },
+          {
+            "actualCellHeight": 41.666666666666664,
+            "actualCellWidth": 41.52133333333334,
+            "cellCount": 360,
+            "cellSizeToMoteRadius": 1,
+            "columns": 15,
+            "denseComponents": [
+              {
+                "activeCellCount": 178,
+                "activeCellFraction": 0.49444444444444446,
+                "componentCount": 2,
+                "largestCellFraction": 0.49166666666666664,
+                "largestMassFraction": 0.7645238095238095,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 84,
+                "activeCellFraction": 0.23333333333333334,
+                "componentCount": 3,
+                "largestCellFraction": 0.08888888888888889,
+                "largestMassFraction": 0.16404761904761905,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 22,
+                "activeCellFraction": 0.06111111111111111,
+                "componentCount": 8,
+                "largestCellFraction": 0.022222222222222223,
+                "largestMassFraction": 0.05,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 1,
+                "activeCellFraction": 0.002777777777777778,
+                "componentCount": 1,
+                "largestCellFraction": 0.002777777777777778,
+                "largestMassFraction": 0.008333333333333333,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.6515288143423648,
+            "emptyCellFraction": 0.11388888888888889,
+            "emptyVoids": {
+              "componentCount": 4,
+              "largestCellFraction": 0.09444444444444444
+            },
+            "maximumToMeanDensity": 3,
+            "meanMotesPerCell": 11.666666666666666,
+            "normalizedShannonEntropy": 0.9555314496289973,
+            "requestedCellSize": 42,
+            "rows": 24
+          },
+          {
+            "actualCellHeight": 83.33333333333333,
+            "actualCellWidth": 77.8525,
+            "cellCount": 96,
+            "cellSizeToMoteRadius": 2,
+            "columns": 8,
+            "denseComponents": [
+              {
+                "activeCellCount": 52,
+                "activeCellFraction": 0.5416666666666666,
+                "componentCount": 1,
+                "largestCellFraction": 0.5416666666666666,
+                "largestMassFraction": 0.7938095238095239,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 23,
+                "activeCellFraction": 0.23958333333333334,
+                "componentCount": 2,
+                "largestCellFraction": 0.17708333333333334,
+                "largestMassFraction": 0.3130952380952381,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 2,
+                "activeCellFraction": 0.020833333333333332,
+                "componentCount": 1,
+                "largestCellFraction": 0.020833333333333332,
+                "largestMassFraction": 0.045476190476190476,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.5880996722408506,
+            "emptyCellFraction": 0.020833333333333332,
+            "emptyVoids": {
+              "componentCount": 2,
+              "largestCellFraction": 0.010416666666666666
+            },
+            "maximumToMeanDensity": 2.24,
+            "meanMotesPerCell": 43.75,
+            "normalizedShannonEntropy": 0.9543851062092037,
+            "requestedCellSize": 84,
+            "rows": 12
+          },
+          {
+            "actualCellHeight": 166.66666666666666,
+            "actualCellWidth": 155.705,
+            "cellCount": 24,
+            "cellSizeToMoteRadius": 4,
+            "columns": 4,
+            "denseComponents": [
+              {
+                "activeCellCount": 12,
+                "activeCellFraction": 0.5,
+                "componentCount": 1,
+                "largestCellFraction": 0.5,
+                "largestMassFraction": 0.6647619047619048,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 2,
+                "activeCellFraction": 0.08333333333333333,
+                "componentCount": 2,
+                "largestCellFraction": 0.041666666666666664,
+                "largestMassFraction": 0.0730952380952381,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.3814151950570509,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.7542857142857142,
+            "meanMotesPerCell": 175,
+            "normalizedShannonEntropy": 0.9768483519774875,
+            "requestedCellSize": 168,
+            "rows": 6
+          }
+        ],
+        "metricVersion": "polysome-morphology-v1",
+        "moteCount": 4200,
+        "pressure": {
+          "fractionAt255": 0,
+          "max": 105,
+          "mean": 56.94380952380953,
+          "p50": 58,
+          "p95": 89,
+          "p99": 97
+        },
+        "schemaVersion": 1,
+        "step": 150
+      },
+      "step": 150
+    },
+    {
+      "dynamics": {
+        "reinjections": 0,
+        "totalReinjections": 95
+      },
+      "morphology": {
+        "contacts": {
+          "collisionPairs": 138745,
+          "meanContactsPerMote": 66.06904761904762,
+          "nominalUniformContactRatio": 1.7683420267959757,
+          "nominalUniformMeanContacts": 37.36214296662781
+        },
+        "domain": {
+          "height": 1000,
+          "moteRadius": 42,
+          "width": 622.82
+        },
+        "geometry": {
+          "centroid": {
+            "x": 338.34935811496916,
+            "y": 504.60095019442696
+          },
+          "covariance": {
+            "anisotropy": 0.48654798018277406,
+            "majorEigenvalue": 58181.16556901958,
+            "minorEigenvalue": 20095.709909787485,
+            "xx": 20297.88944887695,
+            "xy": 2767.530181437848,
+            "yy": 57978.986029930114
+          },
+          "radiusOfGyration": 279.7800483930315
+        },
+        "grids": [
+          {
+            "actualCellHeight": 20.833333333333332,
+            "actualCellWidth": 20.76066666666667,
+            "cellCount": 1440,
+            "cellSizeToMoteRadius": 0.5,
+            "columns": 30,
+            "denseComponents": [
+              {
+                "activeCellCount": 515,
+                "activeCellFraction": 0.3576388888888889,
+                "componentCount": 14,
+                "largestCellFraction": 0.3388888888888889,
+                "largestMassFraction": 0.8559523809523809,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 346,
+                "activeCellFraction": 0.24027777777777778,
+                "componentCount": 37,
+                "largestCellFraction": 0.14791666666666667,
+                "largestMassFraction": 0.48857142857142855,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 287,
+                "activeCellFraction": 0.19930555555555557,
+                "componentCount": 52,
+                "largestCellFraction": 0.07222222222222222,
+                "largestMassFraction": 0.26071428571428573,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 149,
+                "activeCellFraction": 0.10347222222222222,
+                "componentCount": 67,
+                "largestCellFraction": 0.008333333333333333,
+                "largestMassFraction": 0.03857142857142857,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 1.390815353286976,
+            "emptyCellFraction": 0.40555555555555556,
+            "emptyVoids": {
+              "componentCount": 67,
+              "largestCellFraction": 0.20347222222222222
+            },
+            "maximumToMeanDensity": 7.2,
+            "meanMotesPerCell": 2.9166666666666665,
+            "normalizedShannonEntropy": 0.8832007532965481,
+            "requestedCellSize": 21,
+            "rows": 48
+          },
+          {
+            "actualCellHeight": 41.666666666666664,
+            "actualCellWidth": 41.52133333333334,
+            "cellCount": 360,
+            "cellSizeToMoteRadius": 1,
+            "columns": 15,
+            "denseComponents": [
+              {
+                "activeCellCount": 184,
+                "activeCellFraction": 0.5111111111111111,
+                "componentCount": 1,
+                "largestCellFraction": 0.5111111111111111,
+                "largestMassFraction": 0.8228571428571428,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 91,
+                "activeCellFraction": 0.25277777777777777,
+                "componentCount": 3,
+                "largestCellFraction": 0.2111111111111111,
+                "largestMassFraction": 0.4261904761904762,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 38,
+                "activeCellFraction": 0.10555555555555556,
+                "componentCount": 6,
+                "largestCellFraction": 0.03888888888888889,
+                "largestMassFraction": 0.09690476190476191,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 3,
+                "activeCellFraction": 0.008333333333333333,
+                "componentCount": 2,
+                "largestCellFraction": 0.005555555555555556,
+                "largestMassFraction": 0.016666666666666666,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.7534952568137484,
+            "emptyCellFraction": 0.16111111111111112,
+            "emptyVoids": {
+              "componentCount": 4,
+              "largestCellFraction": 0.1361111111111111
+            },
+            "maximumToMeanDensity": 3.1714285714285717,
+            "meanMotesPerCell": 11.666666666666666,
+            "normalizedShannonEntropy": 0.9417045559238554,
+            "requestedCellSize": 42,
+            "rows": 24
+          },
+          {
+            "actualCellHeight": 83.33333333333333,
+            "actualCellWidth": 77.8525,
+            "cellCount": 96,
+            "cellSizeToMoteRadius": 2,
+            "columns": 8,
+            "denseComponents": [
+              {
+                "activeCellCount": 54,
+                "activeCellFraction": 0.5625,
+                "componentCount": 1,
+                "largestCellFraction": 0.5625,
+                "largestMassFraction": 0.8502380952380952,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 22,
+                "activeCellFraction": 0.22916666666666666,
+                "componentCount": 2,
+                "largestCellFraction": 0.21875,
+                "largestMassFraction": 0.4111904761904762,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 6,
+                "activeCellFraction": 0.0625,
+                "componentCount": 5,
+                "largestCellFraction": 0.020833333333333332,
+                "largestMassFraction": 0.047857142857142855,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.6743018561425431,
+            "emptyCellFraction": 0.08333333333333333,
+            "emptyVoids": {
+              "componentCount": 4,
+              "largestCellFraction": 0.052083333333333336
+            },
+            "maximumToMeanDensity": 2.5828571428571427,
+            "meanMotesPerCell": 43.75,
+            "normalizedShannonEntropy": 0.9380228235963654,
+            "requestedCellSize": 84,
+            "rows": 12
+          },
+          {
+            "actualCellHeight": 166.66666666666666,
+            "actualCellWidth": 155.705,
+            "cellCount": 24,
+            "cellSizeToMoteRadius": 4,
+            "columns": 4,
+            "denseComponents": [
+              {
+                "activeCellCount": 11,
+                "activeCellFraction": 0.4583333333333333,
+                "componentCount": 1,
+                "largestCellFraction": 0.4583333333333333,
+                "largestMassFraction": 0.6797619047619048,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 5,
+                "activeCellFraction": 0.20833333333333334,
+                "componentCount": 1,
+                "largestCellFraction": 0.20833333333333334,
+                "largestMassFraction": 0.3580952380952381,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.5027894976146225,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.9257142857142857,
+            "meanMotesPerCell": 175,
+            "normalizedShannonEntropy": 0.9576378176274072,
+            "requestedCellSize": 168,
+            "rows": 6
+          }
+        ],
+        "metricVersion": "polysome-morphology-v1",
+        "moteCount": 4200,
+        "pressure": {
+          "fractionAt255": 0,
+          "max": 125,
+          "mean": 66.06904761904762,
+          "p50": 66,
+          "p95": 109,
+          "p99": 118
+        },
+        "schemaVersion": 1,
+        "step": 300
+      },
+      "step": 300
+    },
+    {
+      "dynamics": {
+        "reinjections": 0,
+        "totalReinjections": 332
+      },
+      "morphology": {
+        "contacts": {
+          "collisionPairs": 143782,
+          "meanContactsPerMote": 68.46761904761905,
+          "nominalUniformContactRatio": 1.8325399351095821,
+          "nominalUniformMeanContacts": 37.36214296662781
+        },
+        "domain": {
+          "height": 1000,
+          "moteRadius": 42,
+          "width": 622.82
+        },
+        "geometry": {
+          "centroid": {
+            "x": 335.16171219939275,
+            "y": 431.39034235182265
+          },
+          "covariance": {
+            "anisotropy": 0.4096283970593461,
+            "majorEigenvalue": 52602.34638975435,
+            "minorEigenvalue": 22030.580273030188,
+            "xx": 22087.3188146197,
+            "xy": -1315.8184377704997,
+            "yy": 52545.607848164844
+          },
+          "radiusOfGyration": 273.190275564092
+        },
+        "grids": [
+          {
+            "actualCellHeight": 20.833333333333332,
+            "actualCellWidth": 20.76066666666667,
+            "cellCount": 1440,
+            "cellSizeToMoteRadius": 0.5,
+            "columns": 30,
+            "denseComponents": [
+              {
+                "activeCellCount": 521,
+                "activeCellFraction": 0.36180555555555555,
+                "componentCount": 6,
+                "largestCellFraction": 0.35833333333333334,
+                "largestMassFraction": 0.9038095238095238,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 342,
+                "activeCellFraction": 0.2375,
+                "componentCount": 26,
+                "largestCellFraction": 0.1951388888888889,
+                "largestMassFraction": 0.6445238095238095,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 289,
+                "activeCellFraction": 0.20069444444444445,
+                "componentCount": 42,
+                "largestCellFraction": 0.05416666666666667,
+                "largestMassFraction": 0.2019047619047619,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 155,
+                "activeCellFraction": 0.1076388888888889,
+                "componentCount": 70,
+                "largestCellFraction": 0.009722222222222222,
+                "largestMassFraction": 0.04595238095238095,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 1.4644634038529234,
+            "emptyCellFraction": 0.4486111111111111,
+            "emptyVoids": {
+              "componentCount": 61,
+              "largestCellFraction": 0.27152777777777776
+            },
+            "maximumToMeanDensity": 7.885714285714286,
+            "meanMotesPerCell": 2.9166666666666665,
+            "normalizedShannonEntropy": 0.873195215978721,
+            "requestedCellSize": 21,
+            "rows": 48
+          },
+          {
+            "actualCellHeight": 41.666666666666664,
+            "actualCellWidth": 41.52133333333334,
+            "cellCount": 360,
+            "cellSizeToMoteRadius": 1,
+            "columns": 15,
+            "denseComponents": [
+              {
+                "activeCellCount": 188,
+                "activeCellFraction": 0.5222222222222223,
+                "componentCount": 1,
+                "largestCellFraction": 0.5222222222222223,
+                "largestMassFraction": 0.8547619047619047,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 97,
+                "activeCellFraction": 0.26944444444444443,
+                "componentCount": 4,
+                "largestCellFraction": 0.21944444444444444,
+                "largestMassFraction": 0.43976190476190474,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 28,
+                "activeCellFraction": 0.07777777777777778,
+                "componentCount": 12,
+                "largestCellFraction": 0.016666666666666666,
+                "largestMassFraction": 0.04690476190476191,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 6,
+                "activeCellFraction": 0.016666666666666666,
+                "componentCount": 6,
+                "largestCellFraction": 0.002777777777777778,
+                "largestMassFraction": 0.010238095238095239,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.7962924291069591,
+            "emptyCellFraction": 0.20555555555555555,
+            "emptyVoids": {
+              "componentCount": 7,
+              "largestCellFraction": 0.14722222222222223
+            },
+            "maximumToMeanDensity": 3.685714285714286,
+            "meanMotesPerCell": 11.666666666666666,
+            "normalizedShannonEntropy": 0.93329700721584,
+            "requestedCellSize": 42,
+            "rows": 24
+          },
+          {
+            "actualCellHeight": 83.33333333333333,
+            "actualCellWidth": 77.8525,
+            "cellCount": 96,
+            "cellSizeToMoteRadius": 2,
+            "columns": 8,
+            "denseComponents": [
+              {
+                "activeCellCount": 53,
+                "activeCellFraction": 0.5520833333333334,
+                "componentCount": 1,
+                "largestCellFraction": 0.5520833333333334,
+                "largestMassFraction": 0.8571428571428571,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 26,
+                "activeCellFraction": 0.2708333333333333,
+                "componentCount": 2,
+                "largestCellFraction": 0.25,
+                "largestMassFraction": 0.4742857142857143,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 9,
+                "activeCellFraction": 0.09375,
+                "componentCount": 4,
+                "largestCellFraction": 0.041666666666666664,
+                "largestMassFraction": 0.09023809523809524,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.711277474870745,
+            "emptyCellFraction": 0.125,
+            "emptyVoids": {
+              "componentCount": 4,
+              "largestCellFraction": 0.07291666666666667
+            },
+            "maximumToMeanDensity": 2.3771428571428572,
+            "meanMotesPerCell": 43.75,
+            "normalizedShannonEntropy": 0.9280218100118862,
+            "requestedCellSize": 84,
+            "rows": 12
+          },
+          {
+            "actualCellHeight": 166.66666666666666,
+            "actualCellWidth": 155.705,
+            "cellCount": 24,
+            "cellSizeToMoteRadius": 4,
+            "columns": 4,
+            "denseComponents": [
+              {
+                "activeCellCount": 13,
+                "activeCellFraction": 0.5416666666666666,
+                "componentCount": 1,
+                "largestCellFraction": 0.5416666666666666,
+                "largestMassFraction": 0.7845238095238095,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 7,
+                "activeCellFraction": 0.2916666666666667,
+                "componentCount": 1,
+                "largestCellFraction": 0.2916666666666667,
+                "largestMassFraction": 0.4907142857142857,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.5632824112556081,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 1.84,
+            "meanMotesPerCell": 175,
+            "normalizedShannonEntropy": 0.9400367064357935,
+            "requestedCellSize": 168,
+            "rows": 6
+          }
+        ],
+        "metricVersion": "polysome-morphology-v1",
+        "moteCount": 4200,
+        "pressure": {
+          "fractionAt255": 0,
+          "max": 123,
+          "mean": 68.46761904761905,
+          "p50": 71,
+          "p95": 104,
+          "p99": 112
+        },
+        "schemaVersion": 1,
+        "step": 900
+      },
+      "step": 900
+    },
+    {
+      "dynamics": {
+        "reinjections": 1,
+        "totalReinjections": 1244
+      },
+      "morphology": {
+        "contacts": {
+          "collisionPairs": 161196,
+          "meanContactsPerMote": 76.76,
+          "nominalUniformContactRatio": 2.054486009235678,
+          "nominalUniformMeanContacts": 37.36214296662781
+        },
+        "domain": {
+          "height": 1000,
+          "moteRadius": 42,
+          "width": 622.82
+        },
+        "geometry": {
+          "centroid": {
+            "x": 326.33961899371377,
+            "y": 365.79266240546923
+          },
+          "covariance": {
+            "anisotropy": 0.559460151504741,
+            "majorEigenvalue": 62124.99701430892,
+            "minorEigenvalue": 17550.007126532764,
+            "xx": 18325.4278434674,
+            "xy": -5827.786314535075,
+            "yy": 61349.57629737428
+          },
+          "radiusOfGyration": 282.2676108604062
+        },
+        "grids": [
+          {
+            "actualCellHeight": 20.833333333333332,
+            "actualCellWidth": 20.76066666666667,
+            "cellCount": 1440,
+            "cellSizeToMoteRadius": 0.5,
+            "columns": 30,
+            "denseComponents": [
+              {
+                "activeCellCount": 458,
+                "activeCellFraction": 0.31805555555555554,
+                "componentCount": 12,
+                "largestCellFraction": 0.2743055555555556,
+                "largestMassFraction": 0.780952380952381,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 292,
+                "activeCellFraction": 0.20277777777777778,
+                "componentCount": 38,
+                "largestCellFraction": 0.13125,
+                "largestMassFraction": 0.5271428571428571,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 239,
+                "activeCellFraction": 0.16597222222222222,
+                "componentCount": 52,
+                "largestCellFraction": 0.08680555555555555,
+                "largestMassFraction": 0.4088095238095238,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 142,
+                "activeCellFraction": 0.09861111111111111,
+                "componentCount": 58,
+                "largestCellFraction": 0.016666666666666666,
+                "largestMassFraction": 0.10785714285714286,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 1.6234003115154843,
+            "emptyCellFraction": 0.38125,
+            "emptyVoids": {
+              "componentCount": 69,
+              "largestCellFraction": 0.13472222222222222
+            },
+            "maximumToMeanDensity": 11.314285714285715,
+            "meanMotesPerCell": 2.9166666666666665,
+            "normalizedShannonEntropy": 0.8695645342966385,
+            "requestedCellSize": 21,
+            "rows": 48
+          },
+          {
+            "actualCellHeight": 41.666666666666664,
+            "actualCellWidth": 41.52133333333334,
+            "cellCount": 360,
+            "cellSizeToMoteRadius": 1,
+            "columns": 15,
+            "denseComponents": [
+              {
+                "activeCellCount": 157,
+                "activeCellFraction": 0.4361111111111111,
+                "componentCount": 2,
+                "largestCellFraction": 0.4222222222222222,
+                "largestMassFraction": 0.7685714285714286,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 90,
+                "activeCellFraction": 0.25,
+                "componentCount": 5,
+                "largestCellFraction": 0.20833333333333334,
+                "largestMassFraction": 0.48523809523809525,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 47,
+                "activeCellFraction": 0.13055555555555556,
+                "componentCount": 5,
+                "largestCellFraction": 0.11666666666666667,
+                "largestMassFraction": 0.3252380952380952,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 11,
+                "activeCellFraction": 0.030555555555555555,
+                "componentCount": 3,
+                "largestCellFraction": 0.013888888888888888,
+                "largestMassFraction": 0.05047619047619047,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.8857603674648289,
+            "emptyCellFraction": 0.09444444444444444,
+            "emptyVoids": {
+              "componentCount": 10,
+              "largestCellFraction": 0.019444444444444445
+            },
+            "maximumToMeanDensity": 4.542857142857143,
+            "meanMotesPerCell": 11.666666666666666,
+            "normalizedShannonEntropy": 0.9327274201401149,
+            "requestedCellSize": 42,
+            "rows": 24
+          },
+          {
+            "actualCellHeight": 83.33333333333333,
+            "actualCellWidth": 77.8525,
+            "cellCount": 96,
+            "cellSizeToMoteRadius": 2,
+            "columns": 8,
+            "denseComponents": [
+              {
+                "activeCellCount": 42,
+                "activeCellFraction": 0.4375,
+                "componentCount": 1,
+                "largestCellFraction": 0.4375,
+                "largestMassFraction": 0.7704761904761904,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 22,
+                "activeCellFraction": 0.22916666666666666,
+                "componentCount": 2,
+                "largestCellFraction": 0.21875,
+                "largestMassFraction": 0.4969047619047619,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 15,
+                "activeCellFraction": 0.15625,
+                "componentCount": 1,
+                "largestCellFraction": 0.15625,
+                "largestMassFraction": 0.38904761904761903,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 2,
+                "activeCellFraction": 0.020833333333333332,
+                "componentCount": 1,
+                "largestCellFraction": 0.020833333333333332,
+                "largestMassFraction": 0.06571428571428571,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.819417413751492,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 3.2457142857142856,
+            "meanMotesPerCell": 43.75,
+            "normalizedShannonEntropy": 0.9245235843192251,
+            "requestedCellSize": 84,
+            "rows": 12
+          },
+          {
+            "actualCellHeight": 166.66666666666666,
+            "actualCellWidth": 155.705,
+            "cellCount": 24,
+            "cellSizeToMoteRadius": 4,
+            "columns": 4,
+            "denseComponents": [
+              {
+                "activeCellCount": 10,
+                "activeCellFraction": 0.4166666666666667,
+                "componentCount": 1,
+                "largestCellFraction": 0.4166666666666667,
+                "largestMassFraction": 0.7097619047619048,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 5,
+                "activeCellFraction": 0.20833333333333334,
+                "componentCount": 1,
+                "largestCellFraction": 0.20833333333333334,
+                "largestMassFraction": 0.4545238095238095,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 3,
+                "activeCellFraction": 0.125,
+                "componentCount": 1,
+                "largestCellFraction": 0.125,
+                "largestMassFraction": 0.31023809523809526,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.7327127863023031,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 2.8457142857142856,
+            "meanMotesPerCell": 175,
+            "normalizedShannonEntropy": 0.9181997211258567,
+            "requestedCellSize": 168,
+            "rows": 6
+          }
+        ],
+        "metricVersion": "polysome-morphology-v1",
+        "moteCount": 4200,
+        "pressure": {
+          "fractionAt255": 0,
+          "max": 195,
+          "mean": 76.76,
+          "p50": 69,
+          "p95": 154,
+          "p99": 171
+        },
+        "schemaVersion": 1,
+        "step": 1800
+      },
+      "step": 1800
+    },
+    {
+      "dynamics": {
+        "reinjections": 0,
+        "totalReinjections": 3989
+      },
+      "morphology": {
+        "contacts": {
+          "collisionPairs": 158008,
+          "meanContactsPerMote": 75.24190476190476,
+          "nominalUniformContactRatio": 2.013854099030441,
+          "nominalUniformMeanContacts": 37.36214296662781
+        },
+        "domain": {
+          "height": 1000,
+          "moteRadius": 42,
+          "width": 622.82
+        },
+        "geometry": {
+          "centroid": {
+            "x": 301.897433346737,
+            "y": 432.0694579069955
+          },
+          "covariance": {
+            "anisotropy": 0.3500235283216182,
+            "majorEigenvalue": 43443.19135488716,
+            "minorEigenvalue": 20915.970457495154,
+            "xx": 20947.311622750367,
+            "xy": 839.6708189799018,
+            "yy": 43411.85018963194
+          },
+          "radiusOfGyration": 253.6910755473718
+        },
+        "grids": [
+          {
+            "actualCellHeight": 20.833333333333332,
+            "actualCellWidth": 20.76066666666667,
+            "cellCount": 1440,
+            "cellSizeToMoteRadius": 0.5,
+            "columns": 30,
+            "denseComponents": [
+              {
+                "activeCellCount": 497,
+                "activeCellFraction": 0.3451388888888889,
+                "componentCount": 14,
+                "largestCellFraction": 0.33125,
+                "largestMassFraction": 0.8659523809523809,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 334,
+                "activeCellFraction": 0.23194444444444445,
+                "componentCount": 30,
+                "largestCellFraction": 0.15555555555555556,
+                "largestMassFraction": 0.559047619047619,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 259,
+                "activeCellFraction": 0.1798611111111111,
+                "componentCount": 36,
+                "largestCellFraction": 0.11597222222222223,
+                "largestMassFraction": 0.46785714285714286,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 144,
+                "activeCellFraction": 0.1,
+                "componentCount": 53,
+                "largestCellFraction": 0.025,
+                "largestMassFraction": 0.13785714285714284,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 1.5164405153960685,
+            "emptyCellFraction": 0.4152777777777778,
+            "emptyVoids": {
+              "componentCount": 60,
+              "largestCellFraction": 0.19236111111111112
+            },
+            "maximumToMeanDensity": 10.62857142857143,
+            "meanMotesPerCell": 2.9166666666666665,
+            "normalizedShannonEntropy": 0.8739803733985124,
+            "requestedCellSize": 21,
+            "rows": 48
+          },
+          {
+            "actualCellHeight": 41.666666666666664,
+            "actualCellWidth": 41.52133333333334,
+            "cellCount": 360,
+            "cellSizeToMoteRadius": 1,
+            "columns": 15,
+            "denseComponents": [
+              {
+                "activeCellCount": 163,
+                "activeCellFraction": 0.4527777777777778,
+                "componentCount": 1,
+                "largestCellFraction": 0.4527777777777778,
+                "largestMassFraction": 0.809047619047619,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 90,
+                "activeCellFraction": 0.25,
+                "componentCount": 5,
+                "largestCellFraction": 0.21388888888888888,
+                "largestMassFraction": 0.49357142857142855,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 51,
+                "activeCellFraction": 0.14166666666666666,
+                "componentCount": 3,
+                "largestCellFraction": 0.11944444444444445,
+                "largestMassFraction": 0.32071428571428573,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 10,
+                "activeCellFraction": 0.027777777777777776,
+                "componentCount": 5,
+                "largestCellFraction": 0.011111111111111112,
+                "largestMassFraction": 0.0419047619047619,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.891822257389616,
+            "emptyCellFraction": 0.1361111111111111,
+            "emptyVoids": {
+              "componentCount": 9,
+              "largestCellFraction": 0.03333333333333333
+            },
+            "maximumToMeanDensity": 5.057142857142858,
+            "meanMotesPerCell": 11.666666666666666,
+            "normalizedShannonEntropy": 0.9282807607216385,
+            "requestedCellSize": 42,
+            "rows": 24
+          },
+          {
+            "actualCellHeight": 83.33333333333333,
+            "actualCellWidth": 77.8525,
+            "cellCount": 96,
+            "cellSizeToMoteRadius": 2,
+            "columns": 8,
+            "denseComponents": [
+              {
+                "activeCellCount": 44,
+                "activeCellFraction": 0.4583333333333333,
+                "componentCount": 1,
+                "largestCellFraction": 0.4583333333333333,
+                "largestMassFraction": 0.8028571428571428,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 25,
+                "activeCellFraction": 0.2604166666666667,
+                "componentCount": 3,
+                "largestCellFraction": 0.23958333333333334,
+                "largestMassFraction": 0.5288095238095238,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 14,
+                "activeCellFraction": 0.14583333333333334,
+                "componentCount": 2,
+                "largestCellFraction": 0.13541666666666666,
+                "largestMassFraction": 0.3416666666666667,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.8225594699671587,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 2.88,
+            "meanMotesPerCell": 43.75,
+            "normalizedShannonEntropy": 0.9203490951429081,
+            "requestedCellSize": 84,
+            "rows": 12
+          },
+          {
+            "actualCellHeight": 166.66666666666666,
+            "actualCellWidth": 155.705,
+            "cellCount": 24,
+            "cellSizeToMoteRadius": 4,
+            "columns": 4,
+            "denseComponents": [
+              {
+                "activeCellCount": 10,
+                "activeCellFraction": 0.4166666666666667,
+                "componentCount": 1,
+                "largestCellFraction": 0.4166666666666667,
+                "largestMassFraction": 0.7095238095238096,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 6,
+                "activeCellFraction": 0.25,
+                "componentCount": 1,
+                "largestCellFraction": 0.25,
+                "largestMassFraction": 0.5161904761904762,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 3,
+                "activeCellFraction": 0.125,
+                "componentCount": 1,
+                "largestCellFraction": 0.125,
+                "largestMassFraction": 0.2864285714285714,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.7012273011593005,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 2.4571428571428573,
+            "meanMotesPerCell": 175,
+            "normalizedShannonEntropy": 0.922043333811881,
+            "requestedCellSize": 168,
+            "rows": 6
+          }
+        ],
+        "metricVersion": "polysome-morphology-v1",
+        "moteCount": 4200,
+        "pressure": {
+          "fractionAt255": 0,
+          "max": 160,
+          "mean": 75.24190476190476,
+          "p50": 73,
+          "p95": 131,
+          "p99": 141
+        },
+        "schemaVersion": 1,
+        "step": 3600
+      },
+      "step": 3600
+    },
+    {
+      "dynamics": {
+        "reinjections": 2,
+        "totalReinjections": 6882
+      },
+      "morphology": {
+        "contacts": {
+          "collisionPairs": 161598,
+          "meanContactsPerMote": 76.95142857142856,
+          "nominalUniformContactRatio": 2.0596096064447442,
+          "nominalUniformMeanContacts": 37.36214296662781
+        },
+        "domain": {
+          "height": 1000,
+          "moteRadius": 42,
+          "width": 622.82
+        },
+        "geometry": {
+          "centroid": {
+            "x": 268.789220511523,
+            "y": 442.14442773421604
+          },
+          "covariance": {
+            "anisotropy": 0.3922449928976,
+            "majorEigenvalue": 49092.90365774883,
+            "minorEigenvalue": 21430.46530129418,
+            "xx": 21430.700149983648,
+            "xy": 80.60044814717975,
+            "yy": 49092.66880905937
+          },
+          "radiusOfGyration": 265.56236359665695
+        },
+        "grids": [
+          {
+            "actualCellHeight": 20.833333333333332,
+            "actualCellWidth": 20.76066666666667,
+            "cellCount": 1440,
+            "cellSizeToMoteRadius": 0.5,
+            "columns": 30,
+            "denseComponents": [
+              {
+                "activeCellCount": 460,
+                "activeCellFraction": 0.3194444444444444,
+                "componentCount": 15,
+                "largestCellFraction": 0.29444444444444445,
+                "largestMassFraction": 0.8485714285714285,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 320,
+                "activeCellFraction": 0.2222222222222222,
+                "componentCount": 36,
+                "largestCellFraction": 0.1361111111111111,
+                "largestMassFraction": 0.5183333333333333,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 259,
+                "activeCellFraction": 0.1798611111111111,
+                "componentCount": 42,
+                "largestCellFraction": 0.058333333333333334,
+                "largestMassFraction": 0.26785714285714285,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 159,
+                "activeCellFraction": 0.11041666666666666,
+                "componentCount": 53,
+                "largestCellFraction": 0.02847222222222222,
+                "largestMassFraction": 0.1488095238095238,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 1.5863705205819443,
+            "emptyCellFraction": 0.43680555555555556,
+            "emptyVoids": {
+              "componentCount": 44,
+              "largestCellFraction": 0.25
+            },
+            "maximumToMeanDensity": 10.285714285714286,
+            "meanMotesPerCell": 2.9166666666666665,
+            "normalizedShannonEntropy": 0.8645976427486268,
+            "requestedCellSize": 21,
+            "rows": 48
+          },
+          {
+            "actualCellHeight": 41.666666666666664,
+            "actualCellWidth": 41.52133333333334,
+            "cellCount": 360,
+            "cellSizeToMoteRadius": 1,
+            "columns": 15,
+            "denseComponents": [
+              {
+                "activeCellCount": 164,
+                "activeCellFraction": 0.45555555555555555,
+                "componentCount": 3,
+                "largestCellFraction": 0.44722222222222224,
+                "largestMassFraction": 0.800952380952381,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 85,
+                "activeCellFraction": 0.2361111111111111,
+                "componentCount": 4,
+                "largestCellFraction": 0.18611111111111112,
+                "largestMassFraction": 0.4421428571428571,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 49,
+                "activeCellFraction": 0.1361111111111111,
+                "componentCount": 6,
+                "largestCellFraction": 0.10833333333333334,
+                "largestMassFraction": 0.3,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 12,
+                "activeCellFraction": 0.03333333333333333,
+                "componentCount": 5,
+                "largestCellFraction": 0.022222222222222223,
+                "largestMassFraction": 0.08785714285714286,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.9074296509529385,
+            "emptyCellFraction": 0.125,
+            "emptyVoids": {
+              "componentCount": 12,
+              "largestCellFraction": 0.044444444444444446
+            },
+            "maximumToMeanDensity": 4.9714285714285715,
+            "meanMotesPerCell": 11.666666666666666,
+            "normalizedShannonEntropy": 0.9271873081773545,
+            "requestedCellSize": 42,
+            "rows": 24
+          },
+          {
+            "actualCellHeight": 83.33333333333333,
+            "actualCellWidth": 77.8525,
+            "cellCount": 96,
+            "cellSizeToMoteRadius": 2,
+            "columns": 8,
+            "denseComponents": [
+              {
+                "activeCellCount": 46,
+                "activeCellFraction": 0.4791666666666667,
+                "componentCount": 1,
+                "largestCellFraction": 0.4791666666666667,
+                "largestMassFraction": 0.8102380952380952,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 21,
+                "activeCellFraction": 0.21875,
+                "componentCount": 2,
+                "largestCellFraction": 0.16666666666666666,
+                "largestMassFraction": 0.3873809523809524,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 12,
+                "activeCellFraction": 0.125,
+                "componentCount": 2,
+                "largestCellFraction": 0.11458333333333333,
+                "largestMassFraction": 0.29428571428571426,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 2,
+                "activeCellFraction": 0.020833333333333332,
+                "componentCount": 1,
+                "largestCellFraction": 0.020833333333333332,
+                "largestMassFraction": 0.0688095238095238,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.8116900986993315,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 3.382857142857143,
+            "meanMotesPerCell": 43.75,
+            "normalizedShannonEntropy": 0.921545743741983,
+            "requestedCellSize": 84,
+            "rows": 12
+          },
+          {
+            "actualCellHeight": 166.66666666666666,
+            "actualCellWidth": 155.705,
+            "cellCount": 24,
+            "cellSizeToMoteRadius": 4,
+            "columns": 4,
+            "denseComponents": [
+              {
+                "activeCellCount": 11,
+                "activeCellFraction": 0.4583333333333333,
+                "componentCount": 1,
+                "largestCellFraction": 0.4583333333333333,
+                "largestMassFraction": 0.7416666666666667,
+                "thresholdToMean": 1
+              },
+              {
+                "activeCellCount": 5,
+                "activeCellFraction": 0.20833333333333334,
+                "componentCount": 1,
+                "largestCellFraction": 0.20833333333333334,
+                "largestMassFraction": 0.42833333333333334,
+                "thresholdToMean": 1.5
+              },
+              {
+                "activeCellCount": 3,
+                "activeCellFraction": 0.125,
+                "componentCount": 1,
+                "largestCellFraction": 0.125,
+                "largestMassFraction": 0.29285714285714287,
+                "thresholdToMean": 2
+              },
+              {
+                "activeCellCount": 0,
+                "activeCellFraction": 0,
+                "componentCount": 0,
+                "largestCellFraction": 0,
+                "largestMassFraction": 0,
+                "thresholdToMean": 3
+              }
+            ],
+            "densityCoefficientOfVariation": 0.6785398488892249,
+            "emptyCellFraction": 0,
+            "emptyVoids": {
+              "componentCount": 0,
+              "largestCellFraction": 0
+            },
+            "maximumToMeanDensity": 2.6285714285714286,
+            "meanMotesPerCell": 175,
+            "normalizedShannonEntropy": 0.9273396415866914,
+            "requestedCellSize": 168,
+            "rows": 6
+          }
+        ],
+        "metricVersion": "polysome-morphology-v1",
+        "moteCount": 4200,
+        "pressure": {
+          "fractionAt255": 0,
+          "max": 180,
+          "mean": 76.95142857142856,
+          "p50": 74,
+          "p95": 138,
+          "p99": 158
+        },
+        "schemaVersion": 1,
+        "step": 9000
+      },
+      "step": 9000
+    }
+  ],
+  "provenance": {
+    "gitCommit": "1f9659e156c37e89eea15a2c373c331cb68b26c2",
+    "packageName": "@teamdandelion/polysome",
+    "packageVersion": "1.1.0"
+  },
+  "runId": "940a8f54de54fa255e360295960b434418533f608cdf3fd886e152a379930995",
+  "schema": "polysome.experiment-result/v1"
+}

@@ -9,9 +9,28 @@ for the clumps, voids, and apparent cores.
 The checked-in `polysome.experiment/v1` manifest fixes the current seed, portrait
 bounds, all simulation parameters, measurement times, and a five-minute
 burn-in plus ten-second recording schedule. It is a reference trajectory, not
-yet evidence that the same phenotype is typical across seeds. No baseline
-metric values are claimed until a generated result has been reviewed and
-committed.
+yet evidence that the same phenotype is typical across seeds.
+
+## First validation trajectory
+
+The committed [reference result](../experiments/results/current-portrait-baseline.json)
+measures the fixed iOS benchmark seed from an initially uniform placement. The
+contact ratio compares observed neighbor pairs with a nominal uniform point
+field; the other columns use cells approximately one interaction radius wide.
+
+|  Step | Contact ratio | Density CV | Empty cells | Largest 2x-density mass | Cumulative reinjections |
+| ----: | ------------: | ---------: | ----------: | ----------------------: | ----------------------: |
+|     1 |         0.955 |      0.274 |        0.0% |                    0.0% |                       0 |
+|   300 |         1.768 |      0.753 |       16.1% |                    9.7% |                      95 |
+|   900 |         1.833 |      0.796 |       20.6% |                    4.7% |                     332 |
+| 1,800 |         2.054 |      0.886 |        9.4% |                   32.5% |                   1,244 |
+| 9,000 |         2.060 |      0.907 |       12.5% |                   30.0% |                   6,882 |
+
+This validates the visual observation in state space: the model creates both
+excess local contacts and empty regions from a nearly uniform start. It also
+shows that the phenotype is dynamic. Void fraction and dense-component mass do
+not change monotonically, so experiments should measure trajectories, event
+lifetimes, and fraction of time in a regime rather than only an endpoint.
 
 ## The current model
 
@@ -37,15 +56,15 @@ boundary force points inward.
 Several explanations for the visible morphology are therefore plausible, but
 remain hypotheses until tested:
 
-1. **Compressible transport.** Spatial changes in direction create convergent,
-   divergent, and low-speed effective regions. Convergence supplies dense
+1. **Compressible transport.** Spatial changes in direction create convergent
+   and divergent regions separated by moving basins. Convergence supplies dense
    cores; divergence evacuates voids.
 2. **Pressure-supported finite structure.** Short-range repulsion arrests total
    collapse and sets a local separation scale. Moving convergence zones stretch
    those dense populations into droplets, chains, and shells.
 3. **A driven boundary ensemble.** Inward soft walls plus edge re-injection may
-   create the global envelope and central depletion independently of the local
-   disturbance pattern.
+   create the global envelope and central concentration independently of the
+   local disturbance pattern.
 4. **Weak density/flow feedback.** `cxFlowCoefficient^pressure` makes dense motes
    follow the field slightly more strongly. Its default value is close to one,
    but the exponent can be large, so an ablation is more informative than its
@@ -81,6 +100,12 @@ Measure at fixed simulation steps on state snapshots, independent of rendering:
   one-core elongated body from two distinct cores; and
 - temporal autocorrelation, peak lifetime, boundary-crossing rate, and drift of
   every summary after burn-in.
+
+The current fingerprint implements contacts, pressure quantiles, centroid and
+covariance, multiscale occupancy statistics, dense-component threshold curves,
+connected empty regions, and reinjection flux. Peak persistence, pair
+correlation, spectra, and lagged flow-divergence tests are the next measurement
+layer.
 
 The first morphology implementation can be a cheap subset of this list. Keep a
 `metricVersion` with results as definitions mature. Persistent homology of the
