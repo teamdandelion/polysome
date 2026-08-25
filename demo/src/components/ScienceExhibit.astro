@@ -51,6 +51,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
   id={exhibit.id}
   data-science-exhibit
   data-exhibit-id={exhibit.id}
+  data-tank-phase="expanded"
 >
   <header class="exhibit-heading">
     <div class="catalogue-number" aria-hidden="true">{exhibit.number}</div>
@@ -118,8 +119,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     </div>
 
     <div class="exhibit-flow">
-      <div class="tank-spacer" aria-hidden="true"></div>
-      <div class="collapse-sentinel" data-collapse-sentinel aria-hidden="true"></div>
+      <div class="tank-spacer" data-tank-spacer aria-hidden="true"></div>
 
       <div class="exhibit-copy">
         <p class="question">{exhibit.question}</p>
@@ -176,6 +176,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
   import { hsbToRgb } from "../../../src/colorUtils.ts";
   import { RenderParams } from "../../../src/renderParams.ts";
   import { formatScienceMetric } from "../../../src/scienceExhibits.ts";
+  import { calculateTankWindow } from "../science/tankGeometry.ts";
 
   type FrameMessage = {
     type: "frame";
@@ -223,6 +224,87 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     return hsbToRgb(color.h, color.s, color.b);
   });
 
+  type TankGeometryRegistration = {
+    root: HTMLElement;
+    column: HTMLElement;
+    spacer: HTMLElement;
+    stickyTop: number;
+    lastHeight: number;
+  };
+
+  const tankGeometries = new Set<TankGeometryRegistration>();
+  let tankGeometryFrame = 0;
+
+  const updateTankGeometries = () => {
+    tankGeometryFrame = 0;
+    // Read every layout rectangle before writing any custom properties. This
+    // keeps three live exhibits to one layout pass per scroll frame on iOS.
+    const measurements = Array.from(tankGeometries, (registration) => {
+      const spacerRect = registration.spacer.getBoundingClientRect();
+      return {
+        registration,
+        geometry: calculateTankWindow(
+          spacerRect.top,
+          registration.stickyTop,
+          spacerRect.height,
+        ),
+      };
+    });
+
+    for (const { registration, geometry } of measurements) {
+      if (Math.abs(geometry.height - registration.lastHeight) >= 0.5) {
+        registration.column.style.setProperty(
+          "--tank-window-height",
+          `${geometry.height}px`,
+        );
+        registration.lastHeight = geometry.height;
+      }
+      if (registration.root.dataset.tankPhase !== geometry.phase) {
+        registration.root.dataset.tankPhase = geometry.phase;
+      }
+    }
+  };
+
+  const scheduleTankGeometries = () => {
+    if (tankGeometryFrame === 0) {
+      tankGeometryFrame = window.requestAnimationFrame(updateTankGeometries);
+    }
+  };
+
+  const registerTankGeometry = (registration: TankGeometryRegistration) => {
+    if (tankGeometries.size === 0) {
+      window.addEventListener("scroll", scheduleTankGeometries, {
+        passive: true,
+      });
+      window.addEventListener("resize", scheduleTankGeometries, {
+        passive: true,
+      });
+      window.visualViewport?.addEventListener(
+        "resize",
+        scheduleTankGeometries,
+        { passive: true },
+      );
+    }
+    tankGeometries.add(registration);
+    scheduleTankGeometries();
+
+    return () => {
+      tankGeometries.delete(registration);
+      if (tankGeometries.size !== 0) return;
+
+      window.removeEventListener("scroll", scheduleTankGeometries);
+      window.removeEventListener("resize", scheduleTankGeometries);
+      window.visualViewport?.removeEventListener(
+        "resize",
+        scheduleTankGeometries,
+      );
+      if (tankGeometryFrame !== 0) {
+        window.cancelAnimationFrame(tankGeometryFrame);
+        tankGeometryFrame = 0;
+      }
+    };
+  };
+
   document.querySelectorAll<HTMLElement>("[data-science-exhibit]").forEach(
     (root) => {
       const exhibitId = root.dataset.exhibitId;
@@ -230,9 +312,8 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
         "[data-exhibit-canvas]",
       );
       const tank = root.querySelector<HTMLElement>("[data-tank]");
-      const collapseSentinel = root.querySelector<HTMLElement>(
-        "[data-collapse-sentinel]",
-      );
+      const tankColumn = root.querySelector<HTMLElement>("[data-tank-column]");
+      const tankSpacer = root.querySelector<HTMLElement>("[data-tank-spacer]");
       const toggle = root.querySelector<HTMLButtonElement>("[data-toggle]");
       const toggleIcon = root.querySelector<HTMLElement>("[data-toggle-icon]");
       const toggleLabel = root.querySelector<HTMLElement>("[data-toggle-label]");
@@ -247,7 +328,8 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
         !exhibitId ||
         !canvas ||
         !tank ||
-        !collapseSentinel ||
+        !tankColumn ||
+        !tankSpacer ||
         !toggle ||
         !toggleIcon ||
         !toggleLabel ||
@@ -584,29 +666,31 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       });
       resize.observe(canvas);
 
-      let collapse: IntersectionObserver | undefined;
       const siteHeader = document.querySelector<HTMLElement>(".site-header");
+      const tankGeometry: TankGeometryRegistration = {
+        root,
+        column: tankColumn,
+        spacer: tankSpacer,
+        stickyTop: 0,
+        lastHeight: -1,
+      };
+
       const configureStickyBoundary = () => {
-        const stickyTop = Math.ceil(siteHeader?.getBoundingClientRect().height ?? 0);
-        root.style.setProperty("--science-sticky-top", `${stickyTop}px`);
-        collapse?.disconnect();
-        collapse = new IntersectionObserver(
-          ([entry]) => {
-            const compact =
-              !entry.isIntersecting && entry.boundingClientRect.top < stickyTop;
-            root.toggleAttribute("data-compact", compact);
-          },
-          {
-            rootMargin: `-${stickyTop}px 0px 0px 0px`,
-            threshold: 0,
-          },
+        tankGeometry.stickyTop = Math.ceil(
+          siteHeader?.getBoundingClientRect().height ?? 0,
         );
-        collapse.observe(collapseSentinel);
+        root.style.setProperty(
+          "--science-sticky-top",
+          `${tankGeometry.stickyTop}px`,
+        );
+        scheduleTankGeometries();
       };
       configureStickyBoundary();
+      const unregisterTankGeometry = registerTankGeometry(tankGeometry);
 
-      const headerResize = new ResizeObserver(configureStickyBoundary);
-      if (siteHeader) headerResize.observe(siteHeader);
+      const geometryResize = new ResizeObserver(configureStickyBoundary);
+      if (siteHeader) geometryResize.observe(siteHeader);
+      geometryResize.observe(tankSpacer);
 
       const handleVisibilityChange = () => {
         if (visible && !document.hidden) {
@@ -639,8 +723,8 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       const cleanup = () => {
         intersection.disconnect();
         resize.disconnect();
-        collapse?.disconnect();
-        headerResize.disconnect();
+        geometryResize.disconnect();
+        unregisterTankGeometry();
         document.removeEventListener("visibilitychange", handleVisibilityChange);
         reducedMotion.removeEventListener("change", handleReducedMotionChange);
         window.removeEventListener("pagehide", handlePageHide);
@@ -661,6 +745,10 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       const handlePageShow = (event: PageTransitionEvent) => {
         if (!event.persisted) return;
         configureStickyBoundary();
+        scheduleTankGeometries();
+        window.requestAnimationFrame(() =>
+          window.requestAnimationFrame(scheduleTankGeometries),
+        );
         refreshVisibility();
         autoWake();
       };
@@ -673,7 +761,6 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
 
 <style>
   .exhibit {
-    --tank-compact-height: min(46svh, 80.28vw);
     --tank-expanded-height: min(82svh, 160.56vw);
     --tank-sticky-top: 4.5rem;
     border-top: 1px solid hsl(270 35% 42% / 35%);
@@ -739,7 +826,8 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
   }
 
   .tank-column {
-    height: var(--tank-expanded-height);
+    --tank-window-height: var(--tank-expanded-height);
+    height: var(--tank-window-height);
     pointer-events: none;
     position: sticky;
     top: var(--science-sticky-top);
@@ -754,7 +842,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     box-shadow:
       inset 0 0 4rem hsl(260 80% 15% / 30%),
       0 2rem 5rem hsl(250 100% 2% / 55%);
-    height: var(--tank-expanded-height);
+    height: 100%;
     overflow: hidden;
     pointer-events: auto;
     position: relative;
@@ -762,16 +850,11 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     width: 100%;
   }
 
-  [data-compact] .tank {
-    height: var(--tank-compact-height);
-  }
-
   .tank-surface {
     height: var(--tank-expanded-height);
     left: 0;
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 0;
     width: 100%;
   }
 
@@ -788,11 +871,6 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
 
   .tank-spacer {
     height: var(--tank-expanded-height);
-  }
-
-  .collapse-sentinel {
-    height: 1px;
-    pointer-events: none;
   }
 
   .tank-id {
@@ -933,7 +1011,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
   .exhibit-copy {
     margin-inline: auto;
     max-width: 48rem;
-    padding-top: calc(var(--tank-compact-height) + clamp(1.5rem, 5vw, 3rem));
+    padding-top: clamp(1.5rem, 5vw, 3rem);
     position: relative;
     width: 100%;
   }
