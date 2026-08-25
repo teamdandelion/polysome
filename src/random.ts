@@ -28,6 +28,14 @@ export function makeUnseededRng() /*: Rng */ {
   return makeSeededRng(randomSeed());
 }
 
+export type RngState = {
+  /** Four little-endian 16-bit words comprising the generator state. */
+  words: [number, number, number, number];
+  /** Cached second Box-Muller sample, when one is available. */
+  nextGaussian: number | null;
+  hasNextGaussian: boolean;
+};
+
 export class Rng {
   _state: Uint16Array;
   _dv: DataView;
@@ -39,6 +47,45 @@ export class Rng {
     this._dv = new DataView(this._state.buffer);
     this._nG = null; // nextGaussian
     this._hNG = false; // hasNextGaussian
+  }
+
+  /**
+   * Capture every bit of state needed to continue the random stream.
+   *
+   * The Gaussian cache matters: restoring only `_state` can change all random
+   * draws after an odd number of calls to `gauss()`.
+   */
+  captureState(): RngState {
+    return {
+      words: [this._state[0], this._state[1], this._state[2], this._state[3]],
+      nextGaussian: this._nG,
+      hasNextGaussian: this._hNG,
+    };
+  }
+
+  /** Restore a state produced by `captureState()`. */
+  restoreState(state: RngState): void {
+    if (state.words.length !== 4) {
+      throw new Error("RNG state must contain exactly four words");
+    }
+
+    for (let index = 0; index < state.words.length; index++) {
+      const word = state.words[index];
+      if (!Number.isInteger(word) || word < 0 || word > 0xffff) {
+        throw new Error(`Invalid RNG word at index ${index}`);
+      }
+      this._state[index] = word;
+    }
+
+    if (state.nextGaussian !== null && !Number.isFinite(state.nextGaussian)) {
+      throw new Error("Invalid cached Gaussian value");
+    }
+    if (state.hasNextGaussian && state.nextGaussian === null) {
+      throw new Error("RNG state says a Gaussian is cached but provides none");
+    }
+
+    this._nG = state.nextGaussian;
+    this._hNG = state.hasNextGaussian;
   }
 
   // sets the seed to a tokenData hash string "0x..."
@@ -73,7 +120,7 @@ export class Rng {
       new1 = (a1 + m0 * s1 + (m1 * s0 + (new0 >>> 16))) | 0,
       new2 = (a2 + m0 * s2 + m1 * s1 + (m2 * s0 + (new1 >>> 16))) | 0,
       new3 = a3 + m0 * s3 + (m1 * s2 + m2 * s1) + (m3 * s0 + (new2 >>> 16));
-    (state[0] = new0), (state[1] = new1), (state[2] = new2);
+    ((state[0] = new0), (state[1] = new1), (state[2] = new2));
     state[3] = new3;
 
     // Calculate output function (XSH RR), uses old state

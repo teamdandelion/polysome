@@ -86,6 +86,33 @@ stops animation and removes browser listeners.
 For reduced-motion presentation, call `setup()` and `draw()` without calling
 `start()`.
 
+### Headless experiments
+
+`Simulation` advances the same dynamics without a canvas, animation clock, or
+DOM. It supports exact batched stepping, zero-copy state observation, and
+complete continuation checkpoints:
+
+```ts
+import { Simulation, measureMorphology } from "@teamdandelion/polysome";
+
+const simulation = new Simulation(seed, 622.82, 1000);
+simulation.advance(900);
+
+const fingerprint = measureMorphology(simulation.view());
+const checkpoint = simulation.checkpoint();
+```
+
+The repository also includes a complete, versioned portrait experiment:
+
+```sh
+npm run build
+npm run experiment -- --until 900
+```
+
+See [experiments/README.md](experiments/README.md) for the reproducibility
+contract and [docs/science.md](docs/science.md) for the mechanism hypotheses,
+phase-mapping program, and art-studio roadmap.
+
 ## Develop
 
 Requirements: Node.js 24 and npm.
@@ -103,6 +130,8 @@ see [docs/performance.md](docs/performance.md). Other useful commands:
 npm run typecheck   # TypeScript validation
 npm run build       # Build the published package into dist/
 npm run build:demo  # Build the browser demo into dist-demo/
+npm test            # Build and run deterministic simulation/metric tests
+npm run experiment  # Run the reference headless experiment
 npm run check       # Run all build and type checks
 npm run pack:check  # Inspect the files that npm would publish
 ```

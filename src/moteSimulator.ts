@@ -1,8 +1,20 @@
-import { FlowField } from "./flowField.ts";
+import { FlowField, type FlowFieldState } from "./flowField.ts";
 import type { SimulationPerformance } from "./performance.ts";
-import { Rng, makeSeededRng } from "./random.ts";
+import { Rng, makeSeededRng, type RngState } from "./random.ts";
 import { SimulationParams } from "./simulationParams.ts";
 import { Vector } from "./vector.ts";
+
+export type MoteSimulatorState = {
+  stepCounter: number;
+  collisionPairs: number;
+  reinjections: number;
+  totalReinjections: number;
+  rng: RngState;
+  flowField: FlowFieldState;
+  moteX: Float32Array;
+  moteY: Float32Array;
+  motePressure: Uint8Array;
+};
 
 class MoteSimulator {
   private rng: Rng;
@@ -18,6 +30,9 @@ class MoteSimulator {
   public flowField: FlowField;
   private params: SimulationParams;
   public stepCounter = 0;
+  public collisionPairs = 0;
+  public reinjections = 0;
+  public totalReinjections = 0;
 
   // Grid using flat arrays instead of Map for better performance
   private grid: Int32Array;
@@ -77,8 +92,9 @@ class MoteSimulator {
   step(collectPerformance = false): SimulationPerformance | null {
     if (!collectPerformance) {
       this.flowField.step();
-      this.reset();
-      this.computePressure();
+      this.reinjections = this.reset();
+      this.totalReinjections += this.reinjections;
+      this.collisionPairs = this.computePressure();
       this.moveMotes();
       this.stepCounter++;
       return null;
@@ -91,11 +107,13 @@ class MoteSimulator {
     const flowFieldMs = performance.now() - flowFieldStart;
 
     const resetStart = performance.now();
-    this.reset(); // Reset mote colllision velocities and collision counts
+    this.reinjections = this.reset(); // Reset mote colllision velocities and collision counts
+    this.totalReinjections += this.reinjections;
     const resetMs = performance.now() - resetStart;
 
     const collisionsStart = performance.now();
     const collisionCount = this.computePressure(); // Compute collision velocity and count for each mote
+    this.collisionPairs = collisionCount;
     const collisionMs = performance.now() - collisionsStart;
 
     const moveStart = performance.now();
@@ -115,13 +133,77 @@ class MoteSimulator {
     };
   }
 
-  reset(): void {
+  /**
+   * Capture all state needed to resume at the next step boundary.
+   *
+   * Collision velocities are intentionally absent: they are scratch buffers
+   * cleared at the beginning of every step. Pressure is retained because it is
+   * part of the state rendered after the preceding movement.
+   */
+  captureState(): MoteSimulatorState {
+    return {
+      stepCounter: this.stepCounter,
+      collisionPairs: this.collisionPairs,
+      reinjections: this.reinjections,
+      totalReinjections: this.totalReinjections,
+      rng: this.rng.captureState(),
+      flowField: this.flowField.captureState(),
+      moteX: this.moteX.slice(),
+      moteY: this.moteY.slice(),
+      motePressure: this.motePressure.slice(),
+    };
+  }
+
+  /** Restore an in-memory checkpoint produced by `captureState()`. */
+  restoreState(state: MoteSimulatorState): void {
+    if (!Number.isInteger(state.stepCounter) || state.stepCounter < 0) {
+      throw new Error("Checkpoint step must be a non-negative integer");
+    }
+    if (!Number.isInteger(state.collisionPairs) || state.collisionPairs < 0) {
+      throw new Error(
+        "Checkpoint collision count must be a non-negative integer",
+      );
+    }
+    if (
+      !Number.isInteger(state.reinjections) ||
+      state.reinjections < 0 ||
+      !Number.isInteger(state.totalReinjections) ||
+      state.totalReinjections < state.reinjections
+    ) {
+      throw new Error("Checkpoint reinjection counts are invalid");
+    }
+    if (
+      !(state.moteX instanceof Float32Array) ||
+      !(state.moteY instanceof Float32Array) ||
+      !(state.motePressure instanceof Uint8Array) ||
+      state.moteX.length !== this.nMotes ||
+      state.moteY.length !== this.nMotes ||
+      state.motePressure.length !== this.nMotes
+    ) {
+      throw new Error("Checkpoint mote arrays do not match this simulation");
+    }
+
+    this.stepCounter = state.stepCounter;
+    this.collisionPairs = state.collisionPairs;
+    this.reinjections = state.reinjections;
+    this.totalReinjections = state.totalReinjections;
+    this.rng.restoreState(state.rng);
+    this.flowField.restoreState(state.flowField);
+    this.moteX.set(state.moteX);
+    this.moteY.set(state.moteY);
+    this.motePressure.set(state.motePressure);
+    this.moteVelocityX.fill(0);
+    this.moteVelocityY.fill(0);
+  }
+
+  reset(): number {
     // Reset collision counts and velocities for all motes
     this.motePressure.fill(0);
     this.moteVelocityX.fill(0);
     this.moteVelocityY.fill(0);
 
     // Check for out-of-bounds motes and reset positions
+    let reinjections = 0;
     for (let i = 0; i < this.nMotes; i++) {
       if (
         this.moteX[i] < 0 ||
@@ -133,8 +215,10 @@ class MoteSimulator {
         const pos = this.placeOnEdge();
         this.moteX[i] = pos.x;
         this.moteY[i] = pos.y;
+        reinjections++;
       }
     }
+    return reinjections;
   }
 
   computePressure(): number {

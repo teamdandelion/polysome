@@ -3,11 +3,23 @@ import { Rng } from "./random.ts";
 import { SimulationParams } from "./simulationParams.ts";
 import { Vector } from "./vector.ts";
 
-type FlowFieldDisturbance = {
+export type FlowFieldDisturbance = {
   pos: Vector;
   vel: Vector;
   theta: number;
   radius: number;
+};
+
+export type FlowFieldState = {
+  defaultTheta: number;
+  disturbances: Array<{
+    x: number;
+    y: number;
+    velocityX: number;
+    velocityY: number;
+    theta: number;
+    radius: number;
+  }>;
 };
 
 export class FlowField {
@@ -35,7 +47,7 @@ export class FlowField {
     this.jMax = Math.ceil(bounds.y / this.spacing);
     this.fieldPoints = Array.from(
       { length: this.iMax },
-      () => new Float64Array(this.jMax)
+      () => new Float64Array(this.jMax),
     );
 
     this.disturbances = [];
@@ -61,17 +73,17 @@ export class FlowField {
     const disturbanceRadius = Math.abs(
       this.rng.gauss(
         this.params.disturbanceRadiusMean,
-        this.params.disturbanceRadiusVariance
-      )
+        this.params.disturbanceRadiusVariance,
+      ),
     );
     const disturbanceHeading = this.rng.uniform(0, pi(2));
     const disturbanceSpeed = this.rng.uniform(
       this.params.disturbanceSpeedMin,
-      this.params.disturbanceSpeedMax
+      this.params.disturbanceSpeedMax,
     );
     const disturbanceVel = new Vector(0, 0).fromAngle(
       disturbanceHeading,
-      disturbanceSpeed
+      disturbanceSpeed,
     );
     this.disturbances.push({
       pos: new Vector(disturbanceX, disturbanceY),
@@ -119,6 +131,48 @@ export class FlowField {
         disturbance.vel.mult(-1);
       }
     }
+    this.computeFlowField();
+  }
+
+  /** Capture the dynamic field state at a simulation-step boundary. */
+  captureState(): FlowFieldState {
+    return {
+      defaultTheta: this.defaultTheta,
+      disturbances: this.disturbances.map(({ pos, vel, theta, radius }) => ({
+        x: pos.x,
+        y: pos.y,
+        velocityX: vel.x,
+        velocityY: vel.y,
+        theta,
+        radius,
+      })),
+    };
+  }
+
+  /** Restore a state produced by `captureState()` and rebuild the angle grid. */
+  restoreState(state: FlowFieldState): void {
+    const values = [
+      state.defaultTheta,
+      ...state.disturbances.flatMap((disturbance) => [
+        disturbance.x,
+        disturbance.y,
+        disturbance.velocityX,
+        disturbance.velocityY,
+        disturbance.theta,
+        disturbance.radius,
+      ]),
+    ];
+    if (values.some((value) => !Number.isFinite(value))) {
+      throw new Error("Flow-field state contains a non-finite value");
+    }
+
+    this.defaultTheta = state.defaultTheta;
+    this.disturbances = state.disturbances.map((disturbance) => ({
+      pos: new Vector(disturbance.x, disturbance.y),
+      vel: new Vector(disturbance.velocityX, disturbance.velocityY),
+      theta: disturbance.theta,
+      radius: disturbance.radius,
+    }));
     this.computeFlowField();
   }
 

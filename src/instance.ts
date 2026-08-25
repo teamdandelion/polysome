@@ -4,9 +4,9 @@ import { Vector } from "./vector.ts";
 import { makeSeededRng, Rng } from "./random.ts";
 import { RenderContext } from "./renderContext.ts";
 import { MoteRenderer } from "./moteRenderer.ts";
-import { MoteSimulator } from "./moteSimulator.ts";
 import { FlowFieldRenderer } from "./flowFieldRenderer.ts";
 import { PerfBuffer, PerfMap } from "./perfBuffer.ts";
+import { Simulation } from "./simulation.ts";
 import type {
   PerformanceSample,
   SimulationPerformance,
@@ -39,7 +39,7 @@ export class Instance {
   rng: Rng;
   simParams: SimulationParams;
   renderParams: RenderParams;
-  private moteSimulator: MoteSimulator;
+  private simulation: Simulation;
   private moteRenderer: MoteRenderer;
   private flowFieldRenderer: FlowFieldRenderer;
   rc: RenderContext | null;
@@ -68,7 +68,10 @@ export class Instance {
   ) {
     this.rc = null;
     this.rng = makeSeededRng(seed);
-    this.simParams = Object.assign(new SimulationParams(), options.simulation);
+    this.simulation = new Simulation(seed, xDim, yDim, {
+      parameters: options.simulation,
+    });
+    this.simParams = this.simulation.parameters;
     this.renderParams = Object.assign(new RenderParams(), options.render);
     this.renderParams.colorInterpolationPoints =
       this.renderParams.colorInterpolationPoints.map((point) => ({
@@ -91,10 +94,9 @@ export class Instance {
       this.rng,
     );
 
-    this.moteSimulator = new MoteSimulator(this.simParams, seed, xDim, yDim);
     this.flowFieldRenderer = new FlowFieldRenderer(
       this.renderParams,
-      this.moteSimulator.flowField,
+      this.simulation.flowField,
     );
   }
 
@@ -166,7 +168,7 @@ export class Instance {
     }
 
     const frameStart = performance.now();
-    const simulationPerformance = this.moteSimulator.step(
+    const simulationPerformance = this.simulation.step(
       this.shouldCollectPerformance,
     );
 
@@ -178,7 +180,7 @@ export class Instance {
     if (simulationPerformance) {
       const sample: PerformanceSample = {
         ...simulationPerformance,
-        step: this.moteSimulator.stepCounter,
+        step: this.simulation.view().step,
         timestamp,
         frameMs: frameTime,
         frameIntervalMs:
@@ -190,7 +192,7 @@ export class Instance {
 
       if (this.shouldLogPerformance) {
         const perf = this.performanceMap(sample);
-        this.perfBuffer.recordPerf(this.moteSimulator.stepCounter, perf);
+        this.perfBuffer.recordPerf(this.simulation.view().step, perf);
         this.logPerformance();
       }
     }
@@ -252,7 +254,7 @@ export class Instance {
   }
 
   step(): PerfMap {
-    const performance = this.moteSimulator.step(true);
+    const performance = this.simulation.step(true);
     if (!performance) {
       throw new Error("Missing simulation performance sample");
     }
@@ -275,16 +277,17 @@ export class Instance {
     this.flowFieldRenderer.render(this.rc);
 
     // Render motes on top
+    const state = this.simulation.view();
     this.moteRenderer.render(
-      this.moteSimulator.moteX,
-      this.moteSimulator.moteY,
-      this.moteSimulator.motePressure,
+      state.moteX,
+      state.moteY,
+      state.motePressure,
       this.rc,
     );
   }
 
   private logPerformance() {
-    const step = this.moteSimulator.stepCounter;
+    const step = this.simulation.view().step;
 
     let interval = 10;
     if (step >= 100) {

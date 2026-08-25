@@ -21,7 +21,10 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "docs/science.md",
+    "experiments",
+    "tools/run-experiment.mjs"
   ],
   "sideEffects": false,
   "repository": {
@@ -44,10 +47,13 @@
     "build:demo": "ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview:demo": "wrangler dev",
     "upload:preview": "npm run build:demo && wrangler versions upload",
+    "test": "npm run build && npm run test:unit",
+    "test:unit": "node --experimental-strip-types --test tests/*.test.mjs",
+    "experiment": "node --experimental-strip-types tools/run-experiment.mjs",
     "typecheck": "tsc --noEmit",
     "typecheck:demo": "ASTRO_TELEMETRY_DISABLED=1 astro check",
     "check:worker": "WRANGLER_SEND_METRICS=false WRANGLER_LOG_PATH=/tmp/polysome-wrangler.log wrangler versions upload --dry-run",
-    "check": "npm run typecheck && npm run typecheck:demo && npm run build && npm run build:demo && npm run check:worker",
+    "check": "npm run typecheck && npm run typecheck:demo && npm test && npm run build:demo && npm run check:worker",
     "pack:check": "npm pack --dry-run",
     "prepublishOnly": "npm run check",
     "prepare": "husky"

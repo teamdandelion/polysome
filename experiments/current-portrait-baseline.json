@@ -1,0 +1,38 @@
+{
+  "schema": "polysome.experiment/v1",
+  "label": "current-portrait-baseline",
+  "dynamicsVersion": "legacy-v1",
+  "seed": "0x1b50318e0b301eab6c7147d253268b6a06cdb98920792de015b8927cdd44087a",
+  "bounds": {
+    "width": 622.82,
+    "height": 1000
+  },
+  "parameters": {
+    "numMotes": 4200,
+    "moteRadius": 42,
+    "pressureDecay": 0.214,
+    "moteForce": 0.1,
+    "flowFieldSpacing": 6,
+    "numDisturbances": 21,
+    "thetaVariance": 3.14,
+    "defaultTheta": 0,
+    "disturbanceRadiusMean": 100,
+    "disturbanceRadiusVariance": 200,
+    "disturbanceSpeedMin": 0,
+    "disturbanceSpeedMax": 0.5,
+    "flowCoefficient": 0.5,
+    "cxFlowCoefficient": 1.001,
+    "boundaryZone": 200,
+    "boundaryForce": 1,
+    "boundaryForceMax": 1.5,
+    "boundarySpawnDepth": 50
+  },
+  "measurements": {
+    "atSteps": [1, 30, 150, 300, 900, 1800, 3600, 9000]
+  },
+  "render": {
+    "burnInSteps": 9000,
+    "recordSteps": 300,
+    "fps": 30
+  }
+}
