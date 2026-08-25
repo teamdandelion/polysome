@@ -6,6 +6,10 @@ export { RenderParams } from "./renderParams.ts";
 // Types
 export type { ColorPoint } from "./colorInterpolationSystem.ts";
 export type { PerfMap } from "./perfBuffer.ts";
+export type {
+  PerformanceSample,
+  SimulationPerformance,
+} from "./performance.ts";
 
 // Vector utilities
 export { Vector } from "./vector.ts";

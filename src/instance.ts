@@ -7,6 +7,10 @@ import { MoteRenderer } from "./moteRenderer.ts";
 import { MoteSimulator } from "./moteSimulator.ts";
 import { FlowFieldRenderer } from "./flowFieldRenderer.ts";
 import { PerfBuffer, PerfMap } from "./perfBuffer.ts";
+import type {
+  PerformanceSample,
+  SimulationPerformance,
+} from "./performance.ts";
 
 const PERF_TEMPLATE =
   "frame=$frame frameGap=$frameGap render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes\n  nCollisions=$simulate/nCollisions";
@@ -26,6 +30,8 @@ export type InstanceOptions = {
   pauseWhenHidden?: boolean;
   /** Emit the built-in performance summaries to the console. */
   logPerformance?: boolean;
+  /** Receive one detailed timing sample for each rendered frame. */
+  onPerformanceSample?: (sample: PerformanceSample) => void;
 };
 
 export class Instance {
@@ -46,6 +52,9 @@ export class Instance {
   private readonly autoResize: boolean;
   private readonly pauseWhenHidden: boolean;
   private readonly shouldLogPerformance: boolean;
+  private readonly onPerformanceSample:
+    ((sample: PerformanceSample) => void) | undefined;
+  private readonly shouldCollectPerformance: boolean;
 
   // Performance tracking
   private perfBuffer: PerfBuffer = new PerfBuffer(1000);
@@ -70,6 +79,9 @@ export class Instance {
     this.autoResize = options.autoResize ?? true;
     this.pauseWhenHidden = options.pauseWhenHidden ?? true;
     this.shouldLogPerformance = options.logPerformance ?? false;
+    this.onPerformanceSample = options.onPerformanceSample;
+    this.shouldCollectPerformance =
+      this.shouldLogPerformance || this.onPerformanceSample !== undefined;
     this.bounds = new Vector(xDim, yDim);
     this.moteRenderer = new MoteRenderer(
       this.renderParams,
@@ -139,23 +151,33 @@ export class Instance {
     }
 
     const frameStart = performance.now();
-    const stepPerf = this.step();
+    const simulationPerformance = this.moteSimulator.step(
+      this.shouldCollectPerformance,
+    );
 
     const renderStart = performance.now();
     this.draw();
     const renderTime = performance.now() - renderStart;
     const frameTime = performance.now() - frameStart;
 
-    if (this.shouldLogPerformance) {
-      const perf: PerfMap = new Map(stepPerf);
-      perf.set(
-        "frameGap",
-        this.lastFrameStart === 0 ? 0 : frameStart - this.lastFrameStart,
-      );
-      perf.set("frame", frameTime);
-      perf.set("render", renderTime);
-      this.perfBuffer.recordPerf(this.moteSimulator.stepCounter, perf);
-      this.logPerformance();
+    if (simulationPerformance) {
+      const sample: PerformanceSample = {
+        ...simulationPerformance,
+        step: this.moteSimulator.stepCounter,
+        timestamp,
+        frameMs: frameTime,
+        frameIntervalMs:
+          this.lastFrameStart === 0 ? 0 : frameStart - this.lastFrameStart,
+        renderMs: renderTime,
+      };
+
+      this.onPerformanceSample?.(sample);
+
+      if (this.shouldLogPerformance) {
+        const perf = this.performanceMap(sample);
+        this.perfBuffer.recordPerf(this.moteSimulator.stepCounter, perf);
+        this.logPerformance();
+      }
     }
 
     this.lastRenderedFrame = timestamp;
@@ -216,7 +238,11 @@ export class Instance {
   }
 
   step(): PerfMap {
-    return this.moteSimulator.step();
+    const performance = this.moteSimulator.step(true);
+    if (!performance) {
+      throw new Error("Missing simulation performance sample");
+    }
+    return this.simulationPerformanceMap(performance);
   }
 
   draw() {
@@ -262,5 +288,26 @@ export class Instance {
     } else if (step % interval === 0) {
       this.perfBuffer.logAveragePerf(interval, PERF_TEMPLATE);
     }
+  }
+
+  private simulationPerformanceMap(
+    performance: SimulationPerformance,
+  ): PerfMap {
+    return new Map([
+      ["simulate", performance.simulateMs],
+      ["simulate/flowField", performance.flowFieldMs],
+      ["simulate/reset", performance.resetMs],
+      ["simulate/processCollisions", performance.collisionMs],
+      ["simulate/moveMotes", performance.moveMotesMs],
+      ["simulate/nCollisions", performance.collisionCount / 1000],
+    ]);
+  }
+
+  private performanceMap(sample: PerformanceSample): PerfMap {
+    const perf = this.simulationPerformanceMap(sample);
+    perf.set("frameGap", sample.frameIntervalMs);
+    perf.set("frame", sample.frameMs);
+    perf.set("render", sample.renderMs);
+    return perf;
   }
 }

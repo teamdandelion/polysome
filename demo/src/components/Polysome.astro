@@ -8,6 +8,54 @@ const { debug = false, seed } = Astro.props;
 ---
 
 <main class="polysome" data-polysome data-debug={String(debug)} data-seed={seed}>
+  {
+    debug && (
+      <section class="benchmark" data-benchmark-panel hidden>
+        <header>
+          <strong>iPhone baseline</strong>
+          <span data-benchmark-status aria-live="polite">Starting</span>
+        </header>
+        <p data-benchmark-instructions>Keep this tab visible.</p>
+        <p data-benchmark-configuration></p>
+        <progress data-benchmark-progress value="0"></progress>
+        <dl>
+          <div>
+            <dt>Actual FPS</dt>
+            <dd data-benchmark-fps>—</dd>
+          </div>
+          <div>
+            <dt>Frame work</dt>
+            <dd data-benchmark-work>—</dd>
+          </div>
+          <div>
+            <dt>Simulation</dt>
+            <dd data-benchmark-simulation>—</dd>
+          </div>
+          <div>
+            <dt>Collisions</dt>
+            <dd data-benchmark-collision>—</dd>
+          </div>
+          <div>
+            <dt>Rendering</dt>
+            <dd data-benchmark-render>—</dd>
+          </div>
+          <div>
+            <dt>Late frames</dt>
+            <dd data-benchmark-late>—</dd>
+          </div>
+        </dl>
+        <nav aria-label="Benchmark duration">
+          <a href="?duration=60">Restart 60s</a>
+          <a href="?duration=300">Run 5m</a>
+          <button type="button" data-benchmark-copy disabled>Copy JSON</button>
+        </nav>
+        <details>
+          <summary>Report JSON</summary>
+          <pre data-benchmark-report></pre>
+        </details>
+      </section>
+    )
+  }
   <aside class="placard" aria-label="Artwork information">
     <strong>Polysome</strong>
     <i>Dandelion Mané</i>
@@ -16,7 +64,12 @@ const { debug = false, seed } = Astro.props;
 </main>
 
 <script>
-  import { Instance, randomSeed } from "../../../src/index.ts";
+  import {
+    Instance,
+    randomSeed,
+    type PerformanceSample,
+  } from "../../../src/index.ts";
+  import { createBenchmark } from "../benchmark.ts";
 
   const root = document.querySelector<HTMLElement>("[data-polysome]");
   const canvas = root?.querySelector<HTMLCanvasElement>("canvas");
@@ -30,15 +83,74 @@ const { debug = false, seed } = Astro.props;
   const xDim = width >= height ? 1000 : (width / height) * 1000;
   const yDim = width >= height ? (height / width) * 1000 : 1000;
   const seed = root.dataset.seed || randomSeed();
+  const debug = root.dataset.debug === "true";
+  const query = new URLSearchParams(window.location.search);
+  const numberParameter = (
+    name: string,
+    fallback: number,
+    minimum: number,
+    maximum: number,
+  ) => {
+    const raw = query.get(name);
+    if (raw === null) return fallback;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed)
+      ? Math.min(maximum, Math.max(minimum, parsed))
+      : fallback;
+  };
+  const durationSeconds = numberParameter("duration", 60, 10, 600);
+  const warmupSeconds = numberParameter("warmup", 5, 0, 30);
+  const targetFps = numberParameter("fps", 30, 10, 120);
+  const maxPixelRatio = numberParameter("dpr", 1.5, 0.5, 3);
+  const numMotes = Math.round(numberParameter("motes", 4200, 250, 10000));
+  const instructions = root.querySelector<HTMLElement>(
+    "[data-benchmark-instructions]",
+  );
+  if (instructions) {
+    instructions.textContent = `Keep this tab visible. ${warmupSeconds}s warm-up, ${durationSeconds}s measurement.`;
+  }
+  const configuration = root.querySelector<HTMLElement>(
+    "[data-benchmark-configuration]",
+  );
+  if (configuration) {
+    configuration.textContent = `${targetFps} fps · ${maxPixelRatio}× max DPR · ${numMotes} motes`;
+  }
+  let benchmark: ReturnType<typeof createBenchmark> | undefined;
 
   const instance = new Instance(seed, xDim, yDim, {
-    logPerformance: root.dataset.debug === "true",
+    maxFps: debug ? targetFps : undefined,
+    maxPixelRatio: debug ? maxPixelRatio : 2,
+    simulation: debug ? { numMotes } : undefined,
+    onPerformanceSample: debug
+      ? (sample: PerformanceSample) => benchmark?.record(sample)
+      : undefined,
   });
 
   instance.setup(canvas);
+  if (debug) {
+    benchmark = createBenchmark({
+      root,
+      canvas,
+      seed,
+      durationSeconds,
+      warmupSeconds,
+      targetFps,
+      maxPixelRatio,
+      numMotes,
+      xDim,
+      yDim,
+    });
+  }
   instance.start();
 
-  window.addEventListener("pagehide", () => instance.destroy(), { once: true });
+  window.addEventListener(
+    "pagehide",
+    () => {
+      benchmark?.destroy();
+      instance.destroy();
+    },
+    { once: true },
+  );
 </script>
 
 <style>
@@ -87,5 +199,133 @@ const { debug = false, seed } = Astro.props;
 
   .placard i {
     color: hsl(258 100% 51%);
+  }
+
+  .benchmark {
+    background: hsl(240 70% 6% / 96%);
+    border: 1px solid hsl(270 60% 60% / 40%);
+    border-radius: 0.75rem;
+    box-sizing: border-box;
+    color: hsl(270 30% 92%);
+    font-size: 0.75rem;
+    left: max(0.5rem, env(safe-area-inset-left));
+    max-height: calc(100svh - 1rem);
+    max-width: min(22rem, calc(100vw - 1rem));
+    overflow: auto;
+    padding: 0.75rem;
+    position: absolute;
+    top: max(0.5rem, env(safe-area-inset-top));
+    width: 100%;
+    z-index: 2;
+  }
+
+  .benchmark[hidden] {
+    display: none;
+  }
+
+  .benchmark header {
+    align-items: baseline;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+  }
+
+  .benchmark header strong {
+    color: hsl(290 100% 72%);
+    font-size: 0.9rem;
+  }
+
+  .benchmark header span {
+    color: hsl(210 70% 75%);
+    text-align: right;
+  }
+
+  .benchmark progress {
+    accent-color: hsl(290 80% 60%);
+    display: block;
+    height: 0.35rem;
+    margin: 0.65rem 0;
+    width: 100%;
+  }
+
+  .benchmark p {
+    color: hsl(260 15% 72%);
+    line-height: 1.35;
+    margin: 0.45rem 0 0;
+  }
+
+  .benchmark [data-benchmark-configuration] {
+    color: hsl(210 70% 75%);
+  }
+
+  .benchmark dl {
+    display: grid;
+    gap: 0.35rem 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+  }
+
+  .benchmark dl div {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+
+  .benchmark dt {
+    color: hsl(260 15% 70%);
+  }
+
+  .benchmark dd {
+    color: white;
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+  }
+
+  .benchmark nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .benchmark a,
+  .benchmark button,
+  .benchmark summary {
+    color: hsl(210 100% 80%);
+  }
+
+  .benchmark a,
+  .benchmark button {
+    background: hsl(250 45% 18%);
+    border: 1px solid hsl(260 30% 40%);
+    border-radius: 0.4rem;
+    font: inherit;
+    padding: 0.45rem 0.6rem;
+    text-decoration: none;
+  }
+
+  .benchmark button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
+  .benchmark details {
+    margin-top: 0.75rem;
+  }
+
+  .benchmark pre {
+    font-size: 0.65rem;
+    overflow: auto;
+    white-space: pre-wrap;
+  }
+
+  [data-debug="true"] .placard {
+    display: none;
+  }
+
+  @media (max-width: 30rem) {
+    .benchmark dl {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
