@@ -21,11 +21,11 @@ Inspector can all affect results, so record those conditions alongside the
 JSON when they differ.
 
 The standard iPhone profile matches the dandelion.art integration: 30 fps, a
-maximum 1.5× canvas pixel ratio, and 4,200 motes. Query parameters can override
-the profile:
+maximum 1.5× canvas pixel ratio, 4,200 motes, and the fixed seed
+`ios-baseline-v1`. Query parameters can override the profile:
 
 ```text
-/debug?duration=60&warmup=5&fps=30&dpr=1.5&motes=4200
+/debug?duration=60&warmup=5&fps=30&dpr=1.5&motes=4200&seed=ios-baseline-v1
 ```
 
 `duration` accepts 10–600 seconds, `warmup` 0–30 seconds, `fps` 10–120,

@@ -82,9 +82,12 @@ const { debug = false, seed } = Astro.props;
   const height = window.innerHeight;
   const xDim = width >= height ? 1000 : (width / height) * 1000;
   const yDim = width >= height ? (height / width) * 1000 : 1000;
-  const seed = root.dataset.seed || randomSeed();
   const debug = root.dataset.debug === "true";
   const query = new URLSearchParams(window.location.search);
+  const seed =
+    query.get("seed") ||
+    root.dataset.seed ||
+    (debug ? "ios-baseline-v1" : randomSeed());
   const numberParameter = (
     name: string,
     fallback: number,
