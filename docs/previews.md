@@ -33,14 +33,16 @@ This is a one-time dashboard operation:
    `teamdandelion/polysome` GitHub repository.
 3. Set the production branch to `main` and the root directory to `/`.
 4. Set the build command to `npm run build:demo`.
-5. Set the production deploy command to `npx wrangler versions upload`.
+5. Set the production deploy command to `npx wrangler deploy`.
 6. Enable non-production branch builds and use
    `npx wrangler versions upload` as their deploy command as well.
 7. Confirm that Worker preview URLs are enabled.
 
-Using `versions upload` for `main` intentionally creates a previewable version
-without promoting an independent Polysome production deployment. The canonical
-artwork remains `dandelion.art/art/polysome`.
+`wrangler deploy` promotes each successful `main` build to the stable
+[polysome.dandelion-a67.workers.dev](https://polysome.dandelion-a67.workers.dev)
+development frontend. Pull-request builds only upload preview versions and
+cannot change that URL. The canonically published artwork remains
+`dandelion.art/art/polysome` and may intentionally lag behind `main`.
 
 For each pull request, Cloudflare will post:
 

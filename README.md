@@ -3,6 +3,10 @@
 Polysome is the simulation and Canvas 2D renderer behind the generative artwork
 at [dandelion.art/art/polysome](https://dandelion.art/art/polysome).
 
+The latest development frontend from `main` is always available at
+[polysome.dandelion-a67.workers.dev](https://polysome.dandelion-a67.workers.dev).
+It may be ahead of the version currently published on dandelion.art.
+
 This repository owns the artwork's engine, renderer, development demo, and npm
 releases. The dandelion.art repository owns the public page, routing, and site
 presentation.
@@ -102,7 +106,8 @@ npm run check       # Run all build and type checks
 npm run pack:check  # Inspect the files that npm would publish
 ```
 
-Every pull request receives a stable `workers.dev` preview through Cloudflare
+Every push to `main` updates the stable development frontend linked above, and
+every pull request receives its own `workers.dev` preview through Cloudflare
 Workers Builds. See [docs/previews.md](docs/previews.md) for the one-time
 repository ruleset and Cloudflare configuration.
 
