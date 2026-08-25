@@ -14,6 +14,7 @@ import type {
 
 const PERF_TEMPLATE =
   "frame=$frame frameGap=$frameGap render=$render simulate=$simulate\n  flowField=$simulate/flowField reset=$simulate/reset processCollisions=$simulate/processCollisions moveMotes=$simulate/moveMotes\n  nCollisions=$simulate/nCollisions";
+const FRAME_DEADLINE_TOLERANCE_MS = 1;
 
 export type InstanceOptions = {
   /** Simulation overrides applied before the simulator is constructed. */
@@ -45,7 +46,7 @@ export class Instance {
   bounds: Vector;
   private animationFrameId: number | null = null;
   private wantsToRun = false;
-  private lastRenderedFrame = 0;
+  private nextFrameDeadline = 0;
   private lastFrameStart = 0;
   private readonly maxFps: number | undefined;
   private readonly maxPixelRatio: number;
@@ -115,12 +116,16 @@ export class Instance {
     if (!this.rc) {
       throw new Error("Call setup(canvas) before start()");
     }
+    if (!this.wantsToRun) {
+      this.nextFrameDeadline = 0;
+    }
     this.wantsToRun = true;
     this.scheduleAnimationFrame();
   }
 
   stop() {
     this.wantsToRun = false;
+    this.nextFrameDeadline = 0;
     this.cancelAnimationFrame();
   }
 
@@ -142,12 +147,22 @@ export class Instance {
     }
 
     const minimumFrameDuration = this.maxFps ? 1000 / this.maxFps : 0;
-    if (
-      minimumFrameDuration > 0 &&
-      timestamp - this.lastRenderedFrame < minimumFrameDuration
-    ) {
-      this.scheduleAnimationFrame();
-      return;
+    if (minimumFrameDuration > 0) {
+      if (this.nextFrameDeadline === 0) {
+        this.nextFrameDeadline = timestamp;
+      }
+
+      // Refresh timestamps can land just below an exact frame-rate boundary.
+      if (timestamp + FRAME_DEADLINE_TOLERANCE_MS < this.nextFrameDeadline) {
+        this.scheduleAnimationFrame();
+        return;
+      }
+
+      const lateness = timestamp - this.nextFrameDeadline;
+      this.nextFrameDeadline =
+        lateness > minimumFrameDuration
+          ? timestamp + minimumFrameDuration
+          : this.nextFrameDeadline + minimumFrameDuration;
     }
 
     const frameStart = performance.now();
@@ -180,7 +195,6 @@ export class Instance {
       }
     }
 
-    this.lastRenderedFrame = timestamp;
     this.lastFrameStart = frameStart;
     this.scheduleAnimationFrame();
   };
