@@ -60,89 +60,113 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     </div>
   </header>
 
-  <div class="exhibit-grid">
-    <div class="tank-column">
-      <div class="tank" data-tank>
-        <canvas
-          aria-label={`${exhibit.title}. ${exhibit.claim}`}
-          role="img"
-          data-exhibit-canvas></canvas>
-        <div class="tank-id" aria-hidden="true">
-          <span>specimen {exhibit.number}</span>
-          <span>step <b data-step>0</b></span>
-        </div>
-        <div class="wake-panel" data-wake-panel>
-          <p data-status aria-live="polite">Specimen sleeping</p>
-          <progress
-            data-progress
-            aria-label={`${exhibit.title} preparation`}
-            max={exhibit.measurementStep}
-            value="0"
-            hidden></progress>
-          <span>Runs locally on this device only after you wake it.</span>
-        </div>
-      </div>
+  <div class="exhibit-body">
+    <div class="tank-rail">
+      <div class="tank-column" data-tank-column>
+        <div class="tank" data-tank>
+          <div class="tank-surface">
+            <canvas
+              aria-label={`${exhibit.title}. ${exhibit.claim}`}
+              role="img"
+              data-exhibit-canvas></canvas>
+          </div>
+          <div class="tank-id" aria-hidden="true">
+            <span>specimen {exhibit.number}</span>
+            <span>step <b data-step>0</b></span>
+          </div>
+          <div class="wake-panel" data-wake-panel>
+            <p data-status aria-live="polite">Specimen sleeping</p>
+            <progress
+              data-progress
+              aria-label={`${exhibit.title} preparation`}
+              max={exhibit.measurementStep}
+              value="0"
+              hidden></progress>
+            <span>Wakes in view and runs locally on this device.</span>
+          </div>
 
-      <div class="tank-controls" aria-label={`${exhibit.title} controls`}>
-        <button type="button" class="primary" data-toggle aria-pressed="false">
-          Wake specimen
-        </button>
-        <button type="button" data-restart disabled>Restart</button>
-        <span>{exhibit.liveFps} fps · DPR 1 · pauses offscreen</span>
+          <div class="tank-runtime" aria-hidden="true">
+            {exhibit.liveFps} fps · DPR 1
+          </div>
+          <div
+            class="tank-controls"
+            role="group"
+            aria-label={`${exhibit.title} controls`}
+          >
+            <button
+              type="button"
+              class="primary"
+              data-toggle
+              aria-label="Wake specimen"
+            >
+              <span class="control-icon" data-toggle-icon aria-hidden="true">▶</span>
+              <span data-toggle-label>Wake</span>
+            </button>
+            <button type="button" data-restart aria-label="Restart specimen" disabled>
+              <span class="control-icon" aria-hidden="true">↻</span>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+        <noscript>
+          <p class="fallback">
+            The live specimen requires JavaScript. Its registered measurements
+            remain available below the tank.
+          </p>
+        </noscript>
       </div>
-      <noscript>
-        <p class="fallback">
-          The live specimen requires JavaScript. Its registered measurements
-          remain available beside the tank.
-        </p>
-      </noscript>
     </div>
 
-    <div class="exhibit-copy">
-      <p class="question">{exhibit.question}</p>
-      <p class="claim">{exhibit.claim}</p>
-      <p class="interpretation">{exhibit.interpretation}</p>
+    <div class="exhibit-flow">
+      <div class="tank-spacer" aria-hidden="true"></div>
+      <div class="collapse-sentinel" data-collapse-sentinel aria-hidden="true"></div>
 
-      <section class="contract" aria-labelledby={`${exhibit.id}-contract`}>
-        <header>
-          <div>
-            <p>
-              Executable claim · step {exhibit.measurementStep.toLocaleString("en-US")}
-            </p>
-            <h4 id={`${exhibit.id}-contract`}>Registered measurement envelope</h4>
-          </div>
-          <span class="reproduction" data-reproduction data-state="registered">
-            Reproduced by CI
-          </span>
-        </header>
-        <dl>
-          {
-            exhibit.expectations.map((expectation) => (
-              <div data-metric={expectation.metric}>
-                <dt>{expectation.label}</dt>
-                <dd>
-                  <span class="expected">{expectedRange(expectation)}</span>
-                  <span
-                    class="actual"
-                    data-actual
-                    data-passed={String(registeredActual(expectation).passed)}
-                  >
-                    {formatScienceMetric(
-                      registeredActual(expectation).actual,
-                      expectation.format,
-                    )}
-                  </span>
-                </dd>
-              </div>
-            ))
-          }
-        </dl>
-        <p class="contract-note">
-          These checked-in actuals are regenerated from the same definition used
-          by the Worker and deployment test. Passing means this deterministic
-          specimen was reproduced—not that the claim is universal across seeds.
-        </p>
-      </section>
+      <div class="exhibit-copy">
+        <p class="question">{exhibit.question}</p>
+        <p class="claim">{exhibit.claim}</p>
+        <p class="interpretation">{exhibit.interpretation}</p>
+
+        <section class="contract" aria-labelledby={`${exhibit.id}-contract`}>
+          <header>
+            <div>
+              <p>
+                Executable claim · step {exhibit.measurementStep.toLocaleString("en-US")}
+              </p>
+              <h4 id={`${exhibit.id}-contract`}>Registered measurement envelope</h4>
+            </div>
+            <span class="reproduction" data-reproduction data-state="registered">
+              Reproduced by CI
+            </span>
+          </header>
+          <dl>
+            {
+              exhibit.expectations.map((expectation) => (
+                <div data-metric={expectation.metric}>
+                  <dt>{expectation.label}</dt>
+                  <dd>
+                    <span class="expected">{expectedRange(expectation)}</span>
+                    <span
+                      class="actual"
+                      data-actual
+                      data-passed={String(registeredActual(expectation).passed)}
+                    >
+                      {formatScienceMetric(
+                        registeredActual(expectation).actual,
+                        expectation.format,
+                      )}
+                    </span>
+                  </dd>
+                </div>
+              ))
+            }
+          </dl>
+          <p class="contract-note">
+            These checked-in actuals are regenerated from the same definition used
+            by the Worker and deployment test. Passing means this deterministic
+            specimen was reproduced—not that the claim is universal across seeds.
+          </p>
+        </section>
+      </div>
     </div>
   </div>
 </article>
@@ -206,7 +230,12 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
         "[data-exhibit-canvas]",
       );
       const tank = root.querySelector<HTMLElement>("[data-tank]");
+      const collapseSentinel = root.querySelector<HTMLElement>(
+        "[data-collapse-sentinel]",
+      );
       const toggle = root.querySelector<HTMLButtonElement>("[data-toggle]");
+      const toggleIcon = root.querySelector<HTMLElement>("[data-toggle-icon]");
+      const toggleLabel = root.querySelector<HTMLElement>("[data-toggle-label]");
       const restart = root.querySelector<HTMLButtonElement>("[data-restart]");
       const status = root.querySelector<HTMLElement>("[data-status]");
       const progress = root.querySelector<HTMLProgressElement>("[data-progress]");
@@ -218,7 +247,10 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
         !exhibitId ||
         !canvas ||
         !tank ||
+        !collapseSentinel ||
         !toggle ||
+        !toggleIcon ||
+        !toggleLabel ||
         !restart ||
         !status ||
         !progress ||
@@ -237,22 +269,60 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       let running = false;
       let requestedPlay = false;
       let visible = false;
+      let manuallyPaused = false;
+      let explicitlyStarted = false;
+      let reachedLimit = false;
+      let retryBlocked = false;
       let lastFrame: FrameMessage | undefined;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
       const setStatus = (message: string) => {
         status.textContent = message;
       };
 
-      const reportWorkerFailure = () => {
+      const setToggle = (
+        label: string,
+        icon: string,
+        ariaLabel: string,
+      ) => {
+        toggleLabel.textContent = label;
+        toggleIcon.textContent = icon;
+        toggle.setAttribute("aria-label", ariaLabel);
+        toggle.title = ariaLabel;
+      };
+
+      const activate = () => {
+        window.dispatchEvent(
+          new CustomEvent("polysome:activate-exhibit", { detail: exhibitId }),
+        );
+      };
+
+      const clearSurface = () => {
+        lastFrame = undefined;
+        const rect = canvas.getBoundingClientRect();
+        const width = Math.max(1, Math.round(rect.width));
+        const height = Math.max(1, Math.round(rect.height));
+        canvas.width = width;
+        canvas.height = height;
+        context.fillStyle = "hsl(240 100% 5%)";
+        context.fillRect(0, 0, width, height);
+        stepLabel.textContent = "0";
+      };
+
+      const reportWorkerFailure = (failedWorker?: Worker) => {
+        if (failedWorker && worker !== failedWorker) return;
         worker?.terminate();
         worker = undefined;
         initialized = false;
         ready = false;
         running = false;
         requestedPlay = false;
+        manuallyPaused = true;
+        reachedLimit = false;
+        retryBlocked = true;
         toggle.disabled = false;
-        toggle.textContent = "Try specimen again";
-        toggle.setAttribute("aria-pressed", "false");
+        restart.disabled = true;
+        setToggle("Retry", "↻", "Try specimen again");
         progress.hidden = true;
         tank.dataset.state = "error";
         tank.setAttribute("aria-busy", "false");
@@ -270,7 +340,9 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
 
         context.fillStyle = "hsl(240 100% 5%)";
         context.fillRect(0, 0, width, height);
-        const scale = Math.min(width / frame.width, height / frame.height);
+        // Keep the world at a constant, width-fitted scale. The compact tank is
+        // a cropped window onto this same surface, never a smaller simulation.
+        const scale = width / frame.width;
         const offsetX = (width - frame.width * scale) / 2;
         const offsetY = (height - frame.height * scale) / 2;
         const radius = Math.max(0.75, frame.moteRadius * 0.07 * scale);
@@ -282,6 +354,14 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
           const bucket = Math.min(15, frame.motePressure[index] >> 4);
           const x = offsetX + frame.moteX[index] * scale;
           const y = offsetY + frame.moteY[index] * scale;
+          if (
+            x < -radius ||
+            x > width + radius ||
+            y < -radius ||
+            y > height + radius
+          ) {
+            continue;
+          }
           paths[bucket].moveTo(x + radius, y);
           paths[bucket].arc(x, y, radius, 0, Math.PI * 2);
         }
@@ -296,14 +376,27 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
 
       const updatePlayback = () => {
         const shouldRun =
-          initialized && requestedPlay && visible && !document.hidden;
+          initialized &&
+          requestedPlay &&
+          visible &&
+          !document.hidden &&
+          !reachedLimit;
         if (shouldRun !== running) {
           running = shouldRun;
           worker?.postMessage({ type: shouldRun ? "play" : "pause" });
         }
+        if (reachedLimit) {
+          toggle.disabled = true;
+          setToggle("Limit", "■", "Safe simulation limit reached");
+        } else if (ready || initialized) {
+          toggle.disabled = false;
+          setToggle(
+            shouldRun ? "Pause" : "Resume",
+            shouldRun ? "Ⅱ" : "▶",
+            shouldRun ? "Pause specimen" : "Resume specimen",
+          );
+        }
         if (ready) {
-          toggle.textContent = shouldRun ? "Pause specimen" : "Resume specimen";
-          toggle.setAttribute("aria-pressed", String(shouldRun));
           setStatus(shouldRun ? "Specimen alive" : "Specimen paused");
         } else if (initialized && !shouldRun) {
           setStatus("Specimen preparation paused");
@@ -311,103 +404,134 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       };
 
       const initialize = () => {
-        if (worker) worker.terminate();
-        worker = new Worker(
+        if (worker) {
+          worker.terminate();
+          worker = undefined;
+        }
+        clearSurface();
+        reproduction.dataset.state = "registered";
+        reproduction.textContent = "CI reference · local run pending";
+
+        const activeWorker = new Worker(
           new URL("../science/exhibit.worker.ts", import.meta.url),
           { type: "module" },
         );
+        worker = activeWorker;
         initialized = true;
         ready = false;
         running = false;
-        restart.disabled = true;
-        toggle.disabled = true;
-        toggle.textContent = "Preparing specimen";
+        reachedLimit = false;
+        retryBlocked = false;
+        restart.disabled = false;
+        toggle.disabled = false;
+        setToggle("Pause", "Ⅱ", "Pause specimen");
         progress.hidden = false;
         progress.value = 0;
         tank.dataset.state = "warming";
         tank.setAttribute("aria-busy", "true");
         setStatus("Growing specimen to its registered observation");
 
-        worker.addEventListener("message", (event: MessageEvent<WorkerMessage>) => {
-          const message = event.data;
-          if (message.type === "status") {
-            progress.max = message.targetStep;
-            progress.value = message.step;
-            stepLabel.textContent = message.step.toLocaleString("en-US");
-            return;
-          }
-
-          if (message.type === "frame") {
-            lastFrame = message;
-            draw(message);
-            return;
-          }
-
-          if (message.type === "measurement") {
-            ready = true;
-            progress.hidden = true;
-            restart.disabled = false;
-            toggle.disabled = false;
-            tank.dataset.state = "ready";
-            tank.setAttribute("aria-busy", "false");
-            reproduction.dataset.state = message.passed ? "passed" : "failed";
-            reproduction.textContent = message.passed
-              ? "Reproduced on this device"
-              : "Outside registered envelope";
-            for (const expectation of message.expectations) {
-              const row = Array.from(
-                root.querySelectorAll<HTMLElement>("[data-metric]"),
-              ).find((candidate) => candidate.dataset.metric === expectation.metric);
-              const actual = row?.querySelector<HTMLElement>("[data-actual]");
-              if (actual) {
-                actual.textContent = formatScienceMetric(
-                  expectation.actual,
-                  expectation.format,
-                );
-                actual.dataset.passed = String(expectation.passed);
-              }
+        activeWorker.addEventListener(
+          "message",
+          (event: MessageEvent<WorkerMessage>) => {
+            if (worker !== activeWorker) return;
+            const message = event.data;
+            if (message.type === "status") {
+              progress.max = message.targetStep;
+              progress.value = message.step;
+              stepLabel.textContent = message.step.toLocaleString("en-US");
+              return;
             }
-            updatePlayback();
-            return;
-          }
 
-          if (message.type === "complete") {
-            requestedPlay = false;
-            running = false;
-            toggle.disabled = true;
-            toggle.textContent = "Safe limit reached";
-            toggle.setAttribute("aria-pressed", "false");
-            setStatus("Specimen paused at its safe limit; restart to watch again");
-            return;
-          }
+            if (message.type === "frame") {
+              lastFrame = message;
+              draw(message);
+              return;
+            }
 
-          if (message.type === "error") {
-            reportWorkerFailure();
-          }
-        });
-        worker.addEventListener("error", reportWorkerFailure);
-        worker.addEventListener("messageerror", reportWorkerFailure);
-        worker.postMessage({ type: "initialize", exhibitId });
+            if (message.type === "measurement") {
+              ready = true;
+              progress.hidden = true;
+              restart.disabled = false;
+              toggle.disabled = false;
+              tank.dataset.state = "ready";
+              tank.setAttribute("aria-busy", "false");
+              reproduction.dataset.state = message.passed ? "passed" : "failed";
+              reproduction.textContent = message.passed
+                ? "Reproduced on this device"
+                : "Outside registered envelope";
+              for (const expectation of message.expectations) {
+                const row = Array.from(
+                  root.querySelectorAll<HTMLElement>("[data-metric]"),
+                ).find(
+                  (candidate) => candidate.dataset.metric === expectation.metric,
+                );
+                const actual = row?.querySelector<HTMLElement>("[data-actual]");
+                if (actual) {
+                  actual.textContent = formatScienceMetric(
+                    expectation.actual,
+                    expectation.format,
+                  );
+                  actual.dataset.passed = String(expectation.passed);
+                }
+              }
+              updatePlayback();
+              return;
+            }
+
+            if (message.type === "complete") {
+              requestedPlay = false;
+              running = false;
+              reachedLimit = true;
+              updatePlayback();
+              setStatus(
+                "Specimen paused at its safe limit; restart to watch again",
+              );
+              return;
+            }
+
+            if (message.type === "error") {
+              reportWorkerFailure(activeWorker);
+            }
+          },
+        );
+        activeWorker.addEventListener("error", () =>
+          reportWorkerFailure(activeWorker),
+        );
+        activeWorker.addEventListener("messageerror", () =>
+          reportWorkerFailure(activeWorker),
+        );
+        activeWorker.postMessage({ type: "initialize", exhibitId });
         updatePlayback();
       };
 
       toggle.addEventListener("click", () => {
-        window.dispatchEvent(
-          new CustomEvent("polysome:activate-exhibit", { detail: exhibitId }),
-        );
         if (!initialized || tank.dataset.state === "error") {
+          activate();
+          manuallyPaused = false;
+          explicitlyStarted = true;
+          retryBlocked = false;
           requestedPlay = true;
           initialize();
           return;
         }
-        requestedPlay = !requestedPlay;
+        if (requestedPlay) {
+          requestedPlay = false;
+          manuallyPaused = true;
+        } else {
+          activate();
+          requestedPlay = true;
+          manuallyPaused = false;
+          explicitlyStarted = true;
+        }
         updatePlayback();
       });
 
       restart.addEventListener("click", () => {
-        window.dispatchEvent(
-          new CustomEvent("polysome:activate-exhibit", { detail: exhibitId }),
-        );
+        activate();
+        manuallyPaused = false;
+        explicitlyStarted = true;
+        retryBlocked = false;
         requestedPlay = true;
         initialize();
       });
@@ -420,12 +544,38 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
         }
       });
 
+      const autoWake = () => {
+        if (
+          !visible ||
+          document.hidden ||
+          (reducedMotion.matches && !explicitlyStarted) ||
+          manuallyPaused ||
+          reachedLimit ||
+          retryBlocked
+        ) {
+          updatePlayback();
+          return;
+        }
+        activate();
+        requestedPlay = true;
+        if (!initialized) {
+          initialize();
+        } else {
+          updatePlayback();
+        }
+      };
+
       const intersection = new IntersectionObserver(
         ([entry]) => {
-          visible = entry.isIntersecting && entry.intersectionRatio >= 0.35;
-          updatePlayback();
+          const wasVisible = visible;
+          visible = entry.isIntersecting && entry.intersectionRatio >= 0.2;
+          if (visible && !wasVisible) {
+            autoWake();
+          } else {
+            updatePlayback();
+          }
         },
-        { threshold: [0, 0.35, 0.6] },
+        { threshold: [0, 0.2, 0.6] },
       );
       intersection.observe(tank);
 
@@ -434,23 +584,100 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       });
       resize.observe(canvas);
 
-      document.addEventListener("visibilitychange", updatePlayback);
-      window.addEventListener(
-        "pagehide",
-        () => {
-          intersection.disconnect();
-          resize.disconnect();
-          worker?.terminate();
-        },
-        { once: true },
-      );
+      let collapse: IntersectionObserver | undefined;
+      const siteHeader = document.querySelector<HTMLElement>(".site-header");
+      const configureStickyBoundary = () => {
+        const stickyTop = Math.ceil(siteHeader?.getBoundingClientRect().height ?? 0);
+        root.style.setProperty("--science-sticky-top", `${stickyTop}px`);
+        collapse?.disconnect();
+        collapse = new IntersectionObserver(
+          ([entry]) => {
+            const compact =
+              !entry.isIntersecting && entry.boundingClientRect.top < stickyTop;
+            root.toggleAttribute("data-compact", compact);
+          },
+          {
+            rootMargin: `-${stickyTop}px 0px 0px 0px`,
+            threshold: 0,
+          },
+        );
+        collapse.observe(collapseSentinel);
+      };
+      configureStickyBoundary();
+
+      const headerResize = new ResizeObserver(configureStickyBoundary);
+      if (siteHeader) headerResize.observe(siteHeader);
+
+      const handleVisibilityChange = () => {
+        if (visible && !document.hidden) {
+          autoWake();
+        } else {
+          updatePlayback();
+        }
+      };
+      const handleReducedMotionChange = () => {
+        if (reducedMotion.matches && !explicitlyStarted) {
+          requestedPlay = false;
+          updatePlayback();
+        } else if (!reducedMotion.matches) {
+          autoWake();
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      reducedMotion.addEventListener("change", handleReducedMotionChange);
+
+      const refreshVisibility = () => {
+        const rect = tank.getBoundingClientRect();
+        const visibleHeight = Math.max(
+          0,
+          Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0),
+        );
+        visible = visibleHeight / Math.max(1, rect.height) >= 0.2;
+      };
+
+      const cleanup = () => {
+        intersection.disconnect();
+        resize.disconnect();
+        collapse?.disconnect();
+        headerResize.disconnect();
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        reducedMotion.removeEventListener("change", handleReducedMotionChange);
+        window.removeEventListener("pagehide", handlePageHide);
+        window.removeEventListener("pageshow", handlePageShow);
+        worker?.terminate();
+        worker = undefined;
+      };
+
+      const handlePageHide = (event: PageTransitionEvent) => {
+        if (event.persisted) {
+          running = false;
+          worker?.postMessage({ type: "pause" });
+          return;
+        }
+        cleanup();
+      };
+
+      const handlePageShow = (event: PageTransitionEvent) => {
+        if (!event.persisted) return;
+        configureStickyBoundary();
+        refreshVisibility();
+        autoWake();
+      };
+
+      window.addEventListener("pagehide", handlePageHide);
+      window.addEventListener("pageshow", handlePageShow);
     },
   );
 </script>
 
 <style>
   .exhibit {
+    --tank-compact-height: min(46svh, 80.28vw);
+    --tank-expanded-height: min(82svh, 160.56vw);
+    --tank-sticky-top: 4.5rem;
     border-top: 1px solid hsl(270 35% 42% / 35%);
+    overflow-anchor: none;
     padding: clamp(3rem, 9vw, 6rem) 0;
     scroll-margin-top: 5rem;
   }
@@ -493,13 +720,32 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     text-wrap: balance;
   }
 
-  .exhibit-grid {
+  .exhibit-body {
     display: grid;
-    gap: clamp(1.5rem, 5vw, 3.5rem);
+    position: relative;
+  }
+
+  .tank-rail,
+  .exhibit-flow {
+    grid-area: 1 / 1;
+    min-width: 0;
+  }
+
+  .tank-rail {
+    align-self: stretch;
+    pointer-events: none;
+    position: relative;
+    z-index: 8;
+  }
+
+  .tank-column {
+    height: var(--tank-expanded-height);
+    pointer-events: none;
+    position: sticky;
+    top: var(--science-sticky-top);
   }
 
   .tank {
-    aspect-ratio: 622.82 / 1000;
     background:
       radial-gradient(circle at 50% 45%, hsl(270 80% 18% / 28%), transparent 48%),
       hsl(240 100% 5%);
@@ -508,16 +754,45 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     box-shadow:
       inset 0 0 4rem hsl(260 80% 15% / 30%),
       0 2rem 5rem hsl(250 100% 2% / 55%);
-    max-height: 72svh;
+    height: var(--tank-expanded-height);
     overflow: hidden;
+    pointer-events: auto;
     position: relative;
     touch-action: pan-y;
+    width: 100%;
+  }
+
+  [data-compact] .tank {
+    height: var(--tank-compact-height);
+  }
+
+  .tank-surface {
+    height: var(--tank-expanded-height);
+    left: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
   }
 
   canvas {
     display: block;
     height: 100%;
     width: 100%;
+  }
+
+  .exhibit-flow {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tank-spacer {
+    height: var(--tank-expanded-height);
+  }
+
+  .collapse-sentinel {
+    height: 1px;
+    pointer-events: none;
   }
 
   .tank-id {
@@ -527,7 +802,10 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     justify-content: space-between;
     left: 0;
     letter-spacing: 0.08em;
-    padding: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-top: 0.75rem;
     position: absolute;
     right: 0;
     text-transform: uppercase;
@@ -538,11 +816,13 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     background: hsl(244 55% 7% / 68%);
     border: 1px solid hsl(272 48% 50% / 34%);
     border-radius: 0.85rem;
-    bottom: 1rem;
-    left: 1rem;
+    bottom: 5.1rem;
+    left: max(1rem, env(safe-area-inset-left));
+    max-width: 28rem;
     padding: 0.8rem;
     position: absolute;
-    right: 1rem;
+    right: max(1rem, env(safe-area-inset-right));
+    z-index: 2;
   }
 
   [data-state="ready"] .wake-panel {
@@ -579,28 +859,53 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
 
   .tank-controls {
     align-items: center;
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    background: linear-gradient(
+      145deg,
+      hsl(282 42% 32% / 42%),
+      hsl(248 38% 9% / 66%)
+    );
+    border: 1px solid hsl(290 55% 88% / 24%);
+    border-radius: 999px;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    box-shadow:
+      inset 0 1px 0 hsl(300 75% 96% / 18%),
+      0 0.75rem 2rem hsl(250 100% 2% / 52%);
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: 0.85rem;
+    gap: 0.2rem;
+    padding: 0.25rem;
+    position: absolute;
+    right: max(0.75rem, env(safe-area-inset-right));
+    z-index: 4;
   }
 
   button {
-    background: hsl(248 38% 15%);
-    border: 1px solid hsl(264 35% 42%);
+    align-items: center;
+    background: hsl(248 38% 12% / 54%);
+    border: 1px solid transparent;
     border-radius: 999px;
     color: hsl(270 28% 91%);
     cursor: pointer;
+    display: inline-flex;
     font: inherit;
     font-size: 0.78rem;
+    gap: 0.35rem;
+    justify-content: center;
     min-height: 2.75rem;
-    padding: 0.55rem 0.9rem;
+    min-width: 2.75rem;
+    padding: 0.5rem 0.78rem;
   }
 
   button.primary {
-    background: hsl(310 72% 48%);
-    border-color: hsl(314 88% 70%);
+    background: hsl(310 72% 48% / 78%);
+    border-color: hsl(314 88% 78% / 46%);
     color: white;
+  }
+
+  button:focus-visible {
+    outline: 2px solid hsl(184 76% 75%);
+    outline-offset: 2px;
   }
 
   button:disabled {
@@ -608,14 +913,29 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     opacity: 0.55;
   }
 
-  .tank-controls > span {
+  .control-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
+  .tank-runtime {
+    bottom: max(1.05rem, env(safe-area-inset-bottom));
     color: hsl(260 14% 62%);
-    font-size: 0.68rem;
-    margin-left: auto;
+    font: 0.62rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    left: max(0.9rem, env(safe-area-inset-left));
+    letter-spacing: 0.06em;
+    position: absolute;
+    text-shadow: 0 1px 0.5rem hsl(245 100% 2%);
+    text-transform: uppercase;
+    z-index: 2;
   }
 
   .exhibit-copy {
-    align-self: start;
+    margin-inline: auto;
+    max-width: 48rem;
+    padding-top: calc(var(--tank-compact-height) + clamp(1.5rem, 5vw, 3rem));
+    position: relative;
+    width: 100%;
   }
 
   .question {
@@ -731,19 +1051,21 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     margin: 0.75rem 0 0;
   }
 
-  @media (min-width: 56rem) {
-    .exhibit-grid {
-      align-items: start;
-      grid-template-columns: minmax(20rem, 0.82fr) minmax(20rem, 1fr);
+  @media (max-width: 55.999rem) {
+    .exhibit-body {
+      margin-left: calc(-1 * var(--page-gutter-left));
+      margin-right: calc(-1 * var(--page-gutter-right));
     }
 
     .tank {
-      max-height: none;
+      border-left: 0;
+      border-radius: 0;
+      border-right: 0;
     }
 
     .exhibit-copy {
-      position: sticky;
-      top: 6rem;
+      padding-left: var(--page-gutter-left);
+      padding-right: var(--page-gutter-right);
     }
   }
 
