@@ -1,0 +1,755 @@
+---
+import {
+  formatScienceMetric,
+  type ScienceExhibit,
+  type ScienceExhibitExpectation,
+} from "../../../src/scienceExhibits.ts";
+import evidence from "../../../experiments/results/science-exhibits.json";
+
+type Props = { exhibit: ScienceExhibit };
+const { exhibit } = Astro.props;
+
+const registeredExhibit = evidence.exhibits.find(
+  (candidate) => candidate.id === exhibit.id,
+);
+if (!registeredExhibit) {
+  throw new Error(`Science evidence is missing exhibit ${exhibit.id}`);
+}
+
+const registeredActual = (expectation: ScienceExhibitExpectation) => {
+  const registered = registeredExhibit.expectations.find(
+    (candidate) => candidate.metric === expectation.metric,
+  );
+  if (!registered) {
+    throw new Error(
+      `Science evidence for ${exhibit.id} is missing ${expectation.metric}`,
+    );
+  }
+  return registered;
+};
+
+const expectedRange = (expectation: ScienceExhibitExpectation) => {
+  const minimum =
+    expectation.minimum === undefined
+      ? undefined
+      : formatScienceMetric(expectation.minimum, expectation.format);
+  const maximum =
+    expectation.maximum === undefined
+      ? undefined
+      : formatScienceMetric(expectation.maximum, expectation.format);
+  if (minimum !== undefined && maximum !== undefined) {
+    return `${minimum}–${maximum}`;
+  }
+  if (minimum !== undefined) return `≥ ${minimum}`;
+  if (maximum !== undefined) return `≤ ${maximum}`;
+  return "observed";
+};
+---
+
+<article
+  class="exhibit"
+  id={exhibit.id}
+  data-science-exhibit
+  data-exhibit-id={exhibit.id}
+>
+  <header class="exhibit-heading">
+    <div class="catalogue-number" aria-hidden="true">{exhibit.number}</div>
+    <div>
+      <p class="eyebrow">{exhibit.eyebrow}</p>
+      <h3>{exhibit.title}</h3>
+    </div>
+  </header>
+
+  <div class="exhibit-grid">
+    <div class="tank-column">
+      <div class="tank" data-tank>
+        <canvas
+          aria-label={`${exhibit.title}. ${exhibit.claim}`}
+          role="img"
+          data-exhibit-canvas></canvas>
+        <div class="tank-id" aria-hidden="true">
+          <span>specimen {exhibit.number}</span>
+          <span>step <b data-step>0</b></span>
+        </div>
+        <div class="wake-panel" data-wake-panel>
+          <p data-status aria-live="polite">Specimen sleeping</p>
+          <progress
+            data-progress
+            aria-label={`${exhibit.title} preparation`}
+            max={exhibit.measurementStep}
+            value="0"
+            hidden></progress>
+          <span>Runs locally on this device only after you wake it.</span>
+        </div>
+      </div>
+
+      <div class="tank-controls" aria-label={`${exhibit.title} controls`}>
+        <button type="button" class="primary" data-toggle aria-pressed="false">
+          Wake specimen
+        </button>
+        <button type="button" data-restart disabled>Restart</button>
+        <span>{exhibit.liveFps} fps · DPR 1 · pauses offscreen</span>
+      </div>
+      <noscript>
+        <p class="fallback">
+          The live specimen requires JavaScript. Its registered measurements
+          remain available beside the tank.
+        </p>
+      </noscript>
+    </div>
+
+    <div class="exhibit-copy">
+      <p class="question">{exhibit.question}</p>
+      <p class="claim">{exhibit.claim}</p>
+      <p class="interpretation">{exhibit.interpretation}</p>
+
+      <section class="contract" aria-labelledby={`${exhibit.id}-contract`}>
+        <header>
+          <div>
+            <p>
+              Executable claim · step {exhibit.measurementStep.toLocaleString("en-US")}
+            </p>
+            <h4 id={`${exhibit.id}-contract`}>Registered measurement envelope</h4>
+          </div>
+          <span class="reproduction" data-reproduction data-state="registered">
+            Reproduced by CI
+          </span>
+        </header>
+        <dl>
+          {
+            exhibit.expectations.map((expectation) => (
+              <div data-metric={expectation.metric}>
+                <dt>{expectation.label}</dt>
+                <dd>
+                  <span class="expected">{expectedRange(expectation)}</span>
+                  <span
+                    class="actual"
+                    data-actual
+                    data-passed={String(registeredActual(expectation).passed)}
+                  >
+                    {formatScienceMetric(
+                      registeredActual(expectation).actual,
+                      expectation.format,
+                    )}
+                  </span>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+        <p class="contract-note">
+          These checked-in actuals are regenerated from the same definition used
+          by the Worker and deployment test. Passing means this deterministic
+          specimen was reproduced—not that the claim is universal across seeds.
+        </p>
+      </section>
+    </div>
+  </div>
+</article>
+
+<script>
+  import { ColorInterpolationSystem } from "../../../src/colorInterpolationSystem.ts";
+  import { hsbToRgb } from "../../../src/colorUtils.ts";
+  import { RenderParams } from "../../../src/renderParams.ts";
+  import { formatScienceMetric } from "../../../src/scienceExhibits.ts";
+
+  type FrameMessage = {
+    type: "frame";
+    step: number;
+    width: number;
+    height: number;
+    moteRadius: number;
+    moteX: Float32Array;
+    moteY: Float32Array;
+    motePressure: Uint8Array;
+  };
+
+  type MeasurementMessage = {
+    type: "measurement";
+    step: number;
+    passed: boolean;
+    expectations: Array<{
+      metric: string;
+      actual: number;
+      passed: boolean;
+      format: "decimal" | "integer" | "percent" | "ratio";
+    }>;
+  };
+
+  type StatusMessage = {
+    type: "status";
+    status: "warming";
+    step: number;
+    targetStep: number;
+  };
+
+  type WorkerMessage =
+    | FrameMessage
+    | MeasurementMessage
+    | StatusMessage
+    | { type: "complete"; step: number; reason: "registered-limit" }
+    | { type: "error"; message: string };
+
+  const colorPoints = new RenderParams().colorInterpolationPoints.map(
+    ({ pressure, color }) => ({ pressure, color: { ...color } }),
+  );
+  const colorSystem = new ColorInterpolationSystem(colorPoints);
+  const pressurePalette = Array.from({ length: 16 }, (_, bucket) => {
+    const color = colorSystem.getColor(bucket * 16 + 8);
+    return hsbToRgb(color.h, color.s, color.b);
+  });
+
+  document.querySelectorAll<HTMLElement>("[data-science-exhibit]").forEach(
+    (root) => {
+      const exhibitId = root.dataset.exhibitId;
+      const canvas = root.querySelector<HTMLCanvasElement>(
+        "[data-exhibit-canvas]",
+      );
+      const tank = root.querySelector<HTMLElement>("[data-tank]");
+      const toggle = root.querySelector<HTMLButtonElement>("[data-toggle]");
+      const restart = root.querySelector<HTMLButtonElement>("[data-restart]");
+      const status = root.querySelector<HTMLElement>("[data-status]");
+      const progress = root.querySelector<HTMLProgressElement>("[data-progress]");
+      const stepLabel = root.querySelector<HTMLElement>("[data-step]");
+      const reproduction = root.querySelector<HTMLElement>(
+        "[data-reproduction]",
+      );
+      if (
+        !exhibitId ||
+        !canvas ||
+        !tank ||
+        !toggle ||
+        !restart ||
+        !status ||
+        !progress ||
+        !stepLabel ||
+        !reproduction
+      ) {
+        return;
+      }
+
+      const context = canvas.getContext("2d");
+      if (!context) return;
+
+      let worker: Worker | undefined;
+      let initialized = false;
+      let ready = false;
+      let running = false;
+      let requestedPlay = false;
+      let visible = false;
+      let lastFrame: FrameMessage | undefined;
+
+      const setStatus = (message: string) => {
+        status.textContent = message;
+      };
+
+      const reportWorkerFailure = () => {
+        worker?.terminate();
+        worker = undefined;
+        initialized = false;
+        ready = false;
+        running = false;
+        requestedPlay = false;
+        toggle.disabled = false;
+        toggle.textContent = "Try specimen again";
+        toggle.setAttribute("aria-pressed", "false");
+        progress.hidden = true;
+        tank.dataset.state = "error";
+        tank.setAttribute("aria-busy", "false");
+        setStatus("Live simulation unavailable; CI measurements remain below");
+      };
+
+      const draw = (frame: FrameMessage) => {
+        const rect = canvas.getBoundingClientRect();
+        const width = Math.max(1, Math.round(rect.width));
+        const height = Math.max(1, Math.round(rect.height));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+
+        context.fillStyle = "hsl(240 100% 5%)";
+        context.fillRect(0, 0, width, height);
+        const scale = Math.min(width / frame.width, height / frame.height);
+        const offsetX = (width - frame.width * scale) / 2;
+        const offsetY = (height - frame.height * scale) / 2;
+        const radius = Math.max(0.75, frame.moteRadius * 0.07 * scale);
+        const paths = Array.from({ length: pressurePalette.length }, () =>
+          new Path2D(),
+        );
+
+        for (let index = 0; index < frame.moteX.length; index++) {
+          const bucket = Math.min(15, frame.motePressure[index] >> 4);
+          const x = offsetX + frame.moteX[index] * scale;
+          const y = offsetY + frame.moteY[index] * scale;
+          paths[bucket].moveTo(x + radius, y);
+          paths[bucket].arc(x, y, radius, 0, Math.PI * 2);
+        }
+
+        context.lineWidth = Math.max(0.5, 0.5 * scale);
+        for (let bucket = 0; bucket < paths.length; bucket++) {
+          context.strokeStyle = pressurePalette[bucket];
+          context.stroke(paths[bucket]);
+        }
+        stepLabel.textContent = frame.step.toLocaleString("en-US");
+      };
+
+      const updatePlayback = () => {
+        const shouldRun =
+          initialized && requestedPlay && visible && !document.hidden;
+        if (shouldRun !== running) {
+          running = shouldRun;
+          worker?.postMessage({ type: shouldRun ? "play" : "pause" });
+        }
+        if (ready) {
+          toggle.textContent = shouldRun ? "Pause specimen" : "Resume specimen";
+          toggle.setAttribute("aria-pressed", String(shouldRun));
+          setStatus(shouldRun ? "Specimen alive" : "Specimen paused");
+        } else if (initialized && !shouldRun) {
+          setStatus("Specimen preparation paused");
+        }
+      };
+
+      const initialize = () => {
+        if (worker) worker.terminate();
+        worker = new Worker(
+          new URL("../science/exhibit.worker.ts", import.meta.url),
+          { type: "module" },
+        );
+        initialized = true;
+        ready = false;
+        running = false;
+        restart.disabled = true;
+        toggle.disabled = true;
+        toggle.textContent = "Preparing specimen";
+        progress.hidden = false;
+        progress.value = 0;
+        tank.dataset.state = "warming";
+        tank.setAttribute("aria-busy", "true");
+        setStatus("Growing specimen to its registered observation");
+
+        worker.addEventListener("message", (event: MessageEvent<WorkerMessage>) => {
+          const message = event.data;
+          if (message.type === "status") {
+            progress.max = message.targetStep;
+            progress.value = message.step;
+            stepLabel.textContent = message.step.toLocaleString("en-US");
+            return;
+          }
+
+          if (message.type === "frame") {
+            lastFrame = message;
+            draw(message);
+            return;
+          }
+
+          if (message.type === "measurement") {
+            ready = true;
+            progress.hidden = true;
+            restart.disabled = false;
+            toggle.disabled = false;
+            tank.dataset.state = "ready";
+            tank.setAttribute("aria-busy", "false");
+            reproduction.dataset.state = message.passed ? "passed" : "failed";
+            reproduction.textContent = message.passed
+              ? "Reproduced on this device"
+              : "Outside registered envelope";
+            for (const expectation of message.expectations) {
+              const row = Array.from(
+                root.querySelectorAll<HTMLElement>("[data-metric]"),
+              ).find((candidate) => candidate.dataset.metric === expectation.metric);
+              const actual = row?.querySelector<HTMLElement>("[data-actual]");
+              if (actual) {
+                actual.textContent = formatScienceMetric(
+                  expectation.actual,
+                  expectation.format,
+                );
+                actual.dataset.passed = String(expectation.passed);
+              }
+            }
+            updatePlayback();
+            return;
+          }
+
+          if (message.type === "complete") {
+            requestedPlay = false;
+            running = false;
+            toggle.disabled = true;
+            toggle.textContent = "Safe limit reached";
+            toggle.setAttribute("aria-pressed", "false");
+            setStatus("Specimen paused at its safe limit; restart to watch again");
+            return;
+          }
+
+          if (message.type === "error") {
+            reportWorkerFailure();
+          }
+        });
+        worker.addEventListener("error", reportWorkerFailure);
+        worker.addEventListener("messageerror", reportWorkerFailure);
+        worker.postMessage({ type: "initialize", exhibitId });
+        updatePlayback();
+      };
+
+      toggle.addEventListener("click", () => {
+        window.dispatchEvent(
+          new CustomEvent("polysome:activate-exhibit", { detail: exhibitId }),
+        );
+        if (!initialized || tank.dataset.state === "error") {
+          requestedPlay = true;
+          initialize();
+          return;
+        }
+        requestedPlay = !requestedPlay;
+        updatePlayback();
+      });
+
+      restart.addEventListener("click", () => {
+        window.dispatchEvent(
+          new CustomEvent("polysome:activate-exhibit", { detail: exhibitId }),
+        );
+        requestedPlay = true;
+        initialize();
+      });
+
+      window.addEventListener("polysome:activate-exhibit", (event) => {
+        const activatedId = (event as CustomEvent<string>).detail;
+        if (activatedId !== exhibitId && requestedPlay) {
+          requestedPlay = false;
+          updatePlayback();
+        }
+      });
+
+      const intersection = new IntersectionObserver(
+        ([entry]) => {
+          visible = entry.isIntersecting && entry.intersectionRatio >= 0.35;
+          updatePlayback();
+        },
+        { threshold: [0, 0.35, 0.6] },
+      );
+      intersection.observe(tank);
+
+      const resize = new ResizeObserver(() => {
+        if (lastFrame) draw(lastFrame);
+      });
+      resize.observe(canvas);
+
+      document.addEventListener("visibilitychange", updatePlayback);
+      window.addEventListener(
+        "pagehide",
+        () => {
+          intersection.disconnect();
+          resize.disconnect();
+          worker?.terminate();
+        },
+        { once: true },
+      );
+    },
+  );
+</script>
+
+<style>
+  .exhibit {
+    border-top: 1px solid hsl(270 35% 42% / 35%);
+    padding: clamp(3rem, 9vw, 6rem) 0;
+    scroll-margin-top: 5rem;
+  }
+
+  .exhibit-heading {
+    align-items: start;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    margin-bottom: 1.5rem;
+  }
+
+  .catalogue-number {
+    border: 1px solid hsl(186 55% 55% / 45%);
+    border-radius: 999px;
+    color: hsl(184 75% 70%);
+    display: grid;
+    font: 0.72rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    height: 2.4rem;
+    place-items: center;
+    width: 2.4rem;
+  }
+
+  .eyebrow {
+    color: hsl(315 72% 70%);
+    font-size: 0.72rem;
+    letter-spacing: 0.13em;
+    margin: 0 0 0.35rem;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    color: hsl(300 45% 94%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.85rem, 7vw, 3.4rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .exhibit-grid {
+    display: grid;
+    gap: clamp(1.5rem, 5vw, 3.5rem);
+  }
+
+  .tank {
+    aspect-ratio: 622.82 / 1000;
+    background:
+      radial-gradient(circle at 50% 45%, hsl(270 80% 18% / 28%), transparent 48%),
+      hsl(240 100% 5%);
+    border: 1px solid hsl(274 55% 52% / 34%);
+    border-radius: 1.35rem;
+    box-shadow:
+      inset 0 0 4rem hsl(260 80% 15% / 30%),
+      0 2rem 5rem hsl(250 100% 2% / 55%);
+    max-height: 72svh;
+    overflow: hidden;
+    position: relative;
+    touch-action: pan-y;
+  }
+
+  canvas {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  .tank-id {
+    color: hsl(260 18% 70%);
+    display: flex;
+    font: 0.62rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    justify-content: space-between;
+    left: 0;
+    letter-spacing: 0.08em;
+    padding: 0.75rem;
+    position: absolute;
+    right: 0;
+    text-transform: uppercase;
+    top: 0;
+  }
+
+  .wake-panel {
+    background: hsl(244 55% 7% / 68%);
+    border: 1px solid hsl(272 48% 50% / 34%);
+    border-radius: 0.85rem;
+    bottom: 1rem;
+    left: 1rem;
+    padding: 0.8rem;
+    position: absolute;
+    right: 1rem;
+  }
+
+  [data-state="ready"] .wake-panel {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 500ms ease;
+  }
+
+  .wake-panel p {
+    color: hsl(300 45% 91%);
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .wake-panel span {
+    color: hsl(260 15% 66%);
+    display: block;
+    font-size: 0.68rem;
+    line-height: 1.35;
+    margin-top: 0.35rem;
+  }
+
+  progress {
+    accent-color: hsl(315 82% 62%);
+    display: block;
+    height: 0.35rem;
+    margin: 0.6rem 0 0;
+    width: 100%;
+  }
+
+  progress[hidden] {
+    display: none;
+  }
+
+  .tank-controls {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.85rem;
+  }
+
+  button {
+    background: hsl(248 38% 15%);
+    border: 1px solid hsl(264 35% 42%);
+    border-radius: 999px;
+    color: hsl(270 28% 91%);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.78rem;
+    min-height: 2.75rem;
+    padding: 0.55rem 0.9rem;
+  }
+
+  button.primary {
+    background: hsl(310 72% 48%);
+    border-color: hsl(314 88% 70%);
+    color: white;
+  }
+
+  button:disabled {
+    cursor: wait;
+    opacity: 0.55;
+  }
+
+  .tank-controls > span {
+    color: hsl(260 14% 62%);
+    font-size: 0.68rem;
+    margin-left: auto;
+  }
+
+  .exhibit-copy {
+    align-self: start;
+  }
+
+  .question {
+    color: hsl(184 62% 73%);
+    font-size: 0.83rem;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    margin: 0 0 0.9rem;
+    text-transform: uppercase;
+  }
+
+  .claim {
+    color: hsl(280 32% 93%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.3rem, 5vw, 1.9rem);
+    line-height: 1.38;
+    margin: 0;
+  }
+
+  .interpretation {
+    color: hsl(260 16% 73%);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .contract {
+    background: hsl(246 34% 10% / 76%);
+    border: 1px solid hsl(264 30% 42% / 38%);
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+
+  .contract header {
+    align-items: start;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+  }
+
+  .contract header p {
+    color: hsl(315 70% 72%);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    margin: 0 0 0.3rem;
+    text-transform: uppercase;
+  }
+
+  h4 {
+    color: hsl(280 24% 88%);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .reproduction {
+    border: 1px solid hsl(150 45% 52% / 44%);
+    border-radius: 999px;
+    color: hsl(150 52% 72%);
+    flex: 0 0 auto;
+    font-size: 0.62rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .reproduction[data-state="failed"] {
+    border-color: hsl(25 78% 60% / 60%);
+    color: hsl(25 88% 72%);
+  }
+
+  dl {
+    margin: 0.9rem 0 0;
+  }
+
+  dl > div {
+    align-items: baseline;
+    border-top: 1px solid hsl(260 25% 45% / 20%);
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: 0.55rem 0;
+  }
+
+  dt {
+    color: hsl(260 14% 68%);
+    font-size: 0.74rem;
+  }
+
+  dd {
+    display: flex;
+    flex-direction: column;
+    font: 0.72rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    margin: 0;
+    text-align: right;
+  }
+
+  .expected {
+    color: hsl(260 15% 58%);
+  }
+
+  .actual {
+    color: hsl(184 65% 68%);
+  }
+
+  .actual[data-passed="false"] {
+    color: hsl(25 88% 68%);
+  }
+
+  .contract-note,
+  .fallback {
+    color: hsl(260 12% 61%);
+    font-size: 0.7rem;
+    line-height: 1.5;
+    margin: 0.75rem 0 0;
+  }
+
+  @media (min-width: 56rem) {
+    .exhibit-grid {
+      align-items: start;
+      grid-template-columns: minmax(20rem, 0.82fr) minmax(20rem, 1fr);
+    }
+
+    .tank {
+      max-height: none;
+    }
+
+    .exhibit-copy {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-state="ready"] .wake-panel {
+      transition: none;
+    }
+  }
+</style>

@@ -19,6 +19,7 @@ export type {
   SimulationPerformance,
 } from "./performance.ts";
 export {
+  MORPHOLOGY_METRIC_VERSION,
   measureMorphology,
   type DenseComponentMetric,
   type GridMorphologyMetric,
@@ -26,6 +27,21 @@ export {
   type MorphologyInput,
   type MorphologyOptions,
 } from "./morphology.ts";
+export {
+  SCIENCE_COMPARISONS,
+  SCIENCE_EXHIBITS,
+  SCIENCE_EXHIBIT_SCHEMA,
+  evaluateScienceExhibit,
+  findScienceExhibit,
+  formatScienceMetric,
+  readScienceMetric,
+  type ScienceComparison,
+  type ScienceExhibit,
+  type ScienceExhibitDynamics,
+  type ScienceExhibitExpectation,
+  type ScienceExpectationResult,
+  type ScienceMetricKey,
+} from "./scienceExhibits.ts";
 
 // Vector utilities
 export { Vector } from "./vector.ts";

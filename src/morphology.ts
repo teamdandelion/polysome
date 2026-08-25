@@ -21,6 +21,8 @@ export type MorphologyInput = {
   collisionPairs: number;
 };
 
+export const MORPHOLOGY_METRIC_VERSION = "polysome-morphology-v1" as const;
+
 export type MorphologyOptions = {
   /** Grid cell sizes expressed as multiples of moteRadius. */
   gridCellSizeMultipliers?: readonly number[];
@@ -64,7 +66,7 @@ export type GridMorphologyMetric = {
 
 export type MorphologyFingerprint = {
   schemaVersion: 1;
-  metricVersion: "polysome-morphology-v1";
+  metricVersion: typeof MORPHOLOGY_METRIC_VERSION;
   step: number;
   domain: {
     width: number;
@@ -150,7 +152,7 @@ export function measureMorphology(
 
   return {
     schemaVersion: 1,
-    metricVersion: "polysome-morphology-v1",
+    metricVersion: MORPHOLOGY_METRIC_VERSION,
     step: input.step,
     domain: {
       width: input.width,

@@ -1,0 +1,537 @@
+---
+import baseline from "../../../experiments/results/current-portrait-baseline.json";
+
+const samples = baseline.measurements.map((measurement) => {
+  const interactionGrid = measurement.morphology.grids.find(
+    (grid) => grid.cellSizeToMoteRadius === 1,
+  );
+  if (!interactionGrid) {
+    throw new Error(`Baseline step ${measurement.step} is missing its R grid`);
+  }
+  return {
+    step: measurement.step,
+    contactRatio:
+      measurement.morphology.contacts.nominalUniformContactRatio ?? 0,
+    emptyFraction: interactionGrid.emptyCellFraction,
+  };
+});
+
+type ChartLayout = {
+  className: string;
+  width: number;
+  height: number;
+  left: number;
+  right: number;
+  contactTop: number;
+  voidTop: number;
+  panelHeight: number;
+  tickY: number;
+  axisTitleY: number;
+  stepTicks: number[];
+};
+
+const layouts: ChartLayout[] = [
+  {
+    className: "plot plot--phone",
+    width: 360,
+    height: 452,
+    left: 50,
+    right: 344,
+    contactTop: 62,
+    voidTop: 252,
+    panelHeight: 128,
+    tickY: 405,
+    axisTitleY: 436,
+    stepTicks: [1, 30, 300, 9000],
+  },
+  {
+    className: "plot plot--wide",
+    width: 720,
+    height: 438,
+    left: 76,
+    right: 696,
+    contactTop: 58,
+    voidTop: 244,
+    panelHeight: 130,
+    tickY: 400,
+    axisTitleY: 425,
+    stepTicks: [1, 30, 300, 1800, 9000],
+  },
+];
+
+const maximumStep = Math.max(...samples.map(({ step }) => step));
+const x = (layout: ChartLayout, step: number) =>
+  layout.left +
+  (Math.log10(step) / Math.log10(maximumStep)) *
+    (layout.right - layout.left);
+const y = (
+  value: number,
+  minimum: number,
+  maximum: number,
+  top: number,
+  height: number,
+) => top + height - ((value - minimum) / (maximum - minimum)) * height;
+const points = (
+  layout: ChartLayout,
+  key: "contactRatio" | "emptyFraction",
+  minimum: number,
+  maximum: number,
+  top: number,
+) =>
+  samples
+    .map(
+      (sample) =>
+        `${x(layout, sample.step)},${y(
+          sample[key],
+          minimum,
+          maximum,
+          top,
+          layout.panelHeight,
+        )}`,
+    )
+    .join(" ");
+
+const contactTicks = [
+  { value: 2.2, label: "2.2×" },
+  { value: 1.5, label: "1.5×" },
+  { value: 0.8, label: "0.8×" },
+];
+const emptyTicks = [
+  { value: 0.25, label: "25%" },
+  { value: 0.125, label: "12.5%" },
+  { value: 0, label: "0%" },
+];
+const formatStep = (step: number) => step.toLocaleString("en-US");
+---
+
+<figure class="trajectory" aria-labelledby="trajectory-title trajectory-caption">
+  <header>
+    <p>Reference trajectory · fixed seed · legacy-v1</p>
+    <h3 id="trajectory-title">Uniform points organize themselves</h3>
+  </header>
+
+  {
+    layouts.map((layout) => (
+      <svg
+        class={layout.className}
+        viewBox={`0 0 ${layout.width} ${layout.height}`}
+        role="img"
+        focusable="false"
+      >
+        <title>Clustering and empty space over nine thousand simulation steps</title>
+        <desc>
+          Contact enrichment rises from approximately one to approximately two.
+          The fraction of empty interaction-scale cells rises quickly and then
+          fluctuates. Exact values follow in the checkpoint table.
+        </desc>
+
+        <g class="grid">
+          {contactTicks.map((tick) => (
+            <line
+              x1={layout.left}
+              x2={layout.right}
+              y1={y(
+                tick.value,
+                0.8,
+                2.2,
+                layout.contactTop,
+                layout.panelHeight,
+              )}
+              y2={y(
+                tick.value,
+                0.8,
+                2.2,
+                layout.contactTop,
+                layout.panelHeight,
+              )}
+            />
+          ))}
+          {emptyTicks.map((tick) => (
+            <line
+              x1={layout.left}
+              x2={layout.right}
+              y1={y(
+                tick.value,
+                0,
+                0.25,
+                layout.voidTop,
+                layout.panelHeight,
+              )}
+              y2={y(
+                tick.value,
+                0,
+                0.25,
+                layout.voidTop,
+                layout.panelHeight,
+              )}
+            />
+          ))}
+          {layout.stepTicks.map((step) => (
+            <line
+              x1={x(layout, step)}
+              x2={x(layout, step)}
+              y1={layout.contactTop}
+              y2={layout.voidTop + layout.panelHeight}
+            />
+          ))}
+        </g>
+
+        <g class="axis-labels">
+          {contactTicks.map((tick) => (
+            <text
+              x={layout.left - 9}
+              y={
+                y(
+                  tick.value,
+                  0.8,
+                  2.2,
+                  layout.contactTop,
+                  layout.panelHeight,
+                ) + 4
+              }
+            >
+              {tick.label}
+            </text>
+          ))}
+          {emptyTicks.map((tick) => (
+            <text
+              x={layout.left - 9}
+              y={
+                y(
+                  tick.value,
+                  0,
+                  0.25,
+                  layout.voidTop,
+                  layout.panelHeight,
+                ) + 4
+              }
+            >
+              {tick.label}
+            </text>
+          ))}
+          {layout.stepTicks.map((step) => (
+            <text class="step" x={x(layout, step)} y={layout.tickY}>
+              {step >= 1000 ? `${step / 1000}k` : step}
+            </text>
+          ))}
+        </g>
+
+        <text
+          class="series-label contacts-label"
+          x={layout.left}
+          y={layout.contactTop - 17}
+        >
+          local contact enrichment
+        </text>
+        <polyline
+          class="series contacts"
+          points={points(layout, "contactRatio", 0.8, 2.2, layout.contactTop)}
+        />
+        {samples.map((sample) => (
+          <circle
+            class="point contacts-point"
+            cx={x(layout, sample.step)}
+            cy={y(
+              sample.contactRatio,
+              0.8,
+              2.2,
+              layout.contactTop,
+              layout.panelHeight,
+            )}
+            r="4"
+          />
+        ))}
+
+        <text
+          class="series-label voids-label"
+          x={layout.left}
+          y={layout.voidTop - 17}
+        >
+          empty cells, one interaction radius wide
+        </text>
+        <polyline
+          class="series voids"
+          points={points(layout, "emptyFraction", 0, 0.25, layout.voidTop)}
+        />
+        {samples.map((sample) => (
+          <circle
+            class="point voids-point"
+            cx={x(layout, sample.step)}
+            cy={y(
+              sample.emptyFraction,
+              0,
+              0.25,
+              layout.voidTop,
+              layout.panelHeight,
+            )}
+            r="4"
+          />
+        ))}
+
+        <text
+          class="axis-title"
+          x={(layout.left + layout.right) / 2}
+          y={layout.axisTitleY}
+        >
+          simulation step · logarithmic scale
+        </text>
+      </svg>
+    ))
+  }
+
+  <section class="checkpoint-ledger" aria-labelledby="checkpoint-title">
+    <h4 id="checkpoint-title">Checkpoint values</h4>
+    <table>
+      <caption>
+        Exact measurements from the reference trajectory. Contact is relative
+        to a uniform distribution; empty cells use a grid one interaction
+        radius wide.
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Step</th>
+          <th scope="col">Contact</th>
+          <th scope="col">Empty cells</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          samples.map((sample) => (
+            <tr>
+              <th scope="row">{formatStep(sample.step)}</th>
+              <td>{sample.contactRatio.toFixed(2)}×</td>
+              <td>{(sample.emptyFraction * 100).toFixed(1)}%</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <figcaption id="trajectory-caption">
+    The system begins near the uniform-contact expectation. Clustering rises,
+    while void area pulses instead of settling monotonically—evidence that the
+    artwork is a living regime rather than a final arrangement.
+  </figcaption>
+</figure>
+
+<style>
+  .trajectory {
+    background:
+      radial-gradient(circle at 20% 0%, hsl(292 75% 38% / 14%), transparent 38%),
+      hsl(246 45% 7%);
+    border: 1px solid hsl(270 45% 45% / 35%);
+    border-radius: 1.25rem;
+    box-shadow: 0 1.5rem 4rem hsl(250 100% 2% / 45%);
+    margin: 2rem 0;
+    overflow: hidden;
+  }
+
+  header {
+    padding: 1.25rem 1.25rem 0;
+  }
+
+  header p {
+    color: hsl(181 68% 66%);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    margin: 0 0 0.4rem;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    color: hsl(300 55% 91%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.35rem, 5vw, 2rem);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .plot {
+    display: block;
+    height: auto;
+    margin-top: 0.75rem;
+    width: 100%;
+  }
+
+  .plot--wide {
+    display: none;
+  }
+
+  .grid line {
+    stroke: hsl(260 20% 55% / 18%);
+    stroke-width: 1;
+  }
+
+  .axis-labels,
+  .series-label,
+  .axis-title {
+    fill: hsl(260 18% 68%);
+    font: 13px ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  .axis-labels text:not(.step) {
+    text-anchor: end;
+  }
+
+  .axis-labels .step,
+  .axis-title {
+    text-anchor: middle;
+  }
+
+  .axis-title {
+    font-size: 12.75px;
+    letter-spacing: 0.02em;
+  }
+
+  .series-label {
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  .contacts-label {
+    fill: hsl(315 88% 72%);
+  }
+
+  .voids-label {
+    fill: hsl(184 80% 68%);
+  }
+
+  .series {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 4;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .contacts {
+    stroke: hsl(315 92% 65%);
+  }
+
+  .voids {
+    stroke: hsl(184 82% 58%);
+  }
+
+  .point {
+    stroke: hsl(246 45% 7%);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .contacts-point {
+    fill: hsl(315 92% 72%);
+  }
+
+  .voids-point {
+    fill: hsl(184 82% 68%);
+  }
+
+  .checkpoint-ledger {
+    border-top: 1px solid hsl(260 30% 45% / 24%);
+    padding: 1rem 1.25rem 1.2rem;
+  }
+
+  .checkpoint-ledger h4 {
+    color: hsl(300 40% 88%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0 0 0.6rem;
+  }
+
+  table {
+    border-collapse: collapse;
+    color: hsl(260 18% 79%);
+    font: 0.78rem/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  caption {
+    color: hsl(260 16% 67%);
+    font: 0.78rem/1.45 system-ui, sans-serif;
+    padding: 0 0 0.65rem;
+    text-align: left;
+  }
+
+  th,
+  td {
+    border-bottom: 1px solid hsl(260 24% 45% / 18%);
+    padding: 0.42rem 0.2rem;
+    text-align: right;
+  }
+
+  th:first-child {
+    text-align: left;
+  }
+
+  thead th {
+    color: hsl(260 18% 64%);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  tbody th {
+    color: hsl(260 18% 72%);
+    font-weight: 400;
+  }
+
+  tbody td:nth-child(2) {
+    color: hsl(315 80% 76%);
+  }
+
+  tbody td:nth-child(3) {
+    color: hsl(184 68% 71%);
+  }
+
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  figcaption {
+    border-top: 1px solid hsl(260 30% 45% / 24%);
+    color: hsl(260 16% 72%);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    padding: 1rem 1.25rem 1.25rem;
+  }
+
+  @media (min-width: 44rem) {
+    .plot--phone {
+      display: none;
+    }
+
+    .plot--wide {
+      display: block;
+    }
+
+    .axis-labels,
+    .axis-title {
+      font-size: 12px;
+    }
+
+    .series-label {
+      font-size: 13px;
+    }
+
+    .checkpoint-ledger {
+      padding-inline: 1.5rem;
+    }
+
+    table {
+      max-width: 34rem;
+    }
+  }
+
+  @media (max-width: 24rem) {
+    header,
+    .checkpoint-ledger,
+    figcaption {
+      padding-inline: 1rem;
+    }
+  }
+</style>

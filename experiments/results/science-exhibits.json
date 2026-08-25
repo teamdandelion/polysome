@@ -1,0 +1,371 @@
+{
+  "catalog": {
+    "comparisonCount": 5,
+    "exhibitCount": 3,
+    "exhibitSchema": "polysome.science-exhibit/v1"
+  },
+  "comparisons": [
+    {
+      "label": "The soft wall increases interaction-scale density variation",
+      "leftActual": 0.753495,
+      "leftExhibitId": "self-organization",
+      "metric": "densityCvR",
+      "observed": 0.309304,
+      "passed": true,
+      "relation": "greaterBy",
+      "rightActual": 0.444192,
+      "rightExhibitId": "without-soft-wall",
+      "step": 300,
+      "threshold": 0.15
+    },
+    {
+      "label": "The soft wall increases interaction-scale empty area",
+      "leftActual": 0.161111,
+      "leftExhibitId": "self-organization",
+      "metric": "emptyFractionR",
+      "observed": 0.161111,
+      "passed": true,
+      "relation": "greaterBy",
+      "rightActual": 0,
+      "rightExhibitId": "without-soft-wall",
+      "step": 300,
+      "threshold": 0.1
+    },
+    {
+      "label": "Removing repulsion creates a much sharper collapse",
+      "leftActual": 1.129023,
+      "leftExhibitId": "without-repulsion",
+      "metric": "densityCvR",
+      "observed": 2.016271,
+      "passed": true,
+      "relation": "ratioAtLeast",
+      "rightActual": 0.559956,
+      "rightExhibitId": "self-organization",
+      "step": 100,
+      "threshold": 1.8
+    },
+    {
+      "label": "Opening the soft wall greatly increases edge reinjection",
+      "leftActual": 4472,
+      "leftExhibitId": "without-soft-wall",
+      "metric": "totalReinjections",
+      "observed": 47.073684,
+      "passed": true,
+      "relation": "ratioAtLeast",
+      "rightActual": 95,
+      "rightExhibitId": "self-organization",
+      "step": 300,
+      "threshold": 20
+    },
+    {
+      "label": "The soft wall increases local contact enrichment",
+      "leftActual": 1.768342,
+      "leftExhibitId": "self-organization",
+      "metric": "contactRatio",
+      "observed": 1.387741,
+      "passed": true,
+      "relation": "ratioAtLeast",
+      "rightActual": 1.274259,
+      "rightExhibitId": "without-soft-wall",
+      "step": 300,
+      "threshold": 1.25
+    }
+  ],
+  "exhibits": [
+    {
+      "expectations": [
+        {
+          "actual": 1.768342,
+          "label": "contact enrichment",
+          "maximum": 1.9,
+          "metric": "contactRatio",
+          "minimum": 1.65,
+          "passed": true
+        },
+        {
+          "actual": 0.753495,
+          "label": "density variation at R",
+          "maximum": 0.82,
+          "metric": "densityCvR",
+          "minimum": 0.68,
+          "passed": true
+        },
+        {
+          "actual": 0.161111,
+          "label": "empty interaction-scale cells",
+          "maximum": 0.2,
+          "metric": "emptyFractionR",
+          "minimum": 0.12,
+          "passed": true
+        }
+      ],
+      "id": "self-organization",
+      "identity": {
+        "definitionSha256": "sha256:a5f5c032cc2d63c527c2196d272198502c8843d6d9206c034c309d4f5b7be142",
+        "dynamicsVersion": "legacy-v1",
+        "evidenceLevel": "reference-trajectory",
+        "exhibitRevision": 1,
+        "exhibitSchema": "polysome.science-exhibit/v1",
+        "metricVersion": "polysome-morphology-v1"
+      },
+      "passed": true,
+      "run": {
+        "bounds": {
+          "height": 1000,
+          "width": 622.82
+        },
+        "changedParameters": [],
+        "measurementStep": 300,
+        "parameters": {
+          "boundaryForce": 1,
+          "boundaryForceMax": 1.5,
+          "boundarySpawnDepth": 50,
+          "boundaryZone": 200,
+          "cxFlowCoefficient": 1.001,
+          "defaultTheta": 0,
+          "disturbanceRadiusMean": 100,
+          "disturbanceRadiusVariance": 200,
+          "disturbanceSpeedMax": 0.5,
+          "disturbanceSpeedMin": 0,
+          "flowCoefficient": 0.5,
+          "flowFieldSpacing": 6,
+          "moteForce": 0.1,
+          "moteRadius": 42,
+          "numDisturbances": 21,
+          "numMotes": 4200,
+          "pressureDecay": 0.214,
+          "thetaVariance": 3.14
+        },
+        "seed": "0x1b50318e0b301eab6c7147d253268b6a06cdb98920792de015b8927cdd44087a"
+      },
+      "title": "A uniform cloud makes its own weather"
+    },
+    {
+      "expectations": [
+        {
+          "actual": 0.444192,
+          "label": "density variation at R",
+          "maximum": 0.55,
+          "metric": "densityCvR",
+          "minimum": 0.35,
+          "passed": true
+        },
+        {
+          "actual": 0,
+          "label": "empty interaction-scale cells",
+          "maximum": 0.03,
+          "metric": "emptyFractionR",
+          "minimum": 0,
+          "passed": true
+        },
+        {
+          "actual": 4472,
+          "label": "edge reinjections",
+          "maximum": 5500,
+          "metric": "totalReinjections",
+          "minimum": 3500,
+          "passed": true
+        }
+      ],
+      "id": "without-soft-wall",
+      "identity": {
+        "definitionSha256": "sha256:8a23e49819b4d017987741717358e36b2321da1aca572fe532aaa0bc08608c19",
+        "dynamicsVersion": "legacy-v1",
+        "evidenceLevel": "paired-seed",
+        "exhibitRevision": 1,
+        "exhibitSchema": "polysome.science-exhibit/v1",
+        "metricVersion": "polysome-morphology-v1"
+      },
+      "passed": true,
+      "run": {
+        "bounds": {
+          "height": 1000,
+          "width": 622.82
+        },
+        "changedParameters": ["boundaryForce", "boundaryForceMax"],
+        "measurementStep": 300,
+        "parameters": {
+          "boundaryForce": 0,
+          "boundaryForceMax": 0,
+          "boundarySpawnDepth": 50,
+          "boundaryZone": 200,
+          "cxFlowCoefficient": 1.001,
+          "defaultTheta": 0,
+          "disturbanceRadiusMean": 100,
+          "disturbanceRadiusVariance": 200,
+          "disturbanceSpeedMax": 0.5,
+          "disturbanceSpeedMin": 0,
+          "flowCoefficient": 0.5,
+          "flowFieldSpacing": 6,
+          "moteForce": 0.1,
+          "moteRadius": 42,
+          "numDisturbances": 21,
+          "numMotes": 4200,
+          "pressureDecay": 0.214,
+          "thetaVariance": 3.14
+        },
+        "seed": "0x1b50318e0b301eab6c7147d253268b6a06cdb98920792de015b8927cdd44087a"
+      },
+      "title": "Open the soft wall"
+    },
+    {
+      "expectations": [
+        {
+          "actual": 1.129023,
+          "label": "density variation at R",
+          "maximum": 1.3,
+          "metric": "densityCvR",
+          "minimum": 0.95,
+          "passed": true
+        },
+        {
+          "actual": 0.272222,
+          "label": "empty interaction-scale cells",
+          "maximum": 0.35,
+          "metric": "emptyFractionR",
+          "minimum": 0.2,
+          "passed": true
+        },
+        {
+          "actual": 0.241667,
+          "label": "largest connected void at R",
+          "metric": "largestVoidR",
+          "minimum": 0.18,
+          "passed": true
+        },
+        {
+          "actual": 2.030397,
+          "label": "contact enrichment",
+          "maximum": 2.4,
+          "metric": "contactRatio",
+          "minimum": 1.7,
+          "passed": true
+        },
+        {
+          "actual": 0,
+          "label": "motes at the 8-bit ceiling",
+          "maximum": 0,
+          "metric": "pressureAt255",
+          "passed": true
+        }
+      ],
+      "id": "without-repulsion",
+      "identity": {
+        "definitionSha256": "sha256:c4625e7663d47ff88e43ba195a1e99c75e7b45ad098cc3f70bbaef242571a402",
+        "dynamicsVersion": "legacy-v1",
+        "evidenceLevel": "paired-seed",
+        "exhibitRevision": 1,
+        "exhibitSchema": "polysome.science-exhibit/v1",
+        "metricVersion": "polysome-morphology-v1"
+      },
+      "passed": true,
+      "run": {
+        "bounds": {
+          "height": 1000,
+          "width": 622.82
+        },
+        "changedParameters": ["moteForce"],
+        "liveStopStep": 166,
+        "measurementStep": 100,
+        "parameters": {
+          "boundaryForce": 1,
+          "boundaryForceMax": 1.5,
+          "boundarySpawnDepth": 50,
+          "boundaryZone": 200,
+          "cxFlowCoefficient": 1.001,
+          "defaultTheta": 0,
+          "disturbanceRadiusMean": 100,
+          "disturbanceRadiusVariance": 200,
+          "disturbanceSpeedMax": 0.5,
+          "disturbanceSpeedMin": 0,
+          "flowCoefficient": 0.5,
+          "flowFieldSpacing": 6,
+          "moteForce": 0,
+          "moteRadius": 42,
+          "numDisturbances": 21,
+          "numMotes": 4200,
+          "pressureDecay": 0.214,
+          "thetaVariance": 3.14
+        },
+        "seed": "0x1b50318e0b301eab6c7147d253268b6a06cdb98920792de015b8927cdd44087a"
+      },
+      "title": "Remove pair repulsion"
+    }
+  ],
+  "provenance": {
+    "baselineTrajectory": "experiments/results/current-portrait-baseline.json",
+    "catalog": "src/scienceExhibits.ts",
+    "generator": "tools/run-science-exhibits.mjs",
+    "packageName": "@teamdandelion/polysome",
+    "volatileFieldsExcluded": ["generatedAt", "gitCommit", "nodeVersion"]
+  },
+  "schema": "polysome.science-exhibit-evidence/v1",
+  "summary": {
+    "comparisonsPassed": 5,
+    "comparisonsTotal": 5,
+    "exhibitExpectationsPassed": 11,
+    "exhibitExpectationsTotal": 11,
+    "passed": true,
+    "trajectoryClaimsPassed": 7,
+    "trajectoryClaimsTotal": 7
+  },
+  "trajectory": {
+    "claims": [
+      {
+        "actual": 0.954812,
+        "id": "near-uniform-start",
+        "label": "The seeded cloud begins near the nominal uniform contact density",
+        "maximum": 1.1,
+        "minimum": 0.85,
+        "passed": true
+      },
+      {
+        "actual": 1.768342,
+        "id": "contact-enrichment-emerges",
+        "label": "Contact enrichment is present by step 300",
+        "minimum": 1.65,
+        "passed": true
+      },
+      {
+        "actual": 0.161111,
+        "id": "interaction-scale-voids-emerge",
+        "label": "Interaction-scale empty regions are present by step 300",
+        "minimum": 0.12,
+        "passed": true
+      },
+      {
+        "actual": 0.479597,
+        "id": "density-variation-rises",
+        "label": "Interaction-scale density variation rises from step 1 to step 300",
+        "minimum": 0.4,
+        "passed": true
+      },
+      {
+        "actual": 1.83254,
+        "id": "mature-contact-enrichment-persists",
+        "label": "Contact enrichment persists at every mature checkpoint",
+        "minimum": 1.75,
+        "passed": true
+      },
+      {
+        "actual": 0.796292,
+        "id": "mature-density-variation-persists",
+        "label": "Density variation persists at every mature checkpoint",
+        "minimum": 0.75,
+        "passed": true
+      },
+      {
+        "actual": 0,
+        "id": "pressure-counter-remains-unsaturated",
+        "label": "No recorded checkpoint reaches the 8-bit pressure ceiling",
+        "maximum": 0,
+        "passed": true
+      }
+    ],
+    "finalStep": 9000,
+    "passed": true,
+    "runId": "940a8f54de54fa255e360295960b434418533f608cdf3fd886e152a379930995",
+    "source": "experiments/results/current-portrait-baseline.json",
+    "sourceEvidenceSha256": "sha256:486781dbe663e465b83f1056d65546e5dcd1e4332bc0395b49ae6b6f395d8c5f"
+  }
+}

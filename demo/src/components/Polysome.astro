@@ -57,6 +57,7 @@ const { debug = false, seed } = Astro.props;
     )
   }
   <aside class="placard" aria-label="Artwork information">
+    <a href="/science">Open science notebook</a>
     <strong>Polysome</strong>
     <i>Dandelion Mané</i>
   </aside>
@@ -186,11 +187,21 @@ const { debug = false, seed } = Astro.props;
     z-index: 1;
   }
 
+  .placard a,
   .placard strong,
   .placard i {
     backdrop-filter: blur(2px);
     background: hsl(240 100% 10% / 30%);
     padding: 0.15rem 0.4rem;
+  }
+
+  .placard a {
+    align-items: center;
+    color: hsl(185 82% 68%);
+    display: flex;
+    font-size: 0.72rem;
+    min-height: 2.75rem;
+    text-decoration: none;
   }
 
   .placard strong {

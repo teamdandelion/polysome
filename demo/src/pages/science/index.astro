@@ -1,0 +1,755 @@
+---
+import ScienceExhibit from "../../components/ScienceExhibit.astro";
+import ScienceTrajectoryFigure from "../../components/ScienceTrajectoryFigure.astro";
+import baseline from "../../../../experiments/results/current-portrait-baseline.json";
+import evidence from "../../../../experiments/results/science-exhibits.json";
+import {
+  SCIENCE_EXHIBITS,
+  findScienceExhibit,
+} from "../../../../src/scienceExhibits.ts";
+
+const shortCommit = baseline.provenance.gitCommit?.slice(0, 7) ?? "source archive";
+const referenceExhibit = findScienceExhibit("self-organization");
+const evidenceChecksPassed =
+  evidence.summary.exhibitExpectationsPassed +
+  evidence.summary.comparisonsPassed +
+  evidence.summary.trajectoryClaimsPassed;
+const evidenceChecksTotal =
+  evidence.summary.exhibitExpectationsTotal +
+  evidence.summary.comparisonsTotal +
+  evidence.summary.trajectoryClaimsTotal;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="An executable field notebook investigating how Polysome forms clumps, voids, and cores."
+    />
+    <meta name="theme-color" content="#05051a" />
+    <title>Polysome — A living laboratory</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Return to Polysome artwork">
+        <span>Polysome</span>
+        <i>/ science</i>
+      </a>
+      <nav aria-label="Science notebook sections">
+        <a href="#observation">Observation</a>
+        <a href="#model">Model</a>
+        <a href="#exhibits">Exhibits</a>
+        <a href="#method">Method</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="overline">Field notebook 01 · executable science</p>
+          <h1 id="page-title">Polysome:<br /><em>a living laboratory</em></h1>
+          <p class="dek">
+            Polysome was tuned by eye. Now we are learning what it has become.
+            Every specimen here has a seed, a complete recipe, and a test.
+          </p>
+        </div>
+
+        <aside class="ledger" aria-label="Current evidence ledger">
+          <header>
+            <span class="pulse" aria-hidden="true"></span>
+            Current evidence
+          </header>
+          <dl>
+            <div>
+              <dt>Reproduced</dt>
+              <dd>One registered trajectory develops excess contacts and voids.</dd>
+            </div>
+            <div>
+              <dt>Paired clues</dt>
+              <dd>The inward wall organizes; repulsion arrests collapse.</dd>
+            </div>
+            <div>
+              <dt>Still unknown</dt>
+              <dd>How often one- and two-core forms appear across seeds.</dd>
+            </div>
+          </dl>
+          <p>
+            Kernel <code>{referenceExhibit.dynamicsVersion}</code> · metrics <code
+              >{referenceExhibit.metricVersion}</code
+            >
+          </p>
+        </aside>
+      </section>
+
+      <section class="chapter" id="observation" aria-labelledby="observation-title">
+        <p class="chapter-number">Observation / 01</p>
+        <div class="chapter-intro">
+          <h2 id="observation-title">The image is an event, not a drawing.</h2>
+          <p>
+            We begin with 4,200 motes placed almost uniformly. They have no
+            assigned species, clump, or core. Yet the cloud reorganizes into a
+            luminous body with dense islands and dark openings.
+          </p>
+        </div>
+
+        <ScienceTrajectoryFigure />
+
+        <div class="finding-grid">
+          <article>
+            <span>01</span>
+            <h3>Contacts double</h3>
+            <p>
+              By step 9,000 each mote has, on average, about twice as many nearby
+              neighbors as a uniform point field predicts.
+            </p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Voids open</h3>
+            <p>
+              Interaction-scale cells that began occupied become empty. Their
+              area pulses as dense populations split and merge.
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>The regime stays alive</h3>
+            <p>
+              Void area and core mass do not move monotonically on this
+              registered trajectory. One final frame would hide their turnover.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="chapter" id="model" aria-labelledby="model-title">
+        <p class="chapter-number">Working model / 02</p>
+        <div class="chapter-intro">
+          <h2 id="model-title">A current, a pressure, and a soft vessel.</h2>
+          <p>
+            Polysome is an overdamped driven particle system. There is no inertia
+            and no explicit attraction: each step is a sum of transport,
+            pair-pressure, and boundary displacement.
+          </p>
+        </div>
+
+        <div
+          class="equation"
+          role="img"
+          aria-label="Next mote position equals current position plus moving current, mote pressure, and soft-wall displacement"
+        >
+          <span>x<sub>i</sub>(t + 1)</span>
+          <b>=</b>
+          <span>x<sub>i</sub>(t)</span>
+          <b>+</b>
+          <mark class="flow">moving current</mark>
+          <b>+</b>
+          <mark class="pressure">mote pressure</mark>
+          <b>+</b>
+          <mark class="boundary">soft wall</mark>
+        </div>
+
+        <div class="mechanisms">
+          <article>
+            <p>Hypothesis A</p>
+            <h3>Compressible transport sculpts.</h3>
+            <span>
+              A constant-speed direction field can still converge and diverge.
+              Moving basins collect motes; separating regions evacuate voids.
+            </span>
+          </article>
+          <article>
+            <p>Hypothesis B</p>
+            <h3>The soft wall organizes.</h3>
+            <span>
+              On the portrait vessel, the two side-wall zones cover 64% of its
+              width. Inward displacement creates a global collecting region.
+            </span>
+          </article>
+          <article>
+            <p>Hypothesis C</p>
+            <h3>Repulsion regularizes.</h3>
+            <span>
+              Pair repulsion does not make motes aggregate. It prevents
+              convergent transport from collapsing them into singular points.
+            </span>
+          </article>
+        </div>
+      </section>
+
+      <section class="chapter exhibits-chapter" id="exhibits" aria-labelledby="exhibits-title">
+        <p class="chapter-number">Living exhibits / 03</p>
+        <div class="chapter-intro">
+          <h2 id="exhibits-title">Wake one aquarium at a time.</h2>
+          <p>
+            These are real simulations, not looping videos. Each starts from the
+            same registered seed, grows off the main thread, and pauses when it
+            leaves view. The paired specimens differ only in the named rule.
+          </p>
+        </div>
+
+        <div class="battery-note">
+          <strong>Phone-conscious by construction.</strong>
+          Nothing animates until tapped; only one tank runs; every tank stops
+          offscreen. Numerical evidence remains readable when live compute is off.
+        </div>
+
+        {SCIENCE_EXHIBITS.map((exhibit) => <ScienceExhibit exhibit={exhibit} />)}
+      </section>
+
+      <section class="chapter method" id="method" aria-labelledby="method-title">
+        <p class="chapter-number">Method / 04</p>
+        <div class="chapter-intro">
+          <h2 id="method-title">The page is part of the experiment.</h2>
+          <p>
+            An exhibit is a versioned object. Its public claim, aquarium recipe,
+            metric labels, expected envelope, and deployment test all come from
+            the same registry. CI reruns every specimen before this page ships.
+          </p>
+        </div>
+
+        <ol class="method-flow">
+          <li>
+            <span>1</span>
+            <div>
+              <h3>Declare</h3>
+              <p>Fix the seed, dimensions, every rule, observation step, and claim.</p>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <h3>Grow</h3>
+              <p>Advance the browser-free kernel without rendering or wall-clock time.</p>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <h3>Measure</h3>
+              <p>Compute contacts, multiscale density, void topology, and circulation.</p>
+            </div>
+          </li>
+          <li>
+            <span>4</span>
+            <div>
+              <h3>Register</h3>
+              <p>Gate deployment on semantic ranges and paired causal comparisons.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="reproduction-card">
+          <div>
+            <p>Last registered baseline</p>
+            <strong>{shortCommit}</strong>
+          </div>
+          <div>
+            <p>Stable run ID</p>
+            <strong>{baseline.runId.slice(0, 12)}…</strong>
+          </div>
+          <div>
+            <p>Executable checks</p>
+            <strong>{evidenceChecksPassed} / {evidenceChecksTotal}</strong>
+          </div>
+          <a
+            href="https://github.com/teamdandelion/polysome/blob/main/docs/science.md"
+          >Read the full research plan</a>
+        </div>
+      </section>
+
+      <section class="chapter horizon" aria-labelledby="horizon-title">
+        <p class="chapter-number">Research horizon / 05</p>
+        <div class="chapter-intro">
+          <h2 id="horizon-title">What we are building toward.</h2>
+          <p>
+            The next layers turn this field guide into an atlas: exact saved
+            replays, pressure and flow overlays, seed ensembles, and navigable
+            phase maps across the rules that make Polysome itself.
+          </p>
+        </div>
+        <ul>
+          <li><span>Next</span> A deterministic ten-second replay after five simulated minutes.</li>
+          <li><span>Then</span> One-core and two-core persistence measurements.</li>
+          <li><span>Then</span> Paired parameter sweeps and an interactive phase atlas.</li>
+          <li><span>Later</span> A simpler kernel challenged to preserve the phenotype.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <a href="/">Return to the artwork</a>
+      <p>Polysome · Dandelion Mané · a study in progress</p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: dark;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: hsl(246 52% 4%);
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 15% 0%, hsl(285 75% 17% / 28%), transparent 28rem),
+      radial-gradient(circle at 90% 24%, hsl(192 78% 14% / 15%), transparent 32rem),
+      hsl(246 52% 4%);
+    color: hsl(270 20% 88%);
+    margin: 0;
+    min-height: 100%;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .site-header {
+    align-items: center;
+    backdrop-filter: blur(18px);
+    background: hsl(246 52% 4% / 82%);
+    border-bottom: 1px solid hsl(270 36% 42% / 24%);
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    left: 0;
+    padding:
+      max(0.75rem, env(safe-area-inset-top))
+      max(1rem, env(safe-area-inset-right)) 0.75rem
+      max(1rem, env(safe-area-inset-left));
+    position: sticky;
+    right: 0;
+    top: 0;
+    z-index: 20;
+  }
+
+  .wordmark {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    font-size: 0.84rem;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    text-decoration: none;
+  }
+
+  .wordmark span {
+    color: hsl(315 80% 72%);
+    font-weight: 650;
+  }
+
+  .wordmark i {
+    color: hsl(260 16% 68%);
+    font-style: normal;
+  }
+
+  .site-header nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .site-header nav a {
+    align-items: center;
+    border-radius: 999px;
+    color: hsl(260 14% 70%);
+    display: flex;
+    flex: 0 0 auto;
+    font-size: 0.7rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.6rem;
+    text-decoration: none;
+  }
+
+  .site-header nav a:hover,
+  .site-header nav a:focus-visible {
+    background: hsl(260 35% 18%);
+    color: white;
+  }
+
+  main,
+  footer {
+    margin: 0 auto;
+    max-width: 74rem;
+    padding-left: max(1.15rem, env(safe-area-inset-left));
+    padding-right: max(1.15rem, env(safe-area-inset-right));
+  }
+
+  .hero {
+    display: grid;
+    gap: 2.5rem;
+    min-height: min(48rem, 88svh);
+    padding-bottom: 5rem;
+    padding-top: clamp(4rem, 14vw, 9rem);
+  }
+
+  .hero-copy {
+    align-self: center;
+    max-width: 50rem;
+  }
+
+  .overline,
+  .chapter-number {
+    color: hsl(184 68% 67%);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    margin: 0 0 1rem;
+    text-transform: uppercase;
+  }
+
+  h1,
+  h2 {
+    color: hsl(300 45% 95%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: clamp(3.2rem, 15vw, 7.8rem);
+    line-height: 0.88;
+  }
+
+  h1 em {
+    color: hsl(316 72% 71%);
+    font-weight: 400;
+  }
+
+  .dek {
+    color: hsl(265 18% 76%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    line-height: 1.55;
+    margin: 2rem 0 0;
+    max-width: 42rem;
+  }
+
+  .ledger {
+    align-self: end;
+    background: hsl(246 38% 8% / 74%);
+    border: 1px solid hsl(272 38% 44% / 34%);
+    border-radius: 1.15rem;
+    max-width: 30rem;
+    padding: 1rem;
+  }
+
+  .ledger header {
+    align-items: center;
+    color: hsl(150 53% 72%);
+    display: flex;
+    font-size: 0.72rem;
+    gap: 0.5rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .pulse {
+    background: hsl(150 62% 60%);
+    border-radius: 50%;
+    box-shadow: 0 0 0.7rem hsl(150 65% 62%);
+    height: 0.45rem;
+    width: 0.45rem;
+  }
+
+  .ledger dl {
+    margin: 0.75rem 0;
+  }
+
+  .ledger dl > div {
+    border-top: 1px solid hsl(260 28% 42% / 25%);
+    display: grid;
+    gap: 0.6rem;
+    grid-template-columns: 6rem 1fr;
+    padding: 0.65rem 0;
+  }
+
+  .ledger dt {
+    color: hsl(315 65% 72%);
+    font-size: 0.7rem;
+  }
+
+  .ledger dd {
+    color: hsl(260 14% 72%);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .ledger > p {
+    color: hsl(260 12% 58%);
+    font-size: 0.65rem;
+    margin: 0;
+  }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  .chapter {
+    border-top: 1px solid hsl(270 36% 42% / 30%);
+    padding: clamp(4rem, 13vw, 8rem) 0;
+    scroll-margin-top: 4rem;
+  }
+
+  .chapter-intro {
+    display: grid;
+    gap: 1rem;
+  }
+
+  h2 {
+    font-size: clamp(2.4rem, 10vw, 5.6rem);
+    line-height: 0.98;
+  }
+
+  .chapter-intro > p {
+    color: hsl(260 16% 74%);
+    font-size: clamp(1.05rem, 3vw, 1.25rem);
+    line-height: 1.7;
+    margin: 0;
+    max-width: 40rem;
+  }
+
+  .finding-grid,
+  .mechanisms {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .finding-grid article,
+  .mechanisms article {
+    background: hsl(246 34% 8% / 70%);
+    border: 1px solid hsl(264 32% 42% / 30%);
+    border-radius: 1rem;
+    padding: 1.15rem;
+  }
+
+  .finding-grid article > span,
+  .mechanisms article > p {
+    color: hsl(184 66% 67%);
+    font: 0.67rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.08em;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .finding-grid h3,
+  .mechanisms h3,
+  .method-flow h3 {
+    color: hsl(290 30% 91%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin: 0.65rem 0 0.4rem;
+  }
+
+  .finding-grid p,
+  .mechanisms span,
+  .method-flow p {
+    color: hsl(260 14% 68%);
+    font-size: 0.88rem;
+    line-height: 1.58;
+    margin: 0;
+  }
+
+  .equation {
+    align-items: center;
+    background:
+      radial-gradient(circle at 50% 50%, hsl(275 78% 19% / 22%), transparent 55%),
+      hsl(242 54% 6%);
+    border: 1px solid hsl(270 42% 44% / 30%);
+    border-radius: 1.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1rem, 3vw, 1.35rem);
+    gap: 0.55rem;
+    justify-content: center;
+    margin: 2rem 0;
+    min-height: 12rem;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .equation b {
+    color: hsl(260 12% 55%);
+    font-weight: 400;
+  }
+
+  .equation mark {
+    background: none;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.35rem 0.6rem;
+  }
+
+  .equation .flow {
+    color: hsl(184 72% 68%);
+  }
+
+  .equation .pressure {
+    color: hsl(315 78% 72%);
+  }
+
+  .equation .boundary {
+    color: hsl(43 82% 68%);
+  }
+
+  .battery-note {
+    background: hsl(188 45% 11% / 55%);
+    border: 1px solid hsl(184 50% 45% / 32%);
+    border-radius: 0.85rem;
+    color: hsl(184 22% 75%);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-top: 2rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .battery-note strong {
+    color: hsl(184 65% 74%);
+  }
+
+  .method-flow {
+    counter-reset: method;
+    display: grid;
+    gap: 0;
+    list-style: none;
+    margin: 2.5rem 0;
+    padding: 0;
+  }
+
+  .method-flow li {
+    border-top: 1px solid hsl(260 28% 42% / 30%);
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 2.5rem 1fr;
+    padding: 1rem 0;
+  }
+
+  .method-flow li > span {
+    color: hsl(315 72% 70%);
+    font: 0.75rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    padding-top: 0.4rem;
+  }
+
+  .method-flow h3 {
+    margin-top: 0;
+  }
+
+  .reproduction-card {
+    background: hsl(246 40% 8%);
+    border: 1px solid hsl(270 34% 44% / 35%);
+    border-radius: 1rem;
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .reproduction-card p {
+    color: hsl(260 13% 60%);
+    font-size: 0.68rem;
+    margin: 0 0 0.25rem;
+  }
+
+  .reproduction-card strong {
+    color: hsl(150 50% 71%);
+    font: 0.82rem ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  .reproduction-card a {
+    align-self: center;
+    color: hsl(184 65% 72%);
+    font-size: 0.78rem;
+  }
+
+  .horizon ul {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+  }
+
+  .horizon li {
+    border-top: 1px solid hsl(260 28% 42% / 28%);
+    color: hsl(270 18% 78%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.05rem, 3vw, 1.35rem);
+    line-height: 1.4;
+    padding: 1rem 0;
+  }
+
+  .horizon li span {
+    color: hsl(315 68% 70%);
+    display: inline-block;
+    font: 0.65rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    margin-right: 1rem;
+    text-transform: uppercase;
+    width: 3rem;
+  }
+
+  footer {
+    border-top: 1px solid hsl(270 36% 42% / 30%);
+    color: hsl(260 12% 58%);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.72rem;
+    gap: 1rem;
+    justify-content: space-between;
+    padding-bottom: max(3rem, env(safe-area-inset-bottom));
+    padding-top: 2rem;
+  }
+
+  footer a {
+    color: hsl(315 60% 72%);
+  }
+
+  footer p {
+    margin: 0;
+  }
+
+  @media (min-width: 46rem) {
+    .hero {
+      align-items: end;
+      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.5fr);
+    }
+
+    .chapter-intro {
+      align-items: start;
+      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.52fr);
+    }
+
+    .finding-grid,
+    .mechanisms {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .reproduction-card {
+      grid-template-columns: repeat(3, 1fr) auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      scroll-behavior: auto;
+    }
+  }
+</style>

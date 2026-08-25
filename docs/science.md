@@ -132,7 +132,7 @@ Cartesian grid:
 - disturbance coverage, angular variance, and disturbance-radius/domain ratio;
 - disturbance motion time divided by mote transport time;
 - boundary-zone/domain ratio and boundary/flow force ratio; and
-- aspect ratio plus flow-grid spacing/interation-radius ratio.
+- aspect ratio plus flow-grid spacing/interaction-radius ratio.
 
 Use the following sequence:
 
@@ -178,6 +178,32 @@ phenotype-preserving. A faster implementation that changes floating-point
 summation order may fail the first class while satisfying the latter two. Any
 transition-rule, RNG-order, precision, boundary, or overflow change gets a new
 `dynamicsVersion` and must be compared to `legacy-v1` with paired seeds.
+
+## The public living notebook
+
+The development site exposes this work at `/science` as a mobile-first field
+notebook. Its first three exhibits are the reference organism and two paired,
+single-seed ablations: opening the soft wall and removing pair repulsion. They
+are real simulations advanced in a Web Worker, never looping videos. Nothing
+runs until a visitor wakes a specimen, only one aquarium advances at once, and
+animation pauses outside the viewport.
+
+Every exhibit is declared once in `src/scienceExhibits.ts`. The declaration owns
+its stable anchor, seed, bounds, complete parameter set, measurement step,
+public claim, and semantic metric envelope. The Astro page, browser Worker, and
+Node test consume that same object. Run the registrar locally with:
+
+```sh
+npm run test:exhibits
+npm run check:evidence
+```
+
+CI gives these checks their own PR-gating **Exhibit claims** job. It fails when a
+deterministic specimen falls outside its registered ranges or when a paired
+comparison no longer holds. This is a software reproducibility claim, not proof
+of universality: the page labels the results as one registered trajectory or
+one paired seed, and the seed-ensemble program above remains the route to
+population-level claims.
 
 ## Studio architecture
 
