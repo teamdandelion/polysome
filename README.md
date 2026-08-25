@@ -96,7 +96,8 @@ npm run dev
 ```
 
 The Astro development frontend runs at `http://localhost:4321`. Its `/debug`
-route enables Polysome's performance logging. Other useful commands:
+route provides a mobile-friendly performance benchmark and exportable report;
+see [docs/performance.md](docs/performance.md). Other useful commands:
 
 ```sh
 npm run typecheck   # TypeScript validation

@@ -1,5 +1,5 @@
 import { FlowField } from "./flowField.ts";
-import { PerfMap } from "./perfBuffer.ts";
+import type { SimulationPerformance } from "./performance.ts";
 import { Rng, makeSeededRng } from "./random.ts";
 import { SimulationParams } from "./simulationParams.ts";
 import { Vector } from "./vector.ts";
@@ -38,7 +38,12 @@ class MoteSimulator {
     [-1, 1], // down-left
   ] as const;
 
-  constructor(params: SimulationParams, seed: string, xDim: number, yDim: number) {
+  constructor(
+    params: SimulationParams,
+    seed: string,
+    xDim: number,
+    yDim: number,
+  ) {
     this.params = params;
     this.xMax = xDim;
     this.yMax = yDim;
@@ -69,31 +74,45 @@ class MoteSimulator {
     }
   }
 
-  step(): PerfMap {
-    const perf = new Map<string, number>();
+  step(collectPerformance = false): SimulationPerformance | null {
+    if (!collectPerformance) {
+      this.flowField.step();
+      this.reset();
+      this.computePressure();
+      this.moveMotes();
+      this.stepCounter++;
+      return null;
+    }
+
     const stepStart = performance.now();
 
     const flowFieldStart = performance.now();
     this.flowField.step(); // Update the flow field
-    perf.set("simulate/flowField", performance.now() - flowFieldStart);
+    const flowFieldMs = performance.now() - flowFieldStart;
 
     const resetStart = performance.now();
     this.reset(); // Reset mote colllision velocities and collision counts
-    perf.set("simulate/reset", performance.now() - resetStart);
+    const resetMs = performance.now() - resetStart;
 
     const collisionsStart = performance.now();
-    const nCollisions = this.computePressure(); // Compute collision velocity and count for each mote
-    perf.set("simulate/processCollisions", performance.now() - collisionsStart);
-    perf.set("simulate/nCollisions", nCollisions / 1000);
+    const collisionCount = this.computePressure(); // Compute collision velocity and count for each mote
+    const collisionMs = performance.now() - collisionsStart;
 
     const moveStart = performance.now();
     this.moveMotes(); // Move motes based on collision velocities and flow field
-    perf.set("simulate/moveMotes", performance.now() - moveStart);
+    const moveMotesMs = performance.now() - moveStart;
 
-    perf.set("simulate", performance.now() - stepStart);
+    const simulateMs = performance.now() - stepStart;
     this.stepCounter++;
 
-    return perf;
+    return {
+      simulateMs,
+      flowFieldMs,
+      resetMs,
+      collisionMs,
+      moveMotesMs,
+      collisionCount,
+    };
   }
 
   reset(): void {
@@ -199,8 +218,7 @@ class MoteSimulator {
             const decayDistance = params.pressureDecay * params.moteRadius;
             if (d >= params.moteRadius - decayDistance) {
               forceFactor =
-                (params.moteForce * (params.moteRadius - d)) /
-                decayDistance;
+                (params.moteForce * (params.moteRadius - d)) / decayDistance;
             }
 
             const magnitude = d > 0 ? forceFactor / d : 0;
@@ -257,8 +275,7 @@ class MoteSimulator {
               const decayDistance = params.pressureDecay * params.moteRadius;
               if (d >= params.moteRadius - decayDistance) {
                 forceFactor =
-                  (params.moteForce * (params.moteRadius - d)) /
-                  decayDistance;
+                  (params.moteForce * (params.moteRadius - d)) / decayDistance;
               }
 
               const magnitude = d > 0 ? forceFactor / d : 0;
@@ -296,7 +313,7 @@ class MoteSimulator {
         this.moteX[i],
         this.moteY[i],
         flowCoefficient,
-        flowVector
+        flowVector,
       );
 
       // Apply boundary repulsion forces
@@ -349,7 +366,10 @@ class MoteSimulator {
       return { x: this.xMax - inset, y: t - this.xMax };
     } else if (t < 2 * this.xMax + this.yMax) {
       // Bottom edge
-      return { x: this.xMax - (t - this.xMax - this.yMax), y: this.yMax - inset };
+      return {
+        x: this.xMax - (t - this.xMax - this.yMax),
+        y: this.yMax - inset,
+      };
     } else {
       // Left edge
       return { x: inset, y: this.yMax - (t - 2 * this.xMax - this.yMax) };
