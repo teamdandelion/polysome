@@ -39,7 +39,7 @@ This is a one-time dashboard operation:
 7. Confirm that Worker preview URLs are enabled.
 
 `wrangler deploy` promotes each successful `main` build to the stable
-[polysome.dandelion-a67.workers.dev](https://polysome.dandelion-a67.workers.dev)
+[polysome.teamdandelion.workers.dev](https://polysome.teamdandelion.workers.dev)
 development frontend. Pull-request builds only upload preview versions and
 cannot change that URL. The canonically published artwork remains
 `dandelion.art/art/polysome` and may intentionally lag behind `main`.

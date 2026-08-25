@@ -4,7 +4,7 @@ Polysome is the simulation and Canvas 2D renderer behind the generative artwork
 at [dandelion.art/art/polysome](https://dandelion.art/art/polysome).
 
 The latest development frontend from `main` is always available at
-[polysome.dandelion-a67.workers.dev](https://polysome.dandelion-a67.workers.dev).
+[polysome.teamdandelion.workers.dev](https://polysome.teamdandelion.workers.dev).
 It may be ahead of the version currently published on dandelion.art.
 
 This repository owns the artwork's engine, renderer, development demo, and npm
