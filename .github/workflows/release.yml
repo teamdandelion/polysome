@@ -52,7 +52,7 @@ jobs:
           fi
           gh api --method POST repos/teamdandelion/dandelion.art/dispatches \
             --raw-field event_type=polysome-released \
-            --field "client_payload[package]=@teamdandelion/polysome" \
-            --field "client_payload[version]=$POLYSOME_VERSION" \
-            --field "client_payload[tag]=$POLYSOME_TAG" \
-            --field "client_payload[repository]=${{ github.repository }}"
+            --raw-field "client_payload[package]=@teamdandelion/polysome" \
+            --raw-field "client_payload[version]=$POLYSOME_VERSION" \
+            --raw-field "client_payload[tag]=$POLYSOME_TAG" \
+            --raw-field "client_payload[repository]=${{ github.repository }}"
