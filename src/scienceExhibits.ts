@@ -43,7 +43,6 @@ export type ScienceExhibit = {
   width: number;
   height: number;
   measurementStep: number;
-  liveFps: number;
   liveStopStep?: number;
   parameters: Readonly<SimulationParams>;
   changedParameters: readonly (keyof SimulationParams)[];
@@ -123,7 +122,6 @@ export const SCIENCE_EXHIBITS: readonly ScienceExhibit[] = Object.freeze([
     width: 622.82,
     height: 1000,
     measurementStep: 300,
-    liveFps: 8,
     parameters: reference(),
     changedParameters: [],
     expectations: [
@@ -169,7 +167,6 @@ export const SCIENCE_EXHIBITS: readonly ScienceExhibit[] = Object.freeze([
     width: 622.82,
     height: 1000,
     measurementStep: 300,
-    liveFps: 8,
     parameters: reference({ boundaryForce: 0, boundaryForceMax: 0 }),
     changedParameters: ["boundaryForce", "boundaryForceMax"],
     expectations: [
@@ -215,7 +212,6 @@ export const SCIENCE_EXHIBITS: readonly ScienceExhibit[] = Object.freeze([
     width: 622.82,
     height: 1000,
     measurementStep: 100,
-    liveFps: 3,
     liveStopStep: 166,
     parameters: reference({ moteForce: 0 }),
     changedParameters: ["moteForce"],

@@ -11,6 +11,7 @@ type IncomingMessage =
   | { type: "initialize"; exhibitId: string }
   | { type: "play" }
   | { type: "pause" }
+  | { type: "tick" }
   | { type: "restart" };
 
 let exhibit: ReturnType<typeof findScienceExhibit> | undefined;
@@ -18,10 +19,10 @@ let simulation: Simulation | undefined;
 let generation = 0;
 let wantsToPlay = false;
 let ready = false;
-let timer: ReturnType<typeof setTimeout> | undefined;
 let resumeWaiters: Array<() => void> = [];
 
-const waitForTask = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+const waitForTask = () =>
+  new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 function wakeResumeWaiters() {
   for (const resolve of resumeWaiters) resolve();
@@ -34,11 +35,6 @@ async function waitUntilPlaying(thisGeneration: number): Promise<boolean> {
     if (thisGeneration !== generation) return false;
   }
   return true;
-}
-
-function stopTimer() {
-  if (timer !== undefined) clearTimeout(timer);
-  timer = undefined;
 }
 
 function postFrame() {
@@ -62,35 +58,28 @@ function postFrame() {
   );
 }
 
-function scheduleFrame() {
-  stopTimer();
+function advanceLiveFrame() {
   if (!ready || !wantsToPlay || !simulation || !exhibit) return;
   const activeSimulation = simulation;
   const activeExhibit = exhibit;
-  timer = setTimeout(() => {
-    timer = undefined;
-    activeSimulation.step();
-    postFrame();
-    if (
-      activeExhibit.liveStopStep !== undefined &&
-      activeSimulation.view().step >= activeExhibit.liveStopStep
-    ) {
-      wantsToPlay = false;
-      self.postMessage({
-        type: "complete",
-        step: activeSimulation.view().step,
-        reason: "registered-limit",
-      });
-      return;
-    }
-    scheduleFrame();
-  }, 1000 / exhibit.liveFps);
+  activeSimulation.step();
+  postFrame();
+  if (
+    activeExhibit.liveStopStep !== undefined &&
+    activeSimulation.view().step >= activeExhibit.liveStopStep
+  ) {
+    wantsToPlay = false;
+    self.postMessage({
+      type: "complete",
+      step: activeSimulation.view().step,
+      reason: "registered-limit",
+    });
+  }
 }
 
 async function initialize(exhibitId: string) {
   const thisGeneration = ++generation;
   wakeResumeWaiters();
-  stopTimer();
   ready = false;
   exhibit = findScienceExhibit(exhibitId);
   simulation = new Simulation(exhibit.seed, exhibit.width, exhibit.height, {
@@ -123,6 +112,7 @@ async function initialize(exhibitId: string) {
   const view = simulation.view();
   const morphology = measureMorphology(view);
   const expectations = evaluateScienceExhibit(exhibit, morphology, view);
+  postFrame();
   ready = true;
   self.postMessage({
     type: "measurement",
@@ -130,8 +120,6 @@ async function initialize(exhibitId: string) {
     expectations,
     passed: expectations.every((expectation) => expectation.passed),
   });
-  postFrame();
-  scheduleFrame();
 }
 
 self.addEventListener("message", (event: MessageEvent<IncomingMessage>) => {
@@ -149,13 +137,16 @@ self.addEventListener("message", (event: MessageEvent<IncomingMessage>) => {
   if (message.type === "play") {
     wantsToPlay = true;
     wakeResumeWaiters();
-    scheduleFrame();
     return;
   }
 
   if (message.type === "pause") {
     wantsToPlay = false;
-    stopTimer();
+    return;
+  }
+
+  if (message.type === "tick") {
+    advanceLiveFrame();
     return;
   }
 

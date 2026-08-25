@@ -52,6 +52,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
   data-science-exhibit
   data-exhibit-id={exhibit.id}
   data-tank-phase="expanded"
+  data-tank-chrome="full"
 >
   <header class="exhibit-heading">
     <div class="catalogue-number" aria-hidden="true">{exhibit.number}</div>
@@ -86,8 +87,8 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
             <span>Wakes in view and runs locally on this device.</span>
           </div>
 
-          <div class="tank-runtime" aria-hidden="true">
-            {exhibit.liveFps} fps · DPR 1
+          <div class="tank-runtime" data-render-runtime aria-hidden="true">
+            Display refresh · DPR ≤ 2
           </div>
           <div
             class="tank-controls"
@@ -172,11 +173,19 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
 </article>
 
 <script>
-  import { ColorInterpolationSystem } from "../../../src/colorInterpolationSystem.ts";
-  import { hsbToRgb } from "../../../src/colorUtils.ts";
+  import { MoteRenderer } from "../../../src/moteRenderer.ts";
+  import { makeSeededRng } from "../../../src/random.ts";
+  import { RenderContext } from "../../../src/renderContext.ts";
   import { RenderParams } from "../../../src/renderParams.ts";
-  import { formatScienceMetric } from "../../../src/scienceExhibits.ts";
-  import { calculateTankWindow } from "../science/tankGeometry.ts";
+  import {
+    findScienceExhibit,
+    formatScienceMetric,
+  } from "../../../src/scienceExhibits.ts";
+  import { Vector } from "../../../src/vector.ts";
+  import {
+    calculateCompactTankHeight,
+    calculateTankWindow,
+  } from "../science/tankGeometry.ts";
 
   type FrameMessage = {
     type: "frame";
@@ -215,14 +224,8 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     | { type: "complete"; step: number; reason: "registered-limit" }
     | { type: "error"; message: string };
 
-  const colorPoints = new RenderParams().colorInterpolationPoints.map(
-    ({ pressure, color }) => ({ pressure, color: { ...color } }),
-  );
-  const colorSystem = new ColorInterpolationSystem(colorPoints);
-  const pressurePalette = Array.from({ length: 16 }, (_, bucket) => {
-    const color = colorSystem.getColor(bucket * 16 + 8);
-    return hsbToRgb(color.h, color.s, color.b);
-  });
+  const MAX_PIXEL_RATIO = 2;
+  const COMPACT_CHROME_HEIGHT = 216;
 
   type TankGeometryRegistration = {
     root: HTMLElement;
@@ -241,12 +244,18 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     // keeps three live exhibits to one layout pass per scroll frame on iOS.
     const measurements = Array.from(tankGeometries, (registration) => {
       const spacerRect = registration.spacer.getBoundingClientRect();
+      const compactHeight = calculateCompactTankHeight(
+        window.innerHeight,
+        registration.stickyTop,
+        spacerRect.height,
+      );
       return {
         registration,
         geometry: calculateTankWindow(
           spacerRect.top,
           registration.stickyTop,
           spacerRect.height,
+          compactHeight,
         ),
       };
     });
@@ -266,6 +275,11 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       }
       if (phaseChanged) {
         registration.root.dataset.tankPhase = geometry.phase;
+      }
+      const chrome =
+        geometry.height <= COMPACT_CHROME_HEIGHT ? "compact" : "full";
+      if (registration.root.dataset.tankChrome !== chrome) {
+        registration.root.dataset.tankChrome = chrome;
       }
     }
   };
@@ -326,6 +340,9 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       const status = root.querySelector<HTMLElement>("[data-status]");
       const progress = root.querySelector<HTMLProgressElement>("[data-progress]");
       const stepLabel = root.querySelector<HTMLElement>("[data-step]");
+      const renderRuntime = root.querySelector<HTMLElement>(
+        "[data-render-runtime]",
+      );
       const reproduction = root.querySelector<HTMLElement>(
         "[data-reproduction]",
       );
@@ -342,18 +359,23 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
         !status ||
         !progress ||
         !stepLabel ||
+        !renderRuntime ||
         !reproduction
       ) {
         return;
       }
 
-      const context = canvas.getContext("2d");
-      if (!context) return;
+      if (!canvas.getContext("2d")) return;
+      const exhibitDefinition = findScienceExhibit(exhibitId);
 
       let worker: Worker | undefined;
+      let renderContext: RenderContext | undefined;
+      let moteRenderer: MoteRenderer | undefined;
       let initialized = false;
       let ready = false;
       let running = false;
+      let liveAnimationFrame = 0;
+      let liveFramePending = false;
       let requestedPlay = false;
       let visible = false;
       let manuallyPaused = false;
@@ -362,6 +384,47 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       let retryBlocked = false;
       let lastFrame: FrameMessage | undefined;
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      const ensureRenderer = () => {
+        if (renderContext && moteRenderer) {
+          return { renderContext, moteRenderer };
+        }
+
+        const renderParams = new RenderParams();
+        const renderRng = makeSeededRng(exhibitDefinition.seed);
+        moteRenderer = new MoteRenderer(
+          renderParams,
+          exhibitDefinition.parameters.numMotes,
+          exhibitDefinition.parameters.moteRadius,
+          renderRng,
+        );
+        renderContext = new RenderContext(
+          canvas,
+          renderParams,
+          new Vector(exhibitDefinition.width, exhibitDefinition.height),
+          1,
+          renderRng,
+          MAX_PIXEL_RATIO,
+        );
+        return { renderContext, moteRenderer };
+      };
+
+      const resizeRenderingSurface = (context: RenderContext) => {
+        const rect = canvas.getBoundingClientRect();
+        const pixelRatio = Math.min(
+          window.devicePixelRatio || 1,
+          MAX_PIXEL_RATIO,
+        );
+        const width = Math.max(1, Math.round(rect.width * pixelRatio));
+        const height = Math.max(1, Math.round(rect.height * pixelRatio));
+        if (canvas.width !== width || canvas.height !== height) {
+          context.resize(undefined, undefined, MAX_PIXEL_RATIO);
+        }
+        const runtimeLabel = `Display refresh · DPR ${pixelRatio.toFixed(1)}`;
+        if (renderRuntime.textContent !== runtimeLabel) {
+          renderRuntime.textContent = runtimeLabel;
+        }
+      };
 
       const setStatus = (message: string) => {
         status.textContent = message;
@@ -386,18 +449,54 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
 
       const clearSurface = () => {
         lastFrame = undefined;
-        const rect = canvas.getBoundingClientRect();
-        const width = Math.max(1, Math.round(rect.width));
-        const height = Math.max(1, Math.round(rect.height));
-        canvas.width = width;
-        canvas.height = height;
-        context.fillStyle = "hsl(240 100% 5%)";
-        context.fillRect(0, 0, width, height);
+        const renderer = ensureRenderer();
+        resizeRenderingSurface(renderer.renderContext);
+        renderer.renderContext.background(
+          renderer.renderContext.params.backgroundColor.h,
+          renderer.renderContext.params.backgroundColor.s,
+          renderer.renderContext.params.backgroundColor.b,
+        );
         stepLabel.textContent = "0";
+      };
+
+      const stopLiveFramePump = () => {
+        if (liveAnimationFrame !== 0) {
+          window.cancelAnimationFrame(liveAnimationFrame);
+          liveAnimationFrame = 0;
+        }
+      };
+
+      const requestLiveFrame = () => {
+        liveAnimationFrame = 0;
+        if (
+          !running ||
+          !ready ||
+          reachedLimit ||
+          liveFramePending ||
+          !worker
+        ) {
+          return;
+        }
+        liveFramePending = true;
+        worker.postMessage({ type: "tick" });
+      };
+
+      const scheduleLiveFrame = () => {
+        if (
+          liveAnimationFrame === 0 &&
+          running &&
+          ready &&
+          !reachedLimit &&
+          !liveFramePending
+        ) {
+          liveAnimationFrame = window.requestAnimationFrame(requestLiveFrame);
+        }
       };
 
       const reportWorkerFailure = (failedWorker?: Worker) => {
         if (failedWorker && worker !== failedWorker) return;
+        stopLiveFramePump();
+        liveFramePending = false;
         worker?.terminate();
         worker = undefined;
         initialized = false;
@@ -417,47 +516,18 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       };
 
       const draw = (frame: FrameMessage) => {
-        const rect = canvas.getBoundingClientRect();
-        const width = Math.max(1, Math.round(rect.width));
-        const height = Math.max(1, Math.round(rect.height));
-        if (canvas.width !== width || canvas.height !== height) {
-          canvas.width = width;
-          canvas.height = height;
-        }
-
-        context.fillStyle = "hsl(240 100% 5%)";
-        context.fillRect(0, 0, width, height);
-        // Keep the world at a constant, width-fitted scale. The compact tank is
-        // a cropped window onto this same surface, never a smaller simulation.
-        const scale = width / frame.width;
-        const offsetX = (width - frame.width * scale) / 2;
-        const offsetY = (height - frame.height * scale) / 2;
-        const radius = Math.max(0.75, frame.moteRadius * 0.07 * scale);
-        const paths = Array.from({ length: pressurePalette.length }, () =>
-          new Path2D(),
+        const renderer = ensureRenderer();
+        renderer.renderContext.background(
+          renderer.renderContext.params.backgroundColor.h,
+          renderer.renderContext.params.backgroundColor.s,
+          renderer.renderContext.params.backgroundColor.b,
         );
-
-        for (let index = 0; index < frame.moteX.length; index++) {
-          const bucket = Math.min(15, frame.motePressure[index] >> 4);
-          const x = offsetX + frame.moteX[index] * scale;
-          const y = offsetY + frame.moteY[index] * scale;
-          if (
-            x < -radius ||
-            x > width + radius ||
-            y < -radius ||
-            y > height + radius
-          ) {
-            continue;
-          }
-          paths[bucket].moveTo(x + radius, y);
-          paths[bucket].arc(x, y, radius, 0, Math.PI * 2);
-        }
-
-        context.lineWidth = Math.max(0.5, 0.5 * scale);
-        for (let bucket = 0; bucket < paths.length; bucket++) {
-          context.strokeStyle = pressurePalette[bucket];
-          context.stroke(paths[bucket]);
-        }
+        renderer.moteRenderer.render(
+          frame.moteX,
+          frame.moteY,
+          frame.motePressure,
+          renderer.renderContext,
+        );
         stepLabel.textContent = frame.step.toLocaleString("en-US");
       };
 
@@ -488,9 +558,16 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
         } else if (initialized && !shouldRun) {
           setStatus("Specimen preparation paused");
         }
+        if (shouldRun) {
+          scheduleLiveFrame();
+        } else {
+          stopLiveFramePump();
+        }
       };
 
       const initialize = () => {
+        stopLiveFramePump();
+        liveFramePending = false;
         if (worker) {
           worker.terminate();
           worker = undefined;
@@ -531,8 +608,10 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
             }
 
             if (message.type === "frame") {
+              liveFramePending = false;
               lastFrame = message;
-              draw(message);
+              if (running) draw(message);
+              scheduleLiveFrame();
               return;
             }
 
@@ -567,6 +646,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
             }
 
             if (message.type === "complete") {
+              liveFramePending = false;
               requestedPlay = false;
               running = false;
               reachedLimit = true;
@@ -667,9 +747,18 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       intersection.observe(tank);
 
       const resize = new ResizeObserver(() => {
+        if (renderContext) resizeRenderingSurface(renderContext);
         if (lastFrame) draw(lastFrame);
       });
       resize.observe(canvas);
+
+      const refreshRenderingSurface = () => {
+        if (renderContext) resizeRenderingSurface(renderContext);
+        if (lastFrame) draw(lastFrame);
+      };
+      window.addEventListener("resize", refreshRenderingSurface, {
+        passive: true,
+      });
 
       const siteHeader = document.querySelector<HTMLElement>(".site-header");
       const tankGeometry: TankGeometryRegistration = {
@@ -726,12 +815,15 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       };
 
       const cleanup = () => {
+        stopLiveFramePump();
+        liveFramePending = false;
         intersection.disconnect();
         resize.disconnect();
         geometryResize.disconnect();
         unregisterTankGeometry();
         document.removeEventListener("visibilitychange", handleVisibilityChange);
         reducedMotion.removeEventListener("change", handleReducedMotionChange);
+        window.removeEventListener("resize", refreshRenderingSurface);
         window.removeEventListener("pagehide", handlePageHide);
         window.removeEventListener("pageshow", handlePageShow);
         worker?.terminate();
@@ -740,6 +832,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
 
       const handlePageHide = (event: PageTransitionEvent) => {
         if (event.persisted) {
+          stopLiveFramePump();
           running = false;
           worker?.postMessage({ type: "pause" });
           return;
@@ -754,6 +847,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
         window.requestAnimationFrame(() =>
           window.requestAnimationFrame(scheduleTankGeometries),
         );
+        refreshRenderingSurface();
         refreshVisibility();
         autoWake();
       };
@@ -848,7 +942,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
       inset 0 0 4rem hsl(260 80% 15% / 30%),
       0 2rem 5rem hsl(250 100% 2% / 55%);
     height: 100%;
-    overflow: hidden;
+    overflow: clip;
     pointer-events: auto;
     position: relative;
     touch-action: pan-y;
@@ -940,6 +1034,25 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     display: none;
   }
 
+  [data-tank-chrome="compact"] .wake-panel {
+    bottom: auto;
+    left: max(0.75rem, env(safe-area-inset-left));
+    padding: 0.35rem 0.55rem;
+    right: max(0.75rem, env(safe-area-inset-right));
+    top: 2.35rem;
+  }
+
+  [data-tank-chrome="compact"] .wake-panel p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-tank-chrome="compact"] .wake-panel progress,
+  [data-tank-chrome="compact"] .wake-panel span {
+    display: none;
+  }
+
   .tank-controls {
     align-items: center;
     -webkit-backdrop-filter: blur(18px) saturate(160%);
@@ -961,6 +1074,10 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     position: absolute;
     right: max(0.75rem, env(safe-area-inset-right));
     z-index: 4;
+  }
+
+  [data-tank-chrome="compact"] .tank-controls {
+    bottom: 0.75rem;
   }
 
   button {
@@ -1011,6 +1128,10 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     text-shadow: 0 1px 0.5rem hsl(245 100% 2%);
     text-transform: uppercase;
     z-index: 2;
+  }
+
+  [data-tank-chrome="compact"] .tank-runtime {
+    bottom: 1.05rem;
   }
 
   .exhibit-copy {

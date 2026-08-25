@@ -1,4 +1,5 @@
-export const COMPACT_TANK_RATIO = 0.5;
+export const COMPACT_TANK_VIEWPORT_SHARE = 1 / 3;
+export const COMPACT_TANK_MIN_HEIGHT = 144;
 
 export type TankWindowPhase = "expanded" | "shrinking" | "compact";
 
@@ -9,15 +10,47 @@ export type TankWindowGeometry = {
 };
 
 /**
+ * Keep the compact aquarium inside the top third of the viewport, including
+ * the sticky site header. A small floor keeps its controls usable in short
+ * viewports.
+ */
+export const calculateCompactTankHeight = (
+  viewportHeight: number,
+  stickyTop: number,
+  expandedHeight: number,
+): number => {
+  if (
+    !Number.isFinite(viewportHeight) ||
+    viewportHeight <= 0 ||
+    !Number.isFinite(stickyTop) ||
+    stickyTop < 0 ||
+    !Number.isFinite(expandedHeight) ||
+    expandedHeight <= 0
+  ) {
+    throw new RangeError(
+      "Compact tank geometry requires a positive viewport and finite dimensions",
+    );
+  }
+
+  return Math.min(
+    expandedHeight,
+    Math.max(
+      COMPACT_TANK_MIN_HEIGHT,
+      viewportHeight * COMPACT_TANK_VIEWPORT_SHARE - stickyTop,
+    ),
+  );
+};
+
+/**
  * Turn document scroll into a window onto a fixed-size simulation surface.
  * The window begins shrinking once its source spacer reaches the sticky top,
- * loses one pixel of height per pixel scrolled, and stops at half height.
+ * loses one pixel of height per pixel scrolled, and stops at compactHeight.
  */
 export const calculateTankWindow = (
   spacerTop: number,
   stickyTop: number,
   expandedHeight: number,
-  compactRatio = COMPACT_TANK_RATIO,
+  compactHeight: number,
 ): TankWindowGeometry => {
   if (
     !Number.isFinite(spacerTop) ||
@@ -29,13 +62,17 @@ export const calculateTankWindow = (
       "Tank geometry requires finite positions and a positive height",
     );
   }
-  if (!Number.isFinite(compactRatio) || compactRatio <= 0 || compactRatio > 1) {
+  if (
+    !Number.isFinite(compactHeight) ||
+    compactHeight <= 0 ||
+    compactHeight > expandedHeight
+  ) {
     throw new RangeError(
-      "Tank compact ratio must be greater than 0 and at most 1",
+      "Tank compact height must be positive and no larger than its expanded height",
     );
   }
 
-  const maximumCollapse = expandedHeight * (1 - compactRatio);
+  const maximumCollapse = expandedHeight - compactHeight;
   const collapse = Math.min(
     maximumCollapse,
     Math.max(0, stickyTop - spacerTop),
