@@ -9,37 +9,30 @@ history remains in Git without being copied into the initial changelog.
 
 ## One-time setup
 
-### 1. Confirm the npm scope
+### 1. npm package and trusted publisher
 
 The package is named `@teamdandelion/polysome` and is configured as public. The
-publishing npm account must be allowed to publish within the `teamdandelion`
-scope.
+`teamdandelion` npm user owns that scope. Version `0.0.0` was published manually
+to create the package, and the temporary bootstrap token was revoked
+immediately afterward.
 
-If that npm organization does not exist, create it or deliberately choose a
-different owned scope before the first release. Update the package name, the
-release workflow, and this documentation together.
+The package trusts exactly one GitHub Actions publisher:
 
-### 2. Bootstrap the first npm publication
+- organization/user: `teamdandelion`
+- repository: `polysome`
+- workflow filename: `release.yml`
+- allowed action: `npm publish`
 
-Trusted publishing is configured on an existing npm package. For the first
-release, create a granular npm automation token that can publish this package
-and add it to the Polysome GitHub repository as the `NPM_TOKEN` Actions secret.
-
-After the first release exists on npm:
-
-1. Open the package's publishing-access settings on npm.
-2. Add a GitHub Actions trusted publisher.
-3. Use organization/user `teamdandelion`, repository `polysome`, and workflow
-   filename `release.yml`.
-4. Allow `npm publish`.
-5. Remove `NPM_TOKEN` from the GitHub repository after one successful
-   trusted-publishing release.
+Publishing access requires two-factor authentication and disallows bypass-2FA
+tokens. Normal releases therefore authenticate exclusively through GitHub's
+short-lived OIDC identity; there is no npm token or `NPM_TOKEN` repository
+secret to create, rotate, or remove.
 
 The release workflow grants `id-token: write`, uses Node 24/npm 11+, and has a
 repository URL matching the publishing repository, as npm trusted publishing
 requires.
 
-### 3. Allow Release Please pull requests to run CI
+### 2. Allow Release Please pull requests to run CI
 
 Add a fine-grained GitHub token as the `RELEASE_PLEASE_TOKEN` repository secret.
 It should be able to create branches, pull requests, releases, and tags in the
@@ -49,7 +42,7 @@ The workflow falls back to `GITHUB_TOKEN`, but GitHub suppresses new workflow
 runs caused by that token. A dedicated token ensures the generated release pull
 request receives normal CI checks.
 
-### 4. Configure the dandelion.art notification
+### 3. Configure the dandelion.art notification
 
 Add a fine-grained token as `DANDELION_ART_DISPATCH_TOKEN`. It must be able to
 send repository dispatch events to `teamdandelion/dandelion.art`.

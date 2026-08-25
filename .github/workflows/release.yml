@@ -38,9 +38,6 @@ jobs:
       - name: Publish to npm
         if: ${{ steps.release.outputs.release_created }}
         run: npm publish
-        env:
-          # Only needed to bootstrap the first release. Trusted publishing uses OIDC.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Notify dandelion.art
         if: ${{ steps.release.outputs.release_created }}
