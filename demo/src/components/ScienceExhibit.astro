@@ -252,14 +252,19 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     });
 
     for (const { registration, geometry } of measurements) {
-      if (Math.abs(geometry.height - registration.lastHeight) >= 0.5) {
+      const phaseChanged =
+        registration.root.dataset.tankPhase !== geometry.phase;
+      if (
+        phaseChanged ||
+        Math.abs(geometry.height - registration.lastHeight) >= 0.5
+      ) {
         registration.column.style.setProperty(
           "--tank-window-height",
           `${geometry.height}px`,
         );
         registration.lastHeight = geometry.height;
       }
-      if (registration.root.dataset.tankPhase !== geometry.phase) {
+      if (phaseChanged) {
         registration.root.dataset.tankPhase = geometry.phase;
       }
     }
