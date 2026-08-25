@@ -1,6 +1,6 @@
 {
   "name": "@teamdandelion/polysome",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "The simulation and Canvas renderer behind the Polysome generative artwork",
   "keywords": [
     "generative-art",

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/teamdandelion/polysome/compare/polysome-v1.1.0...polysome-v1.1.1) (2026-08-25)
+
+
+### Bug Fixes
+
+* send release dispatch values literally ([d243134](https://github.com/teamdandelion/polysome/commit/d243134734581ba7c1faef7a34817f00aaf0ba9d))
+
 ## [1.1.0](https://github.com/teamdandelion/polysome/compare/polysome-v1.0.0...polysome-v1.1.0) (2026-08-25)
 
 
