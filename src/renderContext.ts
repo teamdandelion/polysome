@@ -22,27 +22,46 @@ export class RenderContext {
   zoomY: number;
 
   R: Rng;
+  maxPixelRatio: number;
 
   constructor(
     canvas: HTMLCanvasElement,
     params: RenderParams,
     bounds: Vector,
     zoom: number,
-    R: Rng
+    R: Rng,
+    maxPixelRatio: number,
   ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     this.params = params;
     this.bounds = bounds;
-    this.canvasWidth = window.innerWidth;
-    this.canvasHeight = window.innerHeight;
-    this.canvas.width = this.canvasWidth;
-    this.canvas.height = this.canvasHeight;
-    this.r = this.canvasWidth / bounds.x;
+    this.canvasWidth = 1;
+    this.canvasHeight = 1;
+    this.r = 1;
     this.zoom = zoom;
     this.zoomX = bounds.x / 2;
     this.zoomY = bounds.y / 2;
     this.R = R;
+    this.maxPixelRatio = maxPixelRatio;
+    this.resize();
+  }
+
+  resize(
+    width?: number,
+    height?: number,
+    maxPixelRatio: number = this.maxPixelRatio,
+  ) {
+    const rect = this.canvas.getBoundingClientRect();
+    const cssWidth = width ?? rect.width ?? window.innerWidth;
+    const cssHeight = height ?? rect.height ?? window.innerHeight;
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, maxPixelRatio);
+
+    this.canvasWidth = Math.max(1, Math.round(cssWidth * pixelRatio));
+    this.canvasHeight = Math.max(1, Math.round(cssHeight * pixelRatio));
+    this.canvas.width = this.canvasWidth;
+    this.canvas.height = this.canvasHeight;
+    this.r = this.canvasWidth / this.bounds.x;
   }
 
   background(h: number, s: number, b: number) {

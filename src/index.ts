@@ -1,5 +1,5 @@
 // Core API
-export { Instance } from "./instance.ts";
+export { Instance, type InstanceOptions } from "./instance.ts";
 export { SimulationParams } from "./simulationParams.ts";
 export { RenderParams } from "./renderParams.ts";
 

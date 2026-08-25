@@ -1,1 +1,1 @@
-bun run typecheck
+npm run typecheck
