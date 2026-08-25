@@ -1,0 +1,91 @@
+---
+type Props = {
+  debug?: boolean;
+  seed?: string;
+};
+
+const { debug = false, seed } = Astro.props;
+---
+
+<main class="polysome" data-polysome data-debug={String(debug)} data-seed={seed}>
+  <aside class="placard" aria-label="Artwork information">
+    <strong>Polysome</strong>
+    <i>Dandelion Mané</i>
+  </aside>
+  <canvas aria-label="Polysome generative artwork"></canvas>
+</main>
+
+<script>
+  import { Instance, randomSeed } from "../../../src/index.ts";
+
+  const root = document.querySelector<HTMLElement>("[data-polysome]");
+  const canvas = root?.querySelector<HTMLCanvasElement>("canvas");
+
+  if (!root || !canvas) {
+    throw new Error("Polysome frontend is missing its canvas");
+  }
+
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const xDim = width >= height ? 1000 : (width / height) * 1000;
+  const yDim = width >= height ? (height / width) * 1000 : 1000;
+  const seed = root.dataset.seed || randomSeed();
+
+  const instance = new Instance(seed, xDim, yDim, {
+    logPerformance: root.dataset.debug === "true",
+  });
+
+  instance.setup(canvas);
+  instance.start();
+
+  window.addEventListener("pagehide", () => instance.destroy(), { once: true });
+</script>
+
+<style>
+  :global(html),
+  :global(body) {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  :global(body) {
+    background: hsl(240 100% 5%);
+    color: hsl(261 53% 36%);
+    font-family: system-ui, sans-serif;
+  }
+
+  .polysome,
+  canvas {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  .placard {
+    align-items: end;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    position: absolute;
+    right: 0;
+    z-index: 1;
+  }
+
+  .placard strong,
+  .placard i {
+    backdrop-filter: blur(2px);
+    background: hsl(240 100% 10% / 30%);
+    padding: 0.15rem 0.4rem;
+  }
+
+  .placard strong {
+    color: hsl(281 100% 50%);
+  }
+
+  .placard i {
+    color: hsl(258 100% 51%);
+  }
+</style>

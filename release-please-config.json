@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "5420f41c49b76aedffc664518d0798f9b04a81f9",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "@teamdandelion/polysome"
+    }
+  }
+}

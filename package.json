@@ -1,32 +1,66 @@
 {
-  "name": "polysome",
+  "name": "@teamdandelion/polysome",
   "version": "0.0.0",
-  "description": "An abstract biological exploration",
+  "description": "The simulation and Canvas renderer behind the Polysome generative artwork",
+  "keywords": [
+    "generative-art",
+    "canvas",
+    "particles",
+    "simulation",
+    "flow-field"
+  ],
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
   "files": [
-    "src"
+    "dist",
+    "README.md"
   ],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teamdandelion/polysome.git"
+  },
+  "homepage": "https://dandelion.art/art/polysome",
+  "bugs": {
+    "url": "https://github.com/teamdandelion/polysome/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "overrides": {
+    "esbuild": "0.28.2"
+  },
   "scripts": {
-    "dev": "bun build.ts --dev",
-    "build": "bun build.ts",
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean",
+    "build:demo": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview:demo": "wrangler dev",
+    "upload:preview": "npm run build:demo && wrangler versions upload",
     "typecheck": "tsc --noEmit",
+    "typecheck:demo": "ASTRO_TELEMETRY_DISABLED=1 astro check",
+    "check:worker": "WRANGLER_SEND_METRICS=false WRANGLER_LOG_PATH=/tmp/polysome-wrangler.log wrangler versions upload --dry-run",
+    "check": "npm run typecheck && npm run typecheck:demo && npm run build && npm run build:demo && npm run check:worker",
+    "pack:check": "npm pack --dry-run",
+    "prepublishOnly": "npm run check",
     "prepare": "husky"
   },
   "author": "Dandelion Mané",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "devDependencies": {
-    "@types/bun": "latest",
-    "@types/react": "^18.2.47",
-    "@types/react-dom": "^18.2.18",
+    "@astrojs/check": "^0.9.10",
+    "astro": "^7.2.6",
     "husky": "^9.1.7",
     "prettier": "^3.1.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.2",
-    "typescript": "^5.0.0"
+    "tsup": "^8.5.0",
+    "typescript": "^5.0.0",
+    "wrangler": "^4.67.0"
   }
 }
