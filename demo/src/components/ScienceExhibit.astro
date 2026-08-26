@@ -58,7 +58,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     <div class="catalogue-number" aria-hidden="true">{exhibit.number}</div>
     <div>
       <p class="eyebrow">{exhibit.eyebrow}</p>
-      <h3>{exhibit.title}</h3>
+      <h2>{exhibit.title}</h2>
     </div>
   </header>
 
@@ -131,9 +131,9 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
           <header>
             <div>
               <p>
-                Executable claim · step {exhibit.measurementStep.toLocaleString("en-US")}
+                Reproduction check · step {exhibit.measurementStep.toLocaleString("en-US")}
               </p>
-              <h4 id={`${exhibit.id}-contract`}>Registered measurement envelope</h4>
+              <h3 id={`${exhibit.id}-contract`}>Registered diagnostics</h3>
             </div>
             <span class="reproduction" data-reproduction data-state="registered">
               Reproduced by CI
@@ -163,8 +163,9 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
           </dl>
           <p class="contract-note">
             These checked-in actuals are regenerated from the same definition used
-            by the Worker and deployment test. Passing means this deterministic
-            specimen was reproduced—not that the claim is universal across seeds.
+            by the Worker and CI test. Passing means this deterministic specimen was
+            reproduced. It does not show that these diagnostics capture the visual
+            behavior or generalize across seeds.
           </p>
         </section>
       </div>
@@ -895,7 +896,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     text-transform: uppercase;
   }
 
-  h3 {
+  .exhibit-heading h2 {
     color: hsl(300 45% 94%);
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(1.85rem, 7vw, 3.4rem);
@@ -1188,7 +1189,7 @@ const expectedRange = (expectation: ScienceExhibitExpectation) => {
     text-transform: uppercase;
   }
 
-  h4 {
+  .contract h3 {
     color: hsl(280 24% 88%);
     font-size: 0.85rem;
     font-weight: 600;

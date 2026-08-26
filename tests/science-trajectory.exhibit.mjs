@@ -50,7 +50,7 @@ function assertNear(actual, expected, tolerance, label) {
   );
 }
 
-test("the public reference exhibit is the registered baseline artifact", () => {
+test("the reference trajectory fixture matches the registered baseline artifact", () => {
   assert.ok(reference, "science exhibit registry is missing self-organization");
   assert.equal(manifest.schema, "polysome.experiment/v1");
   assert.equal(manifest.label, "current-portrait-baseline");
@@ -94,7 +94,7 @@ test("the public reference exhibit is the registered baseline artifact", () => {
   assert.ok(manifest.measurements.atSteps.includes(reference.measurementStep));
 });
 
-test("the canonical trajectory retains the public clump-and-void phenotype", () => {
+test("the canonical trajectory retains its registered regression fingerprint", () => {
   assert.ok(reference, "science exhibit registry is missing self-organization");
 
   const simulation = new Simulation(
@@ -188,8 +188,8 @@ test("the canonical trajectory retains the public clump-and-void phenotype", () 
   }
 
   // The void opens, contracts, and reopens while dense mass falls and then
-  // consolidates. This guards the public claim that the regime pulses instead
-  // of moving monotonically toward one frozen endpoint.
+  // consolidates. This preserves a useful regression fingerprint without
+  // treating one trajectory as a general scientific conclusion.
   assert.ok(at(900).emptyFraction > at(300).emptyFraction);
   assert.ok(at(1800).emptyFraction < at(900).emptyFraction - 0.07);
   assert.ok(at(3600).emptyFraction > at(1800).emptyFraction + 0.02);

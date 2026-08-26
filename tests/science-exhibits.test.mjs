@@ -71,7 +71,7 @@ test("science exhibit registry is complete and has stable unique anchors", () =>
   }
 });
 
-test("every deployed science exhibit reproduces its semantic claim", () => {
+test("every registered science specimen reproduces its contract", () => {
   const observations = new Map();
 
   const observe = (exhibit, step) => {

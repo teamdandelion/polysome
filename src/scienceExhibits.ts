@@ -97,8 +97,9 @@ const reference = (overrides: Partial<SimulationParams> = {}) =>
   Object.freeze({ ...REFERENCE_PARAMETERS, ...overrides });
 
 /**
- * Durable, deterministic exhibits rendered by `/science` and enforced by CI.
- * Each expectation is intentionally an envelope, not an exact float snapshot.
+ * Durable deterministic specimens enforced by CI. Publication is selected
+ * separately by the demo notebook; each expectation is intentionally an
+ * envelope, not an exact float snapshot.
  */
 export const SCIENCE_EXHIBITS: readonly ScienceExhibit[] = Object.freeze([
   {

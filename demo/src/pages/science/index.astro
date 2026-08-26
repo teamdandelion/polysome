@@ -1,23 +1,25 @@
 ---
 import ScienceExhibit from "../../components/ScienceExhibit.astro";
-import ScienceTrajectoryFigure from "../../components/ScienceTrajectoryFigure.astro";
+import { NOTEBOOK_EXHIBITS } from "../../science/notebook.ts";
 import baseline from "../../../../experiments/results/current-portrait-baseline.json";
 import evidence from "../../../../experiments/results/science-exhibits.json";
-import {
-  SCIENCE_EXHIBITS,
-  findScienceExhibit,
-} from "../../../../src/scienceExhibits.ts";
 
-const shortCommit = baseline.provenance.gitCommit?.slice(0, 7) ?? "source archive";
-const referenceExhibit = findScienceExhibit("self-organization");
-const evidenceChecksPassed =
-  evidence.summary.exhibitExpectationsPassed +
-  evidence.summary.comparisonsPassed +
-  evidence.summary.trajectoryClaimsPassed;
-const evidenceChecksTotal =
-  evidence.summary.exhibitExpectationsTotal +
-  evidence.summary.comparisonsTotal +
-  evidence.summary.trajectoryClaimsTotal;
+const referenceExhibit = NOTEBOOK_EXHIBITS[0];
+const registeredEvidence = evidence.exhibits.find(
+  ({ id }) => id === referenceExhibit.id,
+);
+if (!registeredEvidence) {
+  throw new Error(`Notebook evidence is missing ${referenceExhibit.id}`);
+}
+
+const checksPassed = registeredEvidence.expectations.filter(
+  ({ passed }) => passed,
+).length;
+const checksTotal = registeredEvidence.expectations.length;
+const shortCommit = baseline.provenance.gitCommit?.slice(0, 7) ?? "archived";
+const definitionHash = registeredEvidence.identity.definitionSha256
+  .replace("sha256:", "")
+  .slice(0, 12);
 ---
 
 <!doctype html>
@@ -30,264 +32,116 @@ const evidenceChecksTotal =
     />
     <meta
       name="description"
-      content="An executable field notebook investigating how Polysome forms clumps, voids, and cores."
+      content="The minimal executable scaffold for the Polysome science notebook."
     />
     <meta name="theme-color" content="#05051a" />
-    <title>Polysome — A living laboratory</title>
+    <title>Polysome — Science notebook</title>
   </head>
   <body>
     <header class="site-header">
       <a class="wordmark" href="/" aria-label="Return to Polysome artwork">
         <span>Polysome</span>
-        <i>/ science</i>
+        <i>/ notebook</i>
       </a>
-      <nav aria-label="Science notebook sections">
-        <a href="#observation">Observation</a>
-        <a href="#model">Model</a>
-        <a href="#exhibits">Exhibits</a>
-        <a href="#method">Method</a>
-      </nav>
+      <a class="artwork-link" href="/">Artwork</a>
     </header>
 
     <main>
       <section class="hero" aria-labelledby="page-title">
-        <div class="hero-copy">
-          <p class="overline">Field notebook 01 · executable science</p>
-          <h1 id="page-title">Polysome:<br /><em>a living laboratory</em></h1>
-          <p class="dek">
-            Polysome was tuned by eye. Now we are learning what it has become.
-            Every specimen here has a seed, a complete recipe, and a test.
-          </p>
-        </div>
+        <p class="overline">Science notebook · scaffold</p>
+        <h1 id="page-title">The notebook works.<br /><em>Now we can investigate.</em></h1>
+        <p class="dek">
+          This page is deliberately small. It proves that we can define one
+          Polysome run, grow it live, measure it without rendering, and ask CI to
+          reproduce it on every proposed change. It does not yet explain the forms
+          Polysome makes.
+        </p>
 
-        <aside class="ledger" aria-label="Current evidence ledger">
-          <header>
-            <span class="pulse" aria-hidden="true"></span>
-            Current evidence
-          </header>
-          <dl>
-            <div>
-              <dt>Reproduced</dt>
-              <dd>One registered trajectory develops excess contacts and voids.</dd>
-            </div>
-            <div>
-              <dt>Paired clues</dt>
-              <dd>The inward wall organizes; repulsion arrests collapse.</dd>
-            </div>
-            <div>
-              <dt>Still unknown</dt>
-              <dd>How often one- and two-core forms appear across seeds.</dd>
-            </div>
-          </dl>
-          <p>
-            Kernel <code>{referenceExhibit.dynamicsVersion}</code> · metrics <code
-              >{referenceExhibit.metricVersion}</code
-            >
-          </p>
-        </aside>
-      </section>
-
-      <section class="chapter" id="observation" aria-labelledby="observation-title">
-        <p class="chapter-number">Observation / 01</p>
-        <div class="chapter-intro">
-          <h2 id="observation-title">The image is an event, not a drawing.</h2>
-          <p>
-            We begin with 4,200 motes placed almost uniformly. They have no
-            assigned species, clump, or core. Yet the cloud reorganizes into a
-            luminous body with dense islands and dark openings.
-          </p>
-        </div>
-
-        <ScienceTrajectoryFigure />
-
-        <div class="finding-grid">
-          <article>
-            <span>01</span>
-            <h3>Contacts double</h3>
-            <p>
-              By step 9,000 each mote has, on average, about twice as many nearby
-              neighbors as a uniform point field predicts.
-            </p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Voids open</h3>
-            <p>
-              Interaction-scale cells that began occupied become empty. Their
-              area pulses as dense populations split and merge.
-            </p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>The regime stays alive</h3>
-            <p>
-              Void area and core mass do not move monotonically on this
-              registered trajectory. One final frame would hide their turnover.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section class="chapter" id="model" aria-labelledby="model-title">
-        <p class="chapter-number">Working model / 02</p>
-        <div class="chapter-intro">
-          <h2 id="model-title">A current, a pressure, and a soft vessel.</h2>
-          <p>
-            Polysome is an overdamped driven particle system. There is no inertia
-            and no explicit attraction: each step is a sum of transport,
-            pair-pressure, and boundary displacement.
-          </p>
-        </div>
-
-        <div
-          class="equation"
-          role="img"
-          aria-label="Next mote position equals current position plus moving current, mote pressure, and soft-wall displacement"
-        >
-          <span>x<sub>i</sub>(t + 1)</span>
-          <b>=</b>
-          <span>x<sub>i</sub>(t)</span>
-          <b>+</b>
-          <mark class="flow">moving current</mark>
-          <b>+</b>
-          <mark class="pressure">mote pressure</mark>
-          <b>+</b>
-          <mark class="boundary">soft wall</mark>
-        </div>
-
-        <div class="mechanisms">
-          <article>
-            <p>Hypothesis A</p>
-            <h3>Compressible transport sculpts.</h3>
-            <span>
-              A constant-speed direction field can still converge and diverge.
-              Moving basins collect motes; separating regions evacuate voids.
-            </span>
-          </article>
-          <article>
-            <p>Hypothesis B</p>
-            <h3>The soft wall organizes.</h3>
-            <span>
-              On the portrait vessel, the two side-wall zones cover 64% of its
-              width. Inward displacement creates a global collecting region.
-            </span>
-          </article>
-          <article>
-            <p>Hypothesis C</p>
-            <h3>Repulsion regularizes.</h3>
-            <span>
-              Pair repulsion does not make motes aggregate. It prevents
-              convergent transport from collapsing them into singular points.
-            </span>
-          </article>
-        </div>
-      </section>
-
-      <section class="chapter exhibits-chapter" id="exhibits" aria-labelledby="exhibits-title">
-        <p class="chapter-number">Living exhibits / 03</p>
-        <div class="chapter-intro">
-          <h2 id="exhibits-title">Watch one aquarium at a time.</h2>
-          <p>
-            These are real simulations, not looping videos. Each starts from the
-            same registered seed, grows off the main thread, and stays beside the
-            notes while you read. The paired specimens differ only in the named
-            rule.
-          </p>
-        </div>
-
-        <div class="battery-note">
-          <strong>Phone-conscious by construction.</strong>
-          An aquarium wakes when it enters view; only one tank runs, and it stops
-          offscreen. Reduced Motion keeps auto-wake off. Numerical evidence remains
-          readable when live compute is off.
-        </div>
-
-        {SCIENCE_EXHIBITS.map((exhibit) => <ScienceExhibit exhibit={exhibit} />)}
-      </section>
-
-      <section class="chapter method" id="method" aria-labelledby="method-title">
-        <p class="chapter-number">Method / 04</p>
-        <div class="chapter-intro">
-          <h2 id="method-title">The page is part of the experiment.</h2>
-          <p>
-            An exhibit is a versioned object. Its public claim, aquarium recipe,
-            metric labels, expected envelope, and deployment test all come from
-            the same registry. CI reruns every specimen before this page ships.
-          </p>
-        </div>
-
-        <ol class="method-flow">
-          <li>
-            <span>1</span>
-            <div>
-              <h3>Declare</h3>
-              <p>Fix the seed, dimensions, every rule, observation step, and claim.</p>
-            </div>
-          </li>
-          <li>
-            <span>2</span>
-            <div>
-              <h3>Grow</h3>
-              <p>Advance the browser-free kernel without rendering or wall-clock time.</p>
-            </div>
-          </li>
-          <li>
-            <span>3</span>
-            <div>
-              <h3>Measure</h3>
-              <p>Compute contacts, multiscale density, void topology, and circulation.</p>
-            </div>
-          </li>
-          <li>
-            <span>4</span>
-            <div>
-              <h3>Register</h3>
-              <p>Gate deployment on semantic ranges and paired causal comparisons.</p>
-            </div>
-          </li>
-        </ol>
-
-        <div class="reproduction-card">
+        <dl class="status" aria-label="Notebook scope">
           <div>
-            <p>Last registered baseline</p>
+            <dt>Published</dt>
+            <dd>{NOTEBOOK_EXHIBITS.length} reference specimen</dd>
+          </div>
+          <div>
+            <dt>Checked</dt>
+            <dd>{checksPassed} / {checksTotal} diagnostic ranges</dd>
+          </div>
+          <div>
+            <dt>Claimed</dt>
+            <dd>Reproducibility only</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="specimen" id="specimen" aria-label="Notebook instrument check">
+        {
+          NOTEBOOK_EXHIBITS.map((exhibit) => (
+            <ScienceExhibit exhibit={exhibit} />
+          ))
+        }
+      </section>
+
+      <section class="protocol" id="protocol" aria-labelledby="protocol-title">
+        <div class="section-intro">
+          <p class="overline">Current scope</p>
+          <h2 id="protocol-title">What works—and what remains unknown.</h2>
+        </div>
+
+        <div class="scope-grid">
+          <article>
+            <p class="scope-label established">Established here</p>
+            <ul>
+              <li>A complete seed, parameter recipe, and observation step.</li>
+              <li>State evolution separated from rendering in a Web Worker.</li>
+              <li>The same full-fidelity renderer used by the artwork.</li>
+              <li>A CI gate over three deterministic diagnostics.</li>
+            </ul>
+          </article>
+          <article>
+            <p class="scope-label unknown">Not established here</p>
+            <ul>
+              <li>Whether these diagnostics capture the visual phenotype.</li>
+              <li>Whether this seed or moment is representative.</li>
+              <li>Why clumps, voids, and one or two cores form.</li>
+              <li>Which simpler rules would preserve the behavior.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="provenance" aria-label="Reference specimen provenance">
+          <div>
+            <p>Kernel / metrics</p>
+            <strong>{referenceExhibit.dynamicsVersion}<br />{referenceExhibit.metricVersion}</strong>
+          </div>
+          <div>
+            <p>Baseline commit</p>
             <strong>{shortCommit}</strong>
           </div>
           <div>
-            <p>Stable run ID</p>
-            <strong>{baseline.runId.slice(0, 12)}…</strong>
+            <p>Run / definition</p>
+            <strong>{baseline.runId.slice(0, 10)}…<br />{definitionHash}…</strong>
           </div>
-          <div>
-            <p>Executable checks</p>
-            <strong>{evidenceChecksPassed} / {evidenceChecksTotal}</strong>
-          </div>
-          <a
-            href="https://github.com/teamdandelion/polysome/blob/main/docs/science.md"
-          >Read the full research plan</a>
+          <a href="https://github.com/teamdandelion/polysome/blob/main/docs/science.md"
+            >Research plan</a
+          >
         </div>
       </section>
 
-      <section class="chapter horizon" aria-labelledby="horizon-title">
-        <p class="chapter-number">Research horizon / 05</p>
-        <div class="chapter-intro">
-          <h2 id="horizon-title">What we are building toward.</h2>
-          <p>
-            The next layers turn this field guide into an atlas: exact saved
-            replays, pressure and flow overlays, seed ensembles, and navigable
-            phase maps across the rules that make Polysome itself.
-          </p>
-        </div>
-        <ul>
-          <li><span>Next</span> A deterministic ten-second replay after five simulated minutes.</li>
-          <li><span>Then</span> One-core and two-core persistence measurements.</li>
-          <li><span>Then</span> Paired parameter sweeps and an interactive phase atlas.</li>
-          <li><span>Later</span> A simpler kernel challenged to preserve the phenotype.</li>
-        </ul>
+      <section class="next-question" aria-labelledby="next-title">
+        <p class="overline">First real question</p>
+        <h2 id="next-title">How should we measure what we can already see?</h2>
+        <p>
+          We need a reproducible description of clustered islands separated by
+          voids around one or two cores—one that agrees with perception without
+          hard-coding the desired answer. That measurement is where the next
+          notebook entry begins.
+        </p>
       </section>
     </main>
 
     <footer>
       <a href="/">Return to the artwork</a>
-      <p>Polysome · Dandelion Mané · a study in progress</p>
+      <p>Polysome · Dandelion Mané · notebook scaffold</p>
     </footer>
   </body>
 </html>
@@ -312,8 +166,7 @@ const evidenceChecksTotal =
 
   body {
     background:
-      radial-gradient(circle at 15% 0%, hsl(285 75% 17% / 28%), transparent 28rem),
-      radial-gradient(circle at 90% 24%, hsl(192 78% 14% / 15%), transparent 32rem),
+      radial-gradient(circle at 15% 0%, hsl(285 75% 17% / 25%), transparent 25rem),
       hsl(246 52% 4%);
     color: hsl(270 20% 88%);
     margin: 0;
@@ -326,11 +179,11 @@ const evidenceChecksTotal =
 
   .site-header {
     align-items: center;
+    -webkit-backdrop-filter: blur(18px);
     backdrop-filter: blur(18px);
-    background: hsl(246 52% 4% / 82%);
+    background: hsl(246 52% 4% / 84%);
     border-bottom: 1px solid hsl(270 36% 42% / 24%);
     display: flex;
-    gap: 1rem;
     justify-content: space-between;
     left: 0;
     padding:
@@ -343,14 +196,17 @@ const evidenceChecksTotal =
     z-index: 20;
   }
 
-  .wordmark {
+  .wordmark,
+  .artwork-link {
     align-items: center;
     display: flex;
-    flex: 0 0 auto;
-    font-size: 0.84rem;
-    gap: 0.35rem;
     min-height: 2.75rem;
     text-decoration: none;
+  }
+
+  .wordmark {
+    font-size: 0.84rem;
+    gap: 0.35rem;
   }
 
   .wordmark span {
@@ -363,28 +219,16 @@ const evidenceChecksTotal =
     font-style: normal;
   }
 
-  .site-header nav {
-    display: flex;
-    gap: 0.25rem;
-    overflow-x: auto;
-    scrollbar-width: none;
+  .artwork-link {
+    color: hsl(260 14% 72%);
+    font-size: 0.72rem;
+    padding-inline: 0.5rem;
   }
 
-  .site-header nav a {
-    align-items: center;
-    border-radius: 999px;
-    color: hsl(260 14% 70%);
-    display: flex;
-    flex: 0 0 auto;
-    font-size: 0.7rem;
-    min-height: 2.75rem;
-    padding: 0.45rem 0.6rem;
-    text-decoration: none;
-  }
-
-  .site-header nav a:hover,
-  .site-header nav a:focus-visible {
-    background: hsl(260 35% 18%);
+  .wordmark:hover,
+  .wordmark:focus-visible,
+  .artwork-link:hover,
+  .artwork-link:focus-visible {
     color: white;
   }
 
@@ -397,20 +241,12 @@ const evidenceChecksTotal =
   }
 
   .hero {
-    display: grid;
-    gap: 2.5rem;
-    min-height: min(48rem, 88svh);
-    padding-bottom: 5rem;
-    padding-top: clamp(4rem, 14vw, 9rem);
+    max-width: 56rem;
+    padding-bottom: clamp(3rem, 9vw, 5rem);
+    padding-top: clamp(3rem, 9vw, 5rem);
   }
 
-  .hero-copy {
-    align-self: center;
-    max-width: 50rem;
-  }
-
-  .overline,
-  .chapter-number {
+  .overline {
     color: hsl(184 68% 67%);
     font-size: 0.7rem;
     letter-spacing: 0.14em;
@@ -423,14 +259,14 @@ const evidenceChecksTotal =
     color: hsl(300 45% 95%);
     font-family: Georgia, "Times New Roman", serif;
     font-weight: 400;
-    letter-spacing: -0.045em;
+    letter-spacing: -0.04em;
     margin: 0;
     text-wrap: balance;
   }
 
   h1 {
-    font-size: clamp(3.2rem, 15vw, 7.8rem);
-    line-height: 0.88;
+    font-size: clamp(3rem, 13vw, 6.8rem);
+    line-height: 0.92;
   }
 
   h1 em {
@@ -438,276 +274,145 @@ const evidenceChecksTotal =
     font-weight: 400;
   }
 
-  .dek {
-    color: hsl(265 18% 76%);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(1.25rem, 5vw, 1.75rem);
-    line-height: 1.55;
-    margin: 2rem 0 0;
-    max-width: 42rem;
-  }
-
-  .ledger {
-    align-self: end;
-    background: hsl(246 38% 8% / 74%);
-    border: 1px solid hsl(272 38% 44% / 34%);
-    border-radius: 1.15rem;
-    max-width: 30rem;
-    padding: 1rem;
-  }
-
-  .ledger header {
-    align-items: center;
-    color: hsl(150 53% 72%);
-    display: flex;
-    font-size: 0.72rem;
-    gap: 0.5rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .pulse {
-    background: hsl(150 62% 60%);
-    border-radius: 50%;
-    box-shadow: 0 0 0.7rem hsl(150 65% 62%);
-    height: 0.45rem;
-    width: 0.45rem;
-  }
-
-  .ledger dl {
-    margin: 0.75rem 0;
-  }
-
-  .ledger dl > div {
-    border-top: 1px solid hsl(260 28% 42% / 25%);
-    display: grid;
-    gap: 0.6rem;
-    grid-template-columns: 6rem 1fr;
-    padding: 0.65rem 0;
-  }
-
-  .ledger dt {
-    color: hsl(315 65% 72%);
-    font-size: 0.7rem;
-  }
-
-  .ledger dd {
-    color: hsl(260 14% 72%);
-    font-size: 0.78rem;
-    line-height: 1.45;
-    margin: 0;
-  }
-
-  .ledger > p {
-    color: hsl(260 12% 58%);
-    font-size: 0.65rem;
-    margin: 0;
-  }
-
-  code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
-
-  .chapter {
-    border-top: 1px solid hsl(270 36% 42% / 30%);
-    padding: clamp(4rem, 13vw, 8rem) 0;
-    scroll-margin-top: 4rem;
-  }
-
-  .chapter-intro {
-    display: grid;
-    gap: 1rem;
-  }
-
   h2 {
-    font-size: clamp(2.4rem, 10vw, 5.6rem);
+    font-size: clamp(2.35rem, 9vw, 5rem);
     line-height: 0.98;
   }
 
-  .chapter-intro > p {
-    color: hsl(260 16% 74%);
-    font-size: clamp(1.05rem, 3vw, 1.25rem);
-    line-height: 1.7;
-    margin: 0;
-    max-width: 40rem;
+  .dek,
+  .section-intro > p:last-child,
+  .next-question > p:last-child {
+    color: hsl(265 18% 76%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.1rem, 4vw, 1.45rem);
+    line-height: 1.6;
+    margin: 1.5rem 0 0;
+    max-width: 44rem;
   }
 
-  .finding-grid,
-  .mechanisms {
+  .status {
+    background: hsl(246 38% 8% / 74%);
+    border: 1px solid hsl(272 38% 44% / 34%);
+    border-radius: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 2rem 0 0;
+    overflow: hidden;
+  }
+
+  .status > div {
+    border-left: 1px solid hsl(260 28% 42% / 25%);
+    padding: 0.75rem;
+  }
+
+  .status > div:first-child {
+    border-left: 0;
+  }
+
+  .status dt,
+  .provenance p {
+    color: hsl(260 13% 60%);
+    font-size: 0.67rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .status dd {
+    color: hsl(290 24% 88%);
+    font-size: 0.75rem;
+    margin: 0.25rem 0 0;
+  }
+
+  .protocol,
+  .next-question {
+    border-top: 1px solid hsl(270 36% 42% / 30%);
+    padding: clamp(4rem, 12vw, 7rem) 0;
+    scroll-margin-top: 4rem;
+  }
+
+  .specimen {
+    scroll-margin-top: 4rem;
+  }
+
+  .section-intro {
+    max-width: 49rem;
+  }
+
+  .scope-grid {
     display: grid;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 2.5rem;
   }
 
-  .finding-grid article,
-  .mechanisms article {
-    background: hsl(246 34% 8% / 70%);
+  .scope-grid article {
+    background: hsl(246 34% 8% / 72%);
     border: 1px solid hsl(264 32% 42% / 30%);
     border-radius: 1rem;
     padding: 1.15rem;
   }
 
-  .finding-grid article > span,
-  .mechanisms article > p {
-    color: hsl(184 66% 67%);
-    font: 0.67rem ui-monospace, SFMono-Regular, Menlo, monospace;
-    letter-spacing: 0.08em;
+  .scope-label {
+    font: 0.7rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.09em;
     margin: 0;
     text-transform: uppercase;
   }
 
-  .finding-grid h3,
-  .mechanisms h3,
-  .method-flow h3 {
-    color: hsl(290 30% 91%);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 1.3rem;
-    font-weight: 400;
-    margin: 0.65rem 0 0.4rem;
+  .scope-label.established {
+    color: hsl(150 53% 72%);
   }
 
-  .finding-grid p,
-  .mechanisms span,
-  .method-flow p {
-    color: hsl(260 14% 68%);
-    font-size: 0.88rem;
-    line-height: 1.58;
-    margin: 0;
+  .scope-label.unknown {
+    color: hsl(43 78% 72%);
   }
 
-  .equation {
-    align-items: center;
-    background:
-      radial-gradient(circle at 50% 50%, hsl(275 78% 19% / 22%), transparent 55%),
-      hsl(242 54% 6%);
-    border: 1px solid hsl(270 42% 44% / 30%);
-    border-radius: 1.2rem;
-    display: flex;
-    flex-wrap: wrap;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(1rem, 3vw, 1.35rem);
-    gap: 0.55rem;
-    justify-content: center;
-    margin: 2rem 0;
-    min-height: 12rem;
-    padding: 1.25rem;
-    text-align: center;
-  }
-
-  .equation b {
-    color: hsl(260 12% 55%);
-    font-weight: 400;
-  }
-
-  .equation mark {
-    background: none;
-    border: 1px solid currentColor;
-    border-radius: 999px;
-    padding: 0.35rem 0.6rem;
-  }
-
-  .equation .flow {
-    color: hsl(184 72% 68%);
-  }
-
-  .equation .pressure {
-    color: hsl(315 78% 72%);
-  }
-
-  .equation .boundary {
-    color: hsl(43 82% 68%);
-  }
-
-  .battery-note {
-    background: hsl(188 45% 11% / 55%);
-    border: 1px solid hsl(184 50% 45% / 32%);
-    border-radius: 0.85rem;
-    color: hsl(184 22% 75%);
-    font-size: 0.8rem;
-    line-height: 1.5;
-    margin-top: 2rem;
-    padding: 0.8rem 1rem;
-  }
-
-  .battery-note strong {
-    color: hsl(184 65% 74%);
-  }
-
-  .method-flow {
-    counter-reset: method;
-    display: grid;
-    gap: 0;
+  .scope-grid ul {
     list-style: none;
-    margin: 2.5rem 0;
+    margin: 1rem 0 0;
     padding: 0;
   }
 
-  .method-flow li {
-    border-top: 1px solid hsl(260 28% 42% / 30%);
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: 2.5rem 1fr;
-    padding: 1rem 0;
+  .scope-grid li {
+    border-top: 1px solid hsl(260 28% 42% / 25%);
+    color: hsl(260 16% 73%);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    padding: 0.7rem 0;
   }
 
-  .method-flow li > span {
-    color: hsl(315 72% 70%);
-    font: 0.75rem ui-monospace, SFMono-Regular, Menlo, monospace;
-    padding-top: 0.4rem;
+  .scope-grid li::before {
+    color: hsl(315 68% 70%);
+    content: "·";
+    margin-right: 0.55rem;
   }
 
-  .method-flow h3 {
-    margin-top: 0;
-  }
-
-  .reproduction-card {
+  .provenance {
     background: hsl(246 40% 8%);
     border: 1px solid hsl(270 34% 44% / 35%);
     border-radius: 1rem;
     display: grid;
     gap: 1rem;
+    margin-top: 1rem;
     padding: 1rem;
   }
 
-  .reproduction-card p {
-    color: hsl(260 13% 60%);
-    font-size: 0.68rem;
-    margin: 0 0 0.25rem;
+  .provenance p {
+    margin: 0 0 0.3rem;
   }
 
-  .reproduction-card strong {
+  .provenance strong {
     color: hsl(150 50% 71%);
-    font: 0.82rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    font: 0.76rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 
-  .reproduction-card a {
+  .provenance a {
     align-self: center;
     color: hsl(184 65% 72%);
-    font-size: 0.78rem;
+    font-size: 0.8rem;
   }
 
-  .horizon ul {
-    list-style: none;
-    margin: 2rem 0 0;
-    padding: 0;
-  }
-
-  .horizon li {
-    border-top: 1px solid hsl(260 28% 42% / 28%);
-    color: hsl(270 18% 78%);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(1.05rem, 3vw, 1.35rem);
-    line-height: 1.4;
-    padding: 1rem 0;
-  }
-
-  .horizon li span {
-    color: hsl(315 68% 70%);
-    display: inline-block;
-    font: 0.65rem ui-monospace, SFMono-Regular, Menlo, monospace;
-    margin-right: 1rem;
-    text-transform: uppercase;
-    width: 3rem;
+  .next-question {
+    max-width: 50rem;
   }
 
   footer {
@@ -730,24 +435,13 @@ const evidenceChecksTotal =
     margin: 0;
   }
 
-  @media (min-width: 46rem) {
-    .hero {
-      align-items: end;
-      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.5fr);
+  @media (min-width: 44rem) {
+    .scope-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .chapter-intro {
-      align-items: start;
-      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.52fr);
-    }
-
-    .finding-grid,
-    .mechanisms {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .reproduction-card {
-      grid-template-columns: repeat(3, 1fr) auto;
+    .provenance {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
     }
   }
 

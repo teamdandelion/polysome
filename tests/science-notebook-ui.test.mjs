@@ -5,6 +5,11 @@ import {
   calculateCompactTankHeight,
   calculateTankWindow,
 } from "../demo/src/science/tankGeometry.ts";
+import {
+  NOTEBOOK_EXHIBITS,
+  NOTEBOOK_SPECIMEN_IDS,
+} from "../demo/src/science/notebook.ts";
+import { SCIENCE_EXHIBITS } from "../src/scienceExhibits.ts";
 
 const componentPath = new URL(
   "../demo/src/components/ScienceExhibit.astro",
@@ -16,6 +21,34 @@ const worker = await readFile(
   new URL("../demo/src/science/exhibit.worker.ts", import.meta.url),
   "utf8",
 );
+const page = await readFile(
+  new URL("../demo/src/pages/science/index.astro", import.meta.url),
+  "utf8",
+);
+const evidence = JSON.parse(
+  await readFile(
+    new URL("../experiments/results/science-exhibits.json", import.meta.url),
+    "utf8",
+  ),
+);
+
+test("the public notebook explicitly promotes one neutral reference specimen", () => {
+  assert.deepEqual([...NOTEBOOK_SPECIMEN_IDS], ["self-organization"]);
+  assert.deepEqual(
+    NOTEBOOK_EXHIBITS.map(({ id }) => id),
+    ["self-organization"],
+  );
+  assert.ok(SCIENCE_EXHIBITS.length > NOTEBOOK_EXHIBITS.length);
+  for (const exhibit of NOTEBOOK_EXHIBITS) {
+    assert.ok(evidence.exhibits.some(({ id }) => id === exhibit.id));
+    assert.match(exhibit.interpretation, /does not explain/);
+  }
+  assert.match(page, /NOTEBOOK_EXHIBITS\.map/);
+  assert.doesNotMatch(page, /SCIENCE_EXHIBITS\.map/);
+  assert.doesNotMatch(page, /ScienceTrajectoryFigure/);
+  assert.match(page, /Reproducibility only/);
+  assert.match(page, /does not yet explain/);
+});
 
 test("each exhibit reads as title, aquarium, then evidence", () => {
   const heading = markup.indexOf('class="exhibit-heading"');
@@ -25,6 +58,11 @@ test("each exhibit reads as title, aquarium, then evidence", () => {
   assert.ok(heading >= 0, "missing exhibit heading");
   assert.ok(aquarium > heading, "aquarium must follow the title");
   assert.ok(narrative > aquarium, "text and figures must follow the aquarium");
+  assert.match(markup, /<h2>\{exhibit\.title\}<\/h2>/);
+  assert.match(
+    markup,
+    /<h3 id=\{`\$\{exhibit\.id\}-contract`\}>Registered diagnostics<\/h3>/,
+  );
 });
 
 test("the aquarium exposes its long-lived viewport and controls", () => {

@@ -11,6 +11,7 @@ import {
   SCIENCE_EXHIBITS,
   SCIENCE_EXHIBIT_SCHEMA,
   evaluateScienceExhibit,
+  findScienceExhibit,
   readScienceMetric,
 } from "../src/scienceExhibits.ts";
 import { Simulation } from "../src/simulation.ts";
@@ -437,7 +438,9 @@ async function generateEvidence() {
   const comparisons = SCIENCE_COMPARISONS.map((comparison) =>
     comparisonEvidence(comparison, observations),
   );
-  const trajectory = await validateBaselineTrajectory(SCIENCE_EXHIBITS[0]);
+  const trajectory = await validateBaselineTrajectory(
+    findScienceExhibit("self-organization"),
+  );
   const exhibitExpectations = exhibits.flatMap(
     (exhibit) => exhibit.expectations,
   );

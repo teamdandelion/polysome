@@ -7,10 +7,11 @@ The latest development frontend from `main` is always available at
 [polysome.teamdandelion.workers.dev](https://polysome.teamdandelion.workers.dev).
 It may be ahead of the version currently published on dandelion.art.
 
-Its [living science notebook](https://polysome.teamdandelion.workers.dev/science)
-turns the current research plan into phone-friendly figures and opt-in live
-specimens. Each exhibit is deterministic and shares its recipe and measurement
-envelope with the CI test that guards the public claim.
+Its [science notebook](https://polysome.teamdandelion.workers.dev/science) is
+currently an intentionally small instrument check: one live reference specimen
+proves the seeded Worker, renderer, measurement, and CI reproduction pipeline.
+Additional registered configurations remain unpublished regression fixtures
+until they are deliberately promoted after experimental review.
 
 This repository owns the artwork's engine, renderer, development demo, and npm
 releases. The dandelion.art repository owns the public page, routing, and site
@@ -136,7 +137,7 @@ npm run typecheck   # TypeScript validation
 npm run build       # Build the published package into dist/
 npm run build:demo  # Build the browser demo into dist-demo/
 npm test            # Build and run deterministic simulation/metric tests
-npm run test:exhibits # Reproduce the public science exhibits and their claims
+npm run test:exhibits # Reproduce registered science fixtures and contracts
 npm run check:evidence # Verify the checked-in exhibit evidence has not drifted
 npm run experiment  # Run the reference headless experiment
 npm run check       # Run all build and type checks

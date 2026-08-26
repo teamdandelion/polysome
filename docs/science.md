@@ -179,19 +179,20 @@ summation order may fail the first class while satisfying the latter two. Any
 transition-rule, RNG-order, precision, boundary, or overflow change gets a new
 `dynamicsVersion` and must be compared to `legacy-v1` with paired seeds.
 
-## The public living notebook
+## The public notebook scaffold
 
-The development site exposes this work at `/science` as a mobile-first field
-notebook. Its first three exhibits are the reference organism and two paired,
-single-seed ablations: opening the soft wall and removing pair repulsion. They
-are real simulations advanced in a Web Worker, never looping videos. Nothing
-runs until a visitor wakes a specimen, only one aquarium advances at once, and
-animation pauses outside the viewport.
+The development site exposes `/science` as a deliberately minimal mobile-first
+notebook. It publishes one reference specimen to verify that a complete seeded
+recipe can run in a Web Worker, render with the artwork's renderer, produce
+diagnostics, and be reproduced by CI. This is an instrument check, not yet an
+explanation of the pattern or evidence that one seed is representative.
 
-Every exhibit is declared once in `src/scienceExhibits.ts`. The declaration owns
-its stable anchor, seed, bounds, complete parameter set, measurement step,
-public claim, and semantic metric envelope. The Astro page, browser Worker, and
-Node test consume that same object. Run the registrar locally with:
+Numerical specimens are registered in `src/scienceExhibits.ts`. Public entries
+are promoted explicitly in `demo/src/science/notebook.ts`, so a useful
+regression fixture does not automatically become a published scientific claim.
+The soft-wall and pair-repulsion configurations remain registered for software
+regression while their scientific interpretation awaits deliberate experimental
+design. Run the registrar locally with:
 
 ```sh
 npm run test:exhibits
@@ -200,9 +201,8 @@ npm run check:evidence
 
 CI gives these checks their own PR-gating **Exhibit claims** job. It fails when a
 deterministic specimen falls outside its registered ranges or when a paired
-comparison no longer holds. This is a software reproducibility claim, not proof
-of universality: the page labels the results as one registered trajectory or
-one paired seed, and the seed-ensemble program above remains the route to
+comparison no longer holds. Those are software reproducibility contracts, not
+proof of universality; the seed-ensemble program above remains the route to
 population-level claims.
 
 ## Studio architecture
