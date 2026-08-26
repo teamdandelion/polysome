@@ -97,10 +97,14 @@ npm run dev
 
 The Astro development frontend runs at `http://localhost:4321`. Its `/debug`
 route provides a mobile-friendly performance benchmark and exportable report;
-see [docs/performance.md](docs/performance.md). Other useful commands:
+see [docs/performance.md](docs/performance.md). The
+[`/science`](https://polysome.teamdandelion.workers.dev/science/) route is a
+hello-world notebook scaffold: it runs a current-build recipe in a Web Worker
+and draws the returned state beside its notes. Other useful commands:
 
 ```sh
 npm run typecheck   # TypeScript validation
+npm test            # Notebook adapter and aquarium geometry
 npm run build       # Build the published package into dist/
 npm run build:demo  # Build the browser demo into dist-demo/
 npm run check       # Run all build and type checks
