@@ -1,0 +1,1111 @@
+---
+import { SimulationParams } from "../../../src/simulationParams.ts";
+import type { NotebookEntry } from "../notebooks/helloWorld.ts";
+
+type Props = { notebook: NotebookEntry };
+const { notebook } = Astro.props;
+const parameters = Object.assign(
+  new SimulationParams(),
+  notebook.simulation,
+);
+---
+
+<article
+  class="entry"
+  id={notebook.id}
+  data-notebook-entry
+  data-notebook-id={notebook.id}
+  data-tank-phase="expanded"
+  data-tank-chrome="full"
+>
+  <header class="entry-heading">
+    <div class="catalogue-number" aria-hidden="true">00</div>
+    <div>
+      <p class="eyebrow">{notebook.eyebrow}</p>
+      <h2>{notebook.title}</h2>
+    </div>
+  </header>
+
+  <div class="entry-body">
+    <div class="tank-rail">
+      <div class="tank-column" data-tank-column>
+        <div class="tank" data-tank>
+          <div class="tank-surface">
+            <canvas
+              aria-label={`${notebook.title}. Live generative animation.`}
+              role="img"
+              data-notebook-canvas></canvas>
+          </div>
+          <div class="tank-id" aria-hidden="true">
+            <span>current build</span>
+            <span>step <b data-step>0</b></span>
+          </div>
+          <div class="wake-panel" data-wake-panel>
+            <p data-status aria-live="polite">Notebook sleeping</p>
+            <span>Wakes in view and runs locally on this device.</span>
+          </div>
+
+          <div class="tank-runtime" data-render-runtime aria-hidden="true">
+            RAF-paced · DPR ≤ 2
+          </div>
+          <div
+            class="tank-controls"
+            role="group"
+            aria-label={`${notebook.title} controls`}
+          >
+            <button
+              type="button"
+              class="primary"
+              data-toggle
+              aria-label="Wake notebook"
+            >
+              <span class="control-icon" data-toggle-icon aria-hidden="true">▶</span>
+              <span data-toggle-label>Wake</span>
+            </button>
+            <button type="button" data-restart aria-label="Restart notebook" disabled>
+              <span class="control-icon" aria-hidden="true">↻</span>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+        <noscript>
+          <p class="fallback">
+            The live notebook requires JavaScript. Its recipe and notes remain
+            available below the aquarium.
+          </p>
+        </noscript>
+      </div>
+    </div>
+
+    <div class="entry-flow">
+      <div class="tank-spacer" data-tank-spacer aria-hidden="true"></div>
+
+      <div class="entry-copy">
+        <p class="introduction">{notebook.introduction}</p>
+        {notebook.notes.map((note) => <p class="note">{note}</p>)}
+
+        <section class="recipe" aria-labelledby={`${notebook.id}-recipe`}>
+          <header>
+            <div>
+              <p>Hello world</p>
+              <h3 id={`${notebook.id}-recipe`}>Current-build recipe</h3>
+            </div>
+            <span class="current-build">Current build</span>
+          </header>
+          <dl>
+            <div>
+              <dt>Seed</dt>
+              <dd title={notebook.seed}>{notebook.seed.slice(0, 14)}…</dd>
+            </div>
+            <div>
+              <dt>Simulation space</dt>
+              <dd>{notebook.width} × {notebook.height}</dd>
+            </div>
+            <div>
+              <dt>Motes</dt>
+              <dd>{parameters.numMotes.toLocaleString("en-US")}</dd>
+            </div>
+            <div>
+              <dt>Parameters</dt>
+              <dd>Current defaults</dd>
+            </div>
+          </dl>
+          <p class="recipe-note">
+            This recipe uses the Polysome source deployed with this page.
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+</article>
+
+<script>
+  import { MoteRenderer } from "../../../src/moteRenderer.ts";
+  import { makeSeededRng } from "../../../src/random.ts";
+  import { RenderContext } from "../../../src/renderContext.ts";
+  import { RenderParams } from "../../../src/renderParams.ts";
+  import { SimulationParams } from "../../../src/simulationParams.ts";
+  import { Vector } from "../../../src/vector.ts";
+  import { findNotebook } from "../notebooks/helloWorld.ts";
+  import {
+    calculateCompactTankHeight,
+    calculateTankWindow,
+  } from "../notebooks/tankGeometry.ts";
+
+  type FrameMessage = {
+    type: "frame";
+    step: number;
+    width: number;
+    height: number;
+    moteRadius: number;
+    moteX: Float32Array;
+    moteY: Float32Array;
+    motePressure: Uint8Array;
+  };
+
+  type WorkerMessage =
+    | FrameMessage
+    | { type: "ready" }
+    | { type: "error"; message: string };
+
+  const MAX_PIXEL_RATIO = 2;
+  const COMPACT_CHROME_HEIGHT = 216;
+
+  type TankGeometryRegistration = {
+    root: HTMLElement;
+    column: HTMLElement;
+    spacer: HTMLElement;
+    stickyTop: number;
+    lastHeight: number;
+  };
+
+  const tankGeometries = new Set<TankGeometryRegistration>();
+  let tankGeometryFrame = 0;
+
+  const updateTankGeometries = () => {
+    tankGeometryFrame = 0;
+    // Read every layout rectangle before writing any custom properties. This
+    // keeps multiple notebook aquariums to one layout pass per scroll frame.
+    const measurements = Array.from(tankGeometries, (registration) => {
+      const spacerRect = registration.spacer.getBoundingClientRect();
+      const compactHeight = calculateCompactTankHeight(
+        window.innerHeight,
+        registration.stickyTop,
+        spacerRect.height,
+      );
+      return {
+        registration,
+        geometry: calculateTankWindow(
+          spacerRect.top,
+          registration.stickyTop,
+          spacerRect.height,
+          compactHeight,
+        ),
+      };
+    });
+
+    for (const { registration, geometry } of measurements) {
+      const phaseChanged =
+        registration.root.dataset.tankPhase !== geometry.phase;
+      if (
+        phaseChanged ||
+        Math.abs(geometry.height - registration.lastHeight) >= 0.5
+      ) {
+        registration.column.style.setProperty(
+          "--tank-window-height",
+          `${geometry.height}px`,
+        );
+        registration.lastHeight = geometry.height;
+      }
+      if (phaseChanged) {
+        registration.root.dataset.tankPhase = geometry.phase;
+      }
+      const chrome =
+        geometry.height <= COMPACT_CHROME_HEIGHT ? "compact" : "full";
+      if (registration.root.dataset.tankChrome !== chrome) {
+        registration.root.dataset.tankChrome = chrome;
+      }
+    }
+  };
+
+  const scheduleTankGeometries = () => {
+    if (tankGeometryFrame === 0) {
+      tankGeometryFrame = window.requestAnimationFrame(updateTankGeometries);
+    }
+  };
+
+  const registerTankGeometry = (registration: TankGeometryRegistration) => {
+    if (tankGeometries.size === 0) {
+      window.addEventListener("scroll", scheduleTankGeometries, {
+        passive: true,
+      });
+      window.addEventListener("resize", scheduleTankGeometries, {
+        passive: true,
+      });
+      window.visualViewport?.addEventListener(
+        "resize",
+        scheduleTankGeometries,
+        { passive: true },
+      );
+    }
+    tankGeometries.add(registration);
+    scheduleTankGeometries();
+
+    return () => {
+      tankGeometries.delete(registration);
+      if (tankGeometries.size !== 0) return;
+
+      window.removeEventListener("scroll", scheduleTankGeometries);
+      window.removeEventListener("resize", scheduleTankGeometries);
+      window.visualViewport?.removeEventListener(
+        "resize",
+        scheduleTankGeometries,
+      );
+      if (tankGeometryFrame !== 0) {
+        window.cancelAnimationFrame(tankGeometryFrame);
+        tankGeometryFrame = 0;
+      }
+    };
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-notebook-entry]").forEach(
+    (root) => {
+      const notebookId = root.dataset.notebookId;
+      const canvas = root.querySelector<HTMLCanvasElement>(
+        "[data-notebook-canvas]",
+      );
+      const tank = root.querySelector<HTMLElement>("[data-tank]");
+      const tankColumn = root.querySelector<HTMLElement>("[data-tank-column]");
+      const tankSpacer = root.querySelector<HTMLElement>("[data-tank-spacer]");
+      const toggle = root.querySelector<HTMLButtonElement>("[data-toggle]");
+      const toggleIcon = root.querySelector<HTMLElement>("[data-toggle-icon]");
+      const toggleLabel = root.querySelector<HTMLElement>("[data-toggle-label]");
+      const restart = root.querySelector<HTMLButtonElement>("[data-restart]");
+      const status = root.querySelector<HTMLElement>("[data-status]");
+      const stepLabel = root.querySelector<HTMLElement>("[data-step]");
+      const renderRuntime = root.querySelector<HTMLElement>(
+        "[data-render-runtime]",
+      );
+      if (
+        !notebookId ||
+        !canvas ||
+        !tank ||
+        !tankColumn ||
+        !tankSpacer ||
+        !toggle ||
+        !toggleIcon ||
+        !toggleLabel ||
+        !restart ||
+        !status ||
+        !stepLabel ||
+        !renderRuntime
+      ) {
+        return;
+      }
+
+      if (!canvas.getContext("2d")) return;
+      const notebook = findNotebook(notebookId);
+      const parameters = Object.assign(
+        new SimulationParams(),
+        notebook.simulation,
+      );
+
+      let worker: Worker | undefined;
+      let renderContext: RenderContext | undefined;
+      let moteRenderer: MoteRenderer | undefined;
+      let initialized = false;
+      let ready = false;
+      let running = false;
+      let liveAnimationFrame = 0;
+      let liveFramePending = false;
+      let requestedPlay = false;
+      let visible = false;
+      let manuallyPaused = false;
+      let explicitlyStarted = false;
+      let retryBlocked = false;
+      let lastFrame: FrameMessage | undefined;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      const ensureRenderer = () => {
+        if (renderContext && moteRenderer) {
+          return { renderContext, moteRenderer };
+        }
+
+        const renderParams = new RenderParams();
+        const renderRng = makeSeededRng(notebook.seed);
+        moteRenderer = new MoteRenderer(
+          renderParams,
+          parameters.numMotes,
+          parameters.moteRadius,
+          renderRng,
+        );
+        renderContext = new RenderContext(
+          canvas,
+          renderParams,
+          new Vector(notebook.width, notebook.height),
+          1,
+          renderRng,
+          MAX_PIXEL_RATIO,
+        );
+        return { renderContext, moteRenderer };
+      };
+
+      const resizeRenderingSurface = (context: RenderContext) => {
+        const rect = canvas.getBoundingClientRect();
+        const pixelRatio = Math.min(
+          window.devicePixelRatio || 1,
+          MAX_PIXEL_RATIO,
+        );
+        const width = Math.max(1, Math.round(rect.width * pixelRatio));
+        const height = Math.max(1, Math.round(rect.height * pixelRatio));
+        if (canvas.width !== width || canvas.height !== height) {
+          context.resize(undefined, undefined, MAX_PIXEL_RATIO);
+        }
+        const runtimeLabel = `RAF-paced · DPR ${pixelRatio.toFixed(1)}`;
+        if (renderRuntime.textContent !== runtimeLabel) {
+          renderRuntime.textContent = runtimeLabel;
+        }
+      };
+
+      const setStatus = (message: string) => {
+        status.textContent = message;
+      };
+
+      const setToggle = (
+        label: string,
+        icon: string,
+        ariaLabel: string,
+      ) => {
+        toggleLabel.textContent = label;
+        toggleIcon.textContent = icon;
+        toggle.setAttribute("aria-label", ariaLabel);
+        toggle.title = ariaLabel;
+      };
+
+      const activate = () => {
+        window.dispatchEvent(
+          new CustomEvent("polysome:activate-notebook", { detail: notebookId }),
+        );
+      };
+
+      const clearSurface = () => {
+        lastFrame = undefined;
+        const renderer = ensureRenderer();
+        resizeRenderingSurface(renderer.renderContext);
+        renderer.renderContext.background(
+          renderer.renderContext.params.backgroundColor.h,
+          renderer.renderContext.params.backgroundColor.s,
+          renderer.renderContext.params.backgroundColor.b,
+        );
+        stepLabel.textContent = "0";
+      };
+
+      const stopLiveFramePump = () => {
+        if (liveAnimationFrame !== 0) {
+          window.cancelAnimationFrame(liveAnimationFrame);
+          liveAnimationFrame = 0;
+        }
+      };
+
+      const requestLiveFrame = () => {
+        liveAnimationFrame = 0;
+        if (
+          !running ||
+          !ready ||
+          liveFramePending ||
+          !worker
+        ) {
+          return;
+        }
+        liveFramePending = true;
+        worker.postMessage({ type: "tick" });
+      };
+
+      const scheduleLiveFrame = () => {
+        if (
+          liveAnimationFrame === 0 &&
+          running &&
+          ready &&
+          !liveFramePending
+        ) {
+          liveAnimationFrame = window.requestAnimationFrame(requestLiveFrame);
+        }
+      };
+
+      const reportWorkerFailure = (failedWorker?: Worker) => {
+        if (failedWorker && worker !== failedWorker) return;
+        stopLiveFramePump();
+        liveFramePending = false;
+        worker?.terminate();
+        worker = undefined;
+        initialized = false;
+        ready = false;
+        running = false;
+        requestedPlay = false;
+        manuallyPaused = true;
+        retryBlocked = true;
+        toggle.disabled = false;
+        restart.disabled = true;
+        setToggle("Retry", "↻", "Try notebook again");
+        tank.dataset.state = "error";
+        tank.setAttribute("aria-busy", "false");
+        setStatus("Live notebook unavailable; try again");
+      };
+
+      const draw = (frame: FrameMessage) => {
+        const renderer = ensureRenderer();
+        renderer.renderContext.background(
+          renderer.renderContext.params.backgroundColor.h,
+          renderer.renderContext.params.backgroundColor.s,
+          renderer.renderContext.params.backgroundColor.b,
+        );
+        renderer.moteRenderer.render(
+          frame.moteX,
+          frame.moteY,
+          frame.motePressure,
+          renderer.renderContext,
+        );
+        stepLabel.textContent = frame.step.toLocaleString("en-US");
+      };
+
+      const updatePlayback = () => {
+        const shouldRun =
+          initialized &&
+          requestedPlay &&
+          visible &&
+          !document.hidden;
+        if (shouldRun !== running) {
+          running = shouldRun;
+        }
+        if (ready || initialized) {
+          toggle.disabled = false;
+          setToggle(
+            shouldRun ? "Pause" : "Resume",
+            shouldRun ? "Ⅱ" : "▶",
+            shouldRun ? "Pause notebook" : "Resume notebook",
+          );
+        }
+        if (ready) {
+          setStatus(shouldRun ? "Notebook running" : "Notebook paused");
+        } else if (initialized && !shouldRun) {
+          setStatus("Notebook starting");
+        }
+        if (shouldRun) {
+          scheduleLiveFrame();
+        } else {
+          stopLiveFramePump();
+        }
+      };
+
+      const initialize = () => {
+        stopLiveFramePump();
+        liveFramePending = false;
+        if (worker) {
+          worker.terminate();
+          worker = undefined;
+        }
+        clearSurface();
+
+        const activeWorker = new Worker(
+          new URL("../notebooks/notebook.worker.ts", import.meta.url),
+          { type: "module" },
+        );
+        worker = activeWorker;
+        initialized = true;
+        ready = false;
+        running = false;
+        retryBlocked = false;
+        restart.disabled = false;
+        toggle.disabled = false;
+        setToggle("Pause", "Ⅱ", "Pause notebook");
+        tank.dataset.state = "starting";
+        tank.setAttribute("aria-busy", "true");
+        setStatus("Starting current Polysome build");
+
+        activeWorker.addEventListener(
+          "message",
+          (event: MessageEvent<WorkerMessage>) => {
+            if (worker !== activeWorker) return;
+            const message = event.data;
+            if (message.type === "frame") {
+              liveFramePending = false;
+              lastFrame = message;
+              // A pause can race one already-requested step. Draw its reply so
+              // the visible counter always matches the Worker state, then let
+              // the stopped pump remain idle.
+              draw(message);
+              scheduleLiveFrame();
+              return;
+            }
+
+            if (message.type === "ready") {
+              ready = true;
+              restart.disabled = false;
+              toggle.disabled = false;
+              tank.dataset.state = "ready";
+              tank.setAttribute("aria-busy", "false");
+              updatePlayback();
+              return;
+            }
+
+            if (message.type === "error") {
+              reportWorkerFailure(activeWorker);
+            }
+          },
+        );
+        activeWorker.addEventListener("error", () =>
+          reportWorkerFailure(activeWorker),
+        );
+        activeWorker.addEventListener("messageerror", () =>
+          reportWorkerFailure(activeWorker),
+        );
+        activeWorker.postMessage({ type: "initialize", notebookId });
+        updatePlayback();
+      };
+
+      toggle.addEventListener("click", () => {
+        if (!initialized || tank.dataset.state === "error") {
+          activate();
+          manuallyPaused = false;
+          explicitlyStarted = true;
+          retryBlocked = false;
+          requestedPlay = true;
+          initialize();
+          return;
+        }
+        if (requestedPlay) {
+          requestedPlay = false;
+          manuallyPaused = true;
+        } else {
+          activate();
+          requestedPlay = true;
+          manuallyPaused = false;
+          explicitlyStarted = true;
+        }
+        updatePlayback();
+      });
+
+      restart.addEventListener("click", () => {
+        activate();
+        manuallyPaused = false;
+        explicitlyStarted = true;
+        retryBlocked = false;
+        requestedPlay = true;
+        initialize();
+      });
+
+      window.addEventListener("polysome:activate-notebook", (event) => {
+        const activatedId = (event as CustomEvent<string>).detail;
+        if (activatedId !== notebookId && requestedPlay) {
+          requestedPlay = false;
+          updatePlayback();
+        }
+      });
+
+      const autoWake = () => {
+        if (
+          !visible ||
+          document.hidden ||
+          (reducedMotion.matches && !explicitlyStarted) ||
+          manuallyPaused ||
+          retryBlocked
+        ) {
+          updatePlayback();
+          return;
+        }
+        activate();
+        requestedPlay = true;
+        if (!initialized) {
+          initialize();
+        } else {
+          updatePlayback();
+        }
+      };
+
+      const intersection = new IntersectionObserver(
+        ([entry]) => {
+          const wasVisible = visible;
+          visible = entry.isIntersecting && entry.intersectionRatio >= 0.2;
+          if (visible && !wasVisible) {
+            autoWake();
+          } else {
+            updatePlayback();
+          }
+        },
+        { threshold: [0, 0.2, 0.6] },
+      );
+      intersection.observe(tank);
+
+      const resize = new ResizeObserver(() => {
+        if (renderContext) resizeRenderingSurface(renderContext);
+        if (lastFrame) draw(lastFrame);
+      });
+      resize.observe(canvas);
+
+      const refreshRenderingSurface = () => {
+        if (renderContext) resizeRenderingSurface(renderContext);
+        if (lastFrame) draw(lastFrame);
+      };
+      window.addEventListener("resize", refreshRenderingSurface, {
+        passive: true,
+      });
+
+      const siteHeader = document.querySelector<HTMLElement>(".site-header");
+      const tankGeometry: TankGeometryRegistration = {
+        root,
+        column: tankColumn,
+        spacer: tankSpacer,
+        stickyTop: 0,
+        lastHeight: -1,
+      };
+
+      const configureStickyBoundary = () => {
+        tankGeometry.stickyTop = Math.ceil(
+          siteHeader?.getBoundingClientRect().height ?? 0,
+        );
+        root.style.setProperty(
+          "--notebook-sticky-top",
+          `${tankGeometry.stickyTop}px`,
+        );
+        scheduleTankGeometries();
+      };
+      configureStickyBoundary();
+      const unregisterTankGeometry = registerTankGeometry(tankGeometry);
+
+      const geometryResize = new ResizeObserver(configureStickyBoundary);
+      if (siteHeader) geometryResize.observe(siteHeader);
+      geometryResize.observe(tankSpacer);
+
+      const handleVisibilityChange = () => {
+        if (visible && !document.hidden) {
+          autoWake();
+        } else {
+          updatePlayback();
+        }
+      };
+      const handleReducedMotionChange = () => {
+        if (reducedMotion.matches && !explicitlyStarted) {
+          requestedPlay = false;
+          updatePlayback();
+        } else if (!reducedMotion.matches) {
+          autoWake();
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      reducedMotion.addEventListener("change", handleReducedMotionChange);
+
+      const refreshVisibility = () => {
+        const rect = tank.getBoundingClientRect();
+        const visibleHeight = Math.max(
+          0,
+          Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0),
+        );
+        visible = visibleHeight / Math.max(1, rect.height) >= 0.2;
+      };
+
+      const cleanup = () => {
+        stopLiveFramePump();
+        liveFramePending = false;
+        intersection.disconnect();
+        resize.disconnect();
+        geometryResize.disconnect();
+        unregisterTankGeometry();
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        reducedMotion.removeEventListener("change", handleReducedMotionChange);
+        window.removeEventListener("resize", refreshRenderingSurface);
+        window.removeEventListener("pagehide", handlePageHide);
+        window.removeEventListener("pageshow", handlePageShow);
+        worker?.terminate();
+        worker = undefined;
+      };
+
+      const handlePageHide = (event: PageTransitionEvent) => {
+        if (event.persisted) {
+          stopLiveFramePump();
+          running = false;
+          return;
+        }
+        cleanup();
+      };
+
+      const handlePageShow = (event: PageTransitionEvent) => {
+        if (!event.persisted) return;
+        configureStickyBoundary();
+        scheduleTankGeometries();
+        window.requestAnimationFrame(() =>
+          window.requestAnimationFrame(scheduleTankGeometries),
+        );
+        refreshRenderingSurface();
+        refreshVisibility();
+        autoWake();
+      };
+
+      window.addEventListener("pagehide", handlePageHide);
+      window.addEventListener("pageshow", handlePageShow);
+    },
+  );
+</script>
+
+<style>
+  .entry {
+    --tank-expanded-height: min(82svh, 160.56vw);
+    --tank-sticky-top: 4.5rem;
+    border-top: 1px solid hsl(270 35% 42% / 35%);
+    overflow-anchor: none;
+    padding: clamp(3rem, 9vw, 6rem) 0;
+    scroll-margin-top: 5rem;
+  }
+
+  .entry-heading {
+    align-items: start;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    margin-bottom: 1.5rem;
+  }
+
+  .catalogue-number {
+    border: 1px solid hsl(186 55% 55% / 45%);
+    border-radius: 999px;
+    color: hsl(184 75% 70%);
+    display: grid;
+    font: 0.72rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    height: 2.4rem;
+    place-items: center;
+    width: 2.4rem;
+  }
+
+  .eyebrow {
+    color: hsl(315 72% 70%);
+    font-size: 0.72rem;
+    letter-spacing: 0.13em;
+    margin: 0 0 0.35rem;
+    text-transform: uppercase;
+  }
+
+  .entry-heading h2 {
+    color: hsl(300 45% 94%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.85rem, 7vw, 3.4rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .entry-body {
+    display: grid;
+    position: relative;
+  }
+
+  .tank-rail,
+  .entry-flow {
+    grid-area: 1 / 1;
+    min-width: 0;
+  }
+
+  .tank-rail {
+    align-self: stretch;
+    pointer-events: none;
+    position: relative;
+    z-index: 8;
+  }
+
+  .tank-column {
+    --tank-window-height: var(--tank-expanded-height);
+    height: var(--tank-window-height);
+    pointer-events: none;
+    position: sticky;
+    top: var(--notebook-sticky-top);
+  }
+
+  .tank {
+    background:
+      radial-gradient(circle at 50% 45%, hsl(270 80% 18% / 28%), transparent 48%),
+      hsl(240 100% 5%);
+    border: 1px solid hsl(274 55% 52% / 34%);
+    border-radius: 1.35rem;
+    box-shadow:
+      inset 0 0 4rem hsl(260 80% 15% / 30%),
+      0 2rem 5rem hsl(250 100% 2% / 55%);
+    height: 100%;
+    overflow: clip;
+    pointer-events: auto;
+    position: relative;
+    touch-action: pan-y;
+    width: 100%;
+  }
+
+  .tank-surface {
+    height: var(--tank-expanded-height);
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  canvas {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  .entry-flow {
+    position: relative;
+    z-index: 1;
+  }
+
+  .tank-spacer {
+    height: var(--tank-expanded-height);
+  }
+
+  .tank-id {
+    color: hsl(260 18% 70%);
+    display: flex;
+    font: 0.62rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    justify-content: space-between;
+    left: 0;
+    letter-spacing: 0.08em;
+    padding-bottom: 0.75rem;
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-top: 0.75rem;
+    position: absolute;
+    right: 0;
+    text-transform: uppercase;
+    top: 0;
+  }
+
+  .wake-panel {
+    background: hsl(244 55% 7% / 68%);
+    border: 1px solid hsl(272 48% 50% / 34%);
+    border-radius: 0.85rem;
+    bottom: 5.1rem;
+    left: max(1rem, env(safe-area-inset-left));
+    max-width: 28rem;
+    padding: 0.8rem;
+    position: absolute;
+    right: max(1rem, env(safe-area-inset-right));
+    z-index: 2;
+  }
+
+  [data-state="ready"] .wake-panel {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 500ms ease;
+  }
+
+  .wake-panel p {
+    color: hsl(300 45% 91%);
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .wake-panel span {
+    color: hsl(260 15% 66%);
+    display: block;
+    font-size: 0.68rem;
+    line-height: 1.35;
+    margin-top: 0.35rem;
+  }
+
+  [data-tank-chrome="compact"] .wake-panel {
+    bottom: auto;
+    left: max(0.75rem, env(safe-area-inset-left));
+    padding: 0.35rem 0.55rem;
+    right: max(0.75rem, env(safe-area-inset-right));
+    top: 2.35rem;
+  }
+
+  [data-tank-chrome="compact"] .wake-panel p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-tank-chrome="compact"] .wake-panel span {
+    display: none;
+  }
+
+  .tank-controls {
+    align-items: center;
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    background: linear-gradient(
+      145deg,
+      hsl(282 42% 32% / 42%),
+      hsl(248 38% 9% / 66%)
+    );
+    border: 1px solid hsl(290 55% 88% / 24%);
+    border-radius: 999px;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    box-shadow:
+      inset 0 1px 0 hsl(300 75% 96% / 18%),
+      0 0.75rem 2rem hsl(250 100% 2% / 52%);
+    display: flex;
+    gap: 0.2rem;
+    padding: 0.25rem;
+    position: absolute;
+    right: max(0.75rem, env(safe-area-inset-right));
+    z-index: 4;
+  }
+
+  [data-tank-chrome="compact"] .tank-controls {
+    bottom: 0.75rem;
+  }
+
+  button {
+    align-items: center;
+    background: hsl(248 38% 12% / 54%);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    color: hsl(270 28% 91%);
+    cursor: pointer;
+    display: inline-flex;
+    font: inherit;
+    font-size: 0.78rem;
+    gap: 0.35rem;
+    justify-content: center;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0.5rem 0.78rem;
+  }
+
+  button.primary {
+    background: hsl(310 72% 48% / 78%);
+    border-color: hsl(314 88% 78% / 46%);
+    color: white;
+  }
+
+  button:focus-visible {
+    outline: 2px solid hsl(184 76% 75%);
+    outline-offset: 2px;
+  }
+
+  button:disabled {
+    cursor: wait;
+    opacity: 0.55;
+  }
+
+  .control-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
+  .tank-runtime {
+    bottom: max(1.05rem, env(safe-area-inset-bottom));
+    color: hsl(260 14% 62%);
+    font: 0.62rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    left: max(0.9rem, env(safe-area-inset-left));
+    letter-spacing: 0.06em;
+    position: absolute;
+    text-shadow: 0 1px 0.5rem hsl(245 100% 2%);
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  [data-tank-chrome="compact"] .tank-runtime {
+    bottom: 1.05rem;
+  }
+
+  .entry-copy {
+    margin-inline: auto;
+    max-width: 48rem;
+    padding-top: clamp(1.5rem, 5vw, 3rem);
+    position: relative;
+    width: 100%;
+  }
+
+  .introduction {
+    color: hsl(280 32% 93%);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.3rem, 5vw, 1.9rem);
+    line-height: 1.38;
+    margin: 0;
+  }
+
+  .note {
+    color: hsl(260 16% 73%);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .recipe {
+    background: hsl(246 34% 10% / 76%);
+    border: 1px solid hsl(264 30% 42% / 38%);
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+
+  .recipe header {
+    align-items: start;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+  }
+
+  .recipe header p {
+    color: hsl(315 70% 72%);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    margin: 0 0 0.3rem;
+    text-transform: uppercase;
+  }
+
+  .recipe h3 {
+    color: hsl(280 24% 88%);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .current-build {
+    border: 1px solid hsl(150 45% 52% / 44%);
+    border-radius: 999px;
+    color: hsl(150 52% 72%);
+    flex: 0 0 auto;
+    font-size: 0.62rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  dl {
+    margin: 0.9rem 0 0;
+  }
+
+  dl > div {
+    align-items: baseline;
+    border-top: 1px solid hsl(260 25% 45% / 20%);
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: 0.55rem 0;
+  }
+
+  dt {
+    color: hsl(260 14% 68%);
+    font-size: 0.74rem;
+  }
+
+  dd {
+    display: flex;
+    flex-direction: column;
+    font: 0.72rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    margin: 0;
+    text-align: right;
+  }
+
+  .recipe-note,
+  .fallback {
+    color: hsl(260 12% 61%);
+    font-size: 0.7rem;
+    line-height: 1.5;
+    margin: 0.75rem 0 0;
+  }
+
+  @media (max-width: 55.999rem) {
+    .entry-body {
+      margin-left: calc(-1 * var(--page-gutter-left));
+      margin-right: calc(-1 * var(--page-gutter-right));
+    }
+
+    .tank {
+      border-left: 0;
+      border-radius: 0;
+      border-right: 0;
+    }
+
+    .entry-copy {
+      padding-left: var(--page-gutter-left);
+      padding-right: var(--page-gutter-right);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-state="ready"] .wake-panel {
+      transition: none;
+    }
+  }
+</style>
